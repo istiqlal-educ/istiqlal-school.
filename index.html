@@ -23,7 +23,6 @@
         .container { max-width: 700px; margin: 20px auto; }
         .main-card { background: var(--card); border-radius: 24px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid var(--border); }
 
-        /* Inputs */
         label { display: block; margin-bottom: 8px; font-weight: 700; color: #475569; font-size: 14px; }
         input, select { 
             width: 100%; padding: 15px; border-radius: 12px; border: 2px solid var(--border); 
@@ -34,18 +33,20 @@
         .btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; }
         .btn-primary { background: var(--primary); color: white; }
 
-        /* Student Detailed Table */
         #resultView { display: none; margin-top: 30px; animation: slideUp 0.4s ease; }
         .res-table { width: 100%; border-collapse: collapse; margin-top: 20px; border: 1px solid var(--border); border-radius: 15px; overflow: hidden; }
         .res-table thead tr { background: #f1f5f9; }
         .res-table th { padding: 12px; font-size: 12px; color: #64748b; border: 1px solid var(--border); }
         .res-table td { padding: 14px; text-align: center; border: 1px solid var(--border); font-size: 15px; }
         .sub-name { text-align: right !important; font-weight: 800; background: #fdfdfd; color: var(--primary); }
+        
+        /* سطر المجموع النهائي في الجدول */
+        .total-row { background: #f8fafc; font-weight: 900; color: var(--text); }
+        .total-row td { border-top: 2px solid var(--primary) !important; }
 
         .final-box { background: linear-gradient(to bottom, #ffffff, #f0f9ff); border: 2px solid #bae6fd; border-radius: 20px; padding: 25px; text-align: center; margin-top: 30px; }
         .percent { font-size: 50px; font-weight: 900; color: var(--primary); line-height: 1; }
 
-        /* Admin Layout */
         #adminPortal { display: none; }
         .admin-box { background: #f8fafc; padding: 20px; border-radius: 18px; border: 1px solid var(--border); margin-bottom: 20px; }
         .flex-row { display: flex; gap: 10px; margin-top: 10px; }
@@ -66,8 +67,8 @@
             <p style="color: #64748b; margin-top: 5px;">الاستعلام الإلكتروني عن درجات الطلاب</p>
         </div>
 
-        <label>الرقم الوطني أو رقم القيد</label>
-        <input type="number" id="searchID" placeholder="أدخل الرقم هنا...">
+        <label>الرقم الوطني أو اسم الطالب بالكامل</label>
+        <input type="text" id="searchID" placeholder="أدخل الرقم أو الاسم هنا...">
         <button class="btn btn-primary" onclick="loadResult()"><i class="fas fa-search"></i> عرض كشف الدرجات</button>
 
         <div id="resultView">
@@ -92,6 +93,7 @@
                     </tr>
                 </thead>
                 <tbody id="resTbody"></tbody>
+                <tfoot id="resTfoot"></tfoot>
             </table>
 
             <div class="final-box">
@@ -111,7 +113,7 @@
         </div>
 
         <div class="search-edit-box">
-            <input type="number" id="editSearchID" placeholder="ابحث عن رقم وطني للتعديل..." style="margin-bottom:0; padding:10px;">
+            <input type="number" id="editSearchID" placeholder="أدخل الرقم الوطني للتعديل..." style="margin-bottom:0; padding:10px;">
             <button onclick="fetchStudentForEdit()" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:10px; cursor:pointer;"><i class="fas fa-edit"></i> تعديل</button>
         </div>
 
@@ -125,8 +127,7 @@
         </div>
 
         <h3 style="font-size: 17px; margin-bottom: 15px;">إدخال تفاصيل المواد</h3>
-        <div id="subjectsContainer">
-            </div>
+        <div id="subjectsContainer"></div>
 
         <button onclick="addNewSubject()" style="background:#f1f5f9; color:#475569; border:2px dashed #cbd5e1; width:100%; padding:15px; border-radius:12px; cursor:pointer; margin-bottom:25px; font-weight:bold;">+ إضافة مادة أخرى</button>
         <button class="btn btn-primary" style="background: var(--accent);" onclick="saveToFirebase()"><i class="fas fa-save"></i> اعتماد وحفظ النتيجة</button>
@@ -171,29 +172,23 @@
         document.getElementById('subjectsContainer').appendChild(div);
     }
 
-    // وظيفة جلب البيانات للتعديل
     function fetchStudentForEdit() {
         const id = document.getElementById('editSearchID').value;
         if(!id) return alert("أدخل الرقم الوطني للبحث");
-
         db.ref('students/' + id).once('value', snap => {
             const data = snap.val();
             if(data) {
                 document.getElementById('inName').value = data.name;
                 document.getElementById('inID').value = id;
                 document.getElementById('inYear').value = data.year;
-                
                 const container = document.getElementById('subjectsContainer');
-                container.innerHTML = ""; // مسح المواد الحالية
-                
+                container.innerHTML = ""; 
                 for(let k in data.subjects) {
                     const s = data.subjects[k];
                     addNewSubject({n:k, wg:s.wG, wm:s.wM, eg:s.eG, em:s.eM});
                 }
-                alert("تم جلب بيانات الطالب: " + data.name);
-            } else {
-                alert("هذا الرقم غير مسجل مسبقاً.");
-            }
+                alert("تم جلب بيانات الطالب بنجاح");
+            } else alert("الرقم الوطني غير موجود.");
         });
     }
 
@@ -210,7 +205,6 @@
         const name = document.getElementById('inName').value;
         const year = document.getElementById('inYear').value;
         if(!id || !name) return alert("أدخل اسم الطالب ورقمه");
-
         let subjects = {}; let tS = 0; let tM = 0;
         document.querySelectorAll('.subject-entry').forEach(row => {
             const sN = row.querySelector('.m-name').value;
@@ -223,34 +217,62 @@
                 tS += (wG + eG); tM += (wM + eM);
             }
         });
-
         const finalP = (tS / tM) * 100;
         const grade = calculateGrade(finalP);
-        db.ref('students/' + id).set({ name, year, subjects, percent: finalP.toFixed(1), gradeText: grade.t, gradeColor: grade.c })
-        .then(() => alert("تم الحفظ/التعديل بنجاح بنسبة " + finalP.toFixed(1) + "%"));
+        db.ref('students/' + id).set({ name, year, subjects, percent: finalP.toFixed(1), gradeText: grade.t, gradeColor: grade.c, totalGot: tS, totalMax: tM })
+        .then(() => alert("تم الحفظ/التعديل بنجاح"));
     }
 
     function loadResult() {
-        const id = document.getElementById('searchID').value;
-        db.ref('students/' + id).once('value', snap => {
-            const data = snap.val();
-            if(data) {
-                document.getElementById('resultView').style.display = 'block';
-                document.getElementById('outName').innerText = data.name;
-                document.getElementById('outYear').innerText = "الصف: " + data.year;
-                document.getElementById('outPercent').innerText = data.percent + "%";
-                const g = document.getElementById('outGrade');
-                g.innerText = data.gradeText; g.style.color = data.gradeColor;
-                
-                let h = ""; 
-                for(let k in data.subjects) { 
-                    const s = data.subjects[k]; 
-                    h += `<tr><td class="sub-name">${k}</td><td>${s.wG}</td><td>${s.wM}</td><td>${s.eG}</td><td>${s.eM}</td><td style="color:var(--primary); font-weight:900;">${s.sum}</td></tr>`; 
-                }
-                document.getElementById('resTbody').innerHTML = h;
-                window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
-            } else alert("الرقم الوطني غير موجود في قاعدة البيانات");
-        });
+        const searchValue = document.getElementById('searchID').value.trim();
+        if(!searchValue) return alert("يرجى إدخال الرقم الوطني أو الاسم");
+        if (isNaN(searchValue)) {
+            db.ref('students').orderByChild('name').equalTo(searchValue).once('value', snap => {
+                if (snap.exists()) { showData(Object.values(snap.val())[0]); } 
+                else alert("عذراً، لم يتم العثور على طالب بهذا الاسم");
+            });
+        } else {
+            db.ref('students/' + searchValue).once('value', snap => {
+                if (snap.exists()) showData(snap.val()); 
+                else alert("الرقم الوطني غير موجود");
+            });
+        }
+    }
+
+    function showData(data) {
+        document.getElementById('resultView').style.display = 'block';
+        document.getElementById('outName').innerText = data.name;
+        document.getElementById('outYear').innerText = "الصف: " + data.year;
+        document.getElementById('outPercent').innerText = data.percent + "%";
+        const g = document.getElementById('outGrade');
+        g.innerText = data.gradeText; g.style.color = data.gradeColor;
+        
+        let h = ""; 
+        let sumWG = 0; let sumWM = 0; let sumEG = 0; let sumEM = 0; let finalTotal = 0;
+
+        for(let k in data.subjects) { 
+            const s = data.subjects[k]; 
+            h += `<tr><td class="sub-name">${k}</td><td>${s.wG}</td><td>${s.wM}</td><td>${s.eG}</td><td>${s.eM}</td><td style="color:var(--primary); font-weight:900;">${s.sum}</td></tr>`;
+            
+            // حساب مجاميع الأعمدة
+            sumWG += s.wG; sumWM += s.wM; sumEG += s.eG; sumEM += s.eM; finalTotal += s.sum;
+        }
+        
+        document.getElementById('resTbody').innerHTML = h;
+
+        // إضافة سطر المجموع النهائي في أسفل الجدول
+        document.getElementById('resTfoot').innerHTML = `
+            <tr class="total-row">
+                <td class="sub-name" style="text-align:center !important; color:var(--text);">المجموع العام</td>
+                <td>${sumWG}</td>
+                <td>${sumWM}</td>
+                <td>${sumEG}</td>
+                <td>${sumEM}</td>
+                <td style="background:var(--primary); color:white;">${finalTotal}</td>
+            </tr>
+        `;
+
+        window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
     }
 </script>
 </body>
