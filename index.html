@@ -38,7 +38,7 @@
 </div>
 
 <script>
-    // إعدادات Firebase الخاصة بك (تأكد من وضع بياناتك هنا)
+    // إعدادات Firebase (تأكد من وضع بياناتك الحقيقية هنا)
     const firebaseConfig = {
         apiKey: "AIzaSy...", 
         authDomain: "your-project.firebaseapp.com",
@@ -51,7 +51,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // وظيفة التحكم (بحث أو فتح لوحة المطور)
     function handleAction() {
         const val = document.getElementById('searchInput').value.trim();
         
@@ -66,7 +65,6 @@
         }
     }
 
-    // وظيفة البحث عن طالب
     function searchStudent(id) {
         const resDiv = document.getElementById('result');
         db.ref('students/' + id).once('value', (snapshot) => {
@@ -77,8 +75,8 @@
                     <p><b>الاسم:</b> ${data.name}</p>
                     <p><b>السنة:</b> ${data.year}</p>
                     <hr>
-                    <p><b>العربي:</b> ${data.arabic || 0} / 40</p>
-                    <p><b>الرياضيات:</b> ${data.math || 0} / 40</p>
+                    <p><b>العربي:</b> ${data.arabic || 0}</p>
+                    <p><b>الرياضيات:</b> ${data.math || 0}</p>
                 `;
             } else {
                 alert("عذراً، الرقم الوطني غير موجود");
@@ -87,7 +85,7 @@
         });
     }
 
-    // وظيفة رفع الإكسل من داخل لوحة المطور
+    // وظيفة رفع الإكسل - تعمل فقط داخل بوابة المطور
     async function uploadExcel() {
         const fileInput = document.getElementById('excelFile');
         const status = document.getElementById('uploadStatus');
@@ -96,11 +94,12 @@
         status.innerText = "جاري معالجة البيانات... ⏳";
         const data = await fileInput.files[0].arrayBuffer();
         const workbook = XLSX.read(data);
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const sheet = workbook.Sheets[workbook.SheetNames[0]]; // يقرأ ورقة ١
         const rows = XLSX.utils.sheet_to_json(sheet);
 
         let count = 0;
         for (const row of rows) {
+            // يعتمد على اسم العمود "الرقم_الوطني" في الإكسل
             if (row.الرقم_الوطني) {
                 await db.ref('students/' + row.الرقم_الوطني).set({
                     name: row.الاسم,
@@ -112,6 +111,7 @@
             }
         }
         status.innerText = `تم بنجاح رفع (${count}) طالبة ✅`;
+        status.style.color = "green";
     }
 </script>
 
