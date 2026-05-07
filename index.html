@@ -3,161 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منظومة نتائج مدرسة الاستقلال</title>
+    <title>منظومة مدرسة الاستقلال | عرض النتيجة المفصل</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
-        :root { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #38bdf8; --danger: #ef4444; --success: #22c55e; }
-        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 10px; overflow-x: hidden; }
-        .container { max-width: 800px; margin: auto; }
-        
-        /* واجهة العرض العامة */
-        .header { text-align: center; padding: 30px 10px; background: var(--card); border-radius: 20px; border-bottom: 5px solid var(--accent); margin-bottom: 20px; position: relative; }
-        .logo-icon { font-size: 50px; cursor: pointer; user-select: none; }
-        
-        .search-section { background: var(--card); padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .search-input { width: 90%; padding: 15px; border-radius: 10px; border: 2px solid #334155; background: #0f172a; color: white; font-size: 18px; text-align: center; font-family: 'Tajawal'; }
-        .btn-search { width: 90%; background: var(--accent); color: #0f172a; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 18px; margin-top: 15px; border: none; cursor: pointer; }
+        :root {
+            --primary: #2563eb; --accent: #059669; --bg: #f8fafc; --card: #ffffff; 
+            --text: #1e293b; --border: #e2e8f0;
+        }
 
-        /* نتيجة البحث */
-        #resultArea { margin-top: 20px; display: none; background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid var(--accent); }
-        .res-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #334155; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; transition: 0.2s; }
+        body { margin: 0; background: var(--bg); color: var(--text); padding: 15px; }
 
-        /* بوابة المطور (مخفية) */
-        #adminPortal { display: none; background: #000000e6; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; overflow-y: auto; padding: 20px; box-sizing: border-box; }
-        .admin-content { max-width: 600px; margin: auto; background: var(--card); padding: 20px; border-radius: 15px; }
-        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .admin-grid input, .full-in { background: #334155; border: 1px solid #475569; color: white; padding: 12px; border-radius: 8px; width: 100%; box-sizing: border-box; font-family: 'Tajawal'; }
-        .close-admin { background: var(--danger); color: white; padding: 5px 15px; float: left; border-radius: 5px; cursor: pointer; }
+        .container { max-width: 700px; margin: 20px auto; }
+        .main-card { background: var(--card); border-radius: 24px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid var(--border); }
 
-        /* جدول التحكم في المطور */
-        .admin-table { width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 14px; }
-        .admin-table th, .admin-table td { padding: 10px; border: 1px solid #334155; text-align: center; }
-        .btn-edit { background: var(--success); color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
-        .btn-del { background: var(--danger); color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
+        /* Inputs */
+        label { display: block; margin-bottom: 8px; font-weight: 700; color: #475569; font-size: 14px; }
+        input, select { 
+            width: 100%; padding: 15px; border-radius: 12px; border: 2px solid var(--border); 
+            background: #fff; color: var(--text); outline: none; font-size: 16px; margin-bottom: 20px;
+        }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
+
+        .btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; }
+        .btn-primary { background: var(--primary); color: white; }
+
+        /* Student Detailed Table */
+        #resultView { display: none; margin-top: 30px; animation: slideUp 0.4s ease; }
+        .res-table { width: 100%; border-collapse: collapse; margin-top: 20px; border: 1px solid var(--border); border-radius: 15px; overflow: hidden; }
+        .res-table thead tr { background: #f1f5f9; }
+        .res-table th { padding: 12px; font-size: 12px; color: #64748b; border: 1px solid var(--border); }
+        .res-table td { padding: 14px; text-align: center; border: 1px solid var(--border); font-size: 15px; }
+        .sub-name { text-align: right !important; font-weight: 800; background: #fdfdfd; color: var(--primary); }
+
+        .final-box { background: linear-gradient(to bottom, #ffffff, #f0f9ff); border: 2px solid #bae6fd; border-radius: 20px; padding: 25px; text-align: center; margin-top: 30px; }
+        .percent { font-size: 50px; font-weight: 900; color: var(--primary); line-height: 1; }
+
+        /* Admin Layout */
+        #adminPortal { display: none; }
+        .admin-box { background: #f8fafc; padding: 20px; border-radius: 18px; border: 1px solid var(--border); margin-bottom: 20px; }
+        .flex-row { display: flex; gap: 10px; margin-top: 10px; }
+        .flex-row div { flex: 1; }
+        .search-edit-box { background: #eff6ff; border: 2px solid #bfdbfe; padding: 15px; border-radius: 15px; margin-bottom: 20px; display: flex; gap: 10px; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        footer { text-align: center; padding: 30px; color: #94a3b8; font-weight: 700; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <div class="logo-icon" onclick="checkAdmin()">🎓</div>
-        <h1>منظومة نتائج مدرسة الاستقلال</h1>
-        <p>أدخل الرقم الوطني أو رقم القيد لعرض النتيجة</p>
-    </div>
+<div class="container" id="searchSection">
+    <div class="main-card">
+        <div style="text-align: center; margin-bottom: 35px;">
+            <i class="fas fa-certificate" style="font-size: 45px; color: var(--primary); margin-bottom: 15px;" ondblclick="enterAdmin()"></i>
+            <h1 style="margin: 0; font-size: 26px; font-weight: 900;">مدرسة الاستقلال</h1>
+            <p style="color: #64748b; margin-top: 5px;">الاستعلام الإلكتروني عن درجات الطلاب</p>
+        </div>
 
-    <div class="search-section">
-        <input type="text" id="publicSearch" class="search-input" placeholder="اكتب الرقم هنا...">
-        <button class="btn-search" onclick="findStudent()">عرض النتيجة الآن 🔍</button>
-        
-        <div id="resultArea">
-            <h3 id="resName" style="color: var(--accent);"></h3>
-            <div class="res-row"><span>الرياضيات:</span> <span id="resMath"></span></div>
-            <div class="res-row"><span>اللغة العربية:</span> <span id="resAra"></span></div>
-            <div class="res-row"><span>النسبة المئوية:</span> <span id="resTotal" style="font-weight: bold; color: var(--success);"></span></div>
+        <label>الرقم الوطني أو رقم القيد</label>
+        <input type="number" id="searchID" placeholder="أدخل الرقم هنا...">
+        <button class="btn btn-primary" onclick="loadResult()"><i class="fas fa-search"></i> عرض كشف الدرجات</button>
+
+        <div id="resultView">
+            <div style="text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px dashed #e2e8f0;">
+                <h2 id="outName" style="margin: 0; color: #1e293b; font-size: 22px;"></h2>
+                <div id="outYear" style="color: var(--primary); font-weight: 800; font-size: 16px; margin-top: 5px;"></div>
+            </div>
+
+            <table class="res-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2">المادة</th>
+                        <th colspan="2">أعمال السنة</th>
+                        <th colspan="2">الامتحان</th>
+                        <th rowspan="2">المجموع</th>
+                    </tr>
+                    <tr>
+                        <th>الدرجة</th>
+                        <th>من</th>
+                        <th>الدرجة</th>
+                        <th>من</th>
+                    </tr>
+                </thead>
+                <tbody id="resTbody"></tbody>
+            </table>
+
+            <div class="final-box">
+                <div style="font-size: 14px; color: #64748b; margin-bottom: 8px;">النتيجة النهائية والتقدير العام</div>
+                <div class="percent" id="outPercent">0%</div>
+                <div id="outGrade" style="font-weight: 900; font-size: 24px; margin-top: 10px;">--</div>
+            </div>
         </div>
     </div>
 </div>
 
-<div id="adminPortal">
-    <div class="admin-content">
-        <span class="close-admin" onclick="document.getElementById('adminPortal').style.display='none'">إغلاق X</span>
-        <h2 style="color: var(--accent);">لوحة التحكم (المطور)</h2>
-        
-        <div class="admin-grid">
-            <input type="hidden" id="key">
-            <input type="text" id="n" class="full-in" style="grid-column: span 2;" placeholder="اسم الطالب">
-            <input type="text" id="id" class="full-in" style="grid-column: span 2;" placeholder="الرقم الوطني">
-            <input type="number" id="mw" placeholder="رياضيات أعمال">
-            <input type="number" id="me" placeholder="رياضيات امتحان">
-            <input type="number" id="aw" placeholder="عربي أعمال">
-            <input type="number" id="ae" placeholder="عربي امتحان">
-            <button onclick="save()" class="btn-search" style="grid-column: span 2; background: var(--success); color: white;">حفظ / تحديث 💾</button>
+<div class="container" id="adminPortal">
+    <div class="main-card" style="border-top: 6px solid var(--accent);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: var(--accent); font-size: 22px;"><i class="fas fa-user-shield"></i> لوحة المطور</h2>
+            <button onclick="location.reload()" style="background: #fee2e2; color: #ef4444; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold;">خروج</button>
         </div>
 
-        <table class="admin-table">
-            <thead>
-                <tr><th>الاسم</th><th>إجراء</th></tr>
-            </thead>
-            <tbody id="adminList"></tbody>
-        </table>
+        <div class="search-edit-box">
+            <input type="number" id="editSearchID" placeholder="ابحث عن رقم وطني للتعديل..." style="margin-bottom:0; padding:10px;">
+            <button onclick="fetchStudentForEdit()" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:10px; cursor:pointer;"><i class="fas fa-edit"></i> تعديل</button>
+        </div>
+
+        <div class="admin-box">
+            <label>اسم الطالب بالكامل</label>
+            <input type="text" id="inName" placeholder="الاسم الرباعي">
+            <div class="flex-row">
+                <div><label>الرقم الوطني</label><input type="number" id="inID"></div>
+                <div><label>السنة الدراسية</label><select id="inYear"><option>سادس</option><option>سابع</option><option>ثامن</option></select></div>
+            </div>
+        </div>
+
+        <h3 style="font-size: 17px; margin-bottom: 15px;">إدخال تفاصيل المواد</h3>
+        <div id="subjectsContainer">
+            </div>
+
+        <button onclick="addNewSubject()" style="background:#f1f5f9; color:#475569; border:2px dashed #cbd5e1; width:100%; padding:15px; border-radius:12px; cursor:pointer; margin-bottom:25px; font-weight:bold;">+ إضافة مادة أخرى</button>
+        <button class="btn btn-primary" style="background: var(--accent);" onclick="saveToFirebase()"><i class="fas fa-save"></i> اعتماد وحفظ النتيجة</button>
     </div>
 </div>
+
+<footer>تم تطويره بواسطة عماد الدين نجم &copy; 2026</footer>
 
 <script>
-    const firebaseConfig = { databaseURL: "https://istiqlal-school-default-rtdb.firebaseio.com/" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database().ref("students");
+    const firebaseConfig = {
+      apiKey: "AIzaSyDKEPjQMKD2lt74sdGM0k7hY2Wb8E-X55g", 
+      databaseURL: "https://istiqlal-school-302c8-default-rtdb.firebaseio.com",
+      projectId: "istiqlal-school-302c8",
+      appId: "1:1037263844752:web:56dc0ba0d346045610a514"
+    };
 
-    // وظيفة الجمهور: البحث
-    function findStudent() {
-        const id = document.getElementById('publicSearch').value;
-        if(!id) return alert("الرجاء إدخال الرقم");
-        
-        db.orderByChild("id").equalTo(id).once("value", snapshot => {
-            if(snapshot.exists()){
-                const data = Object.values(snapshot.val())[0];
-                document.getElementById('resultArea').style.display = 'block';
-                document.getElementById('resName').innerText = data.name;
-                document.getElementById('resMath').innerText = (parseFloat(data.mathW) + parseFloat(data.mathE));
-                document.getElementById('resAra').innerText = (parseFloat(data.araW) + parseFloat(data.araE));
-                const total = ((parseFloat(data.mathW)+parseFloat(data.mathE)+parseFloat(data.araW)+parseFloat(data.araE))/200)*100;
-                document.getElementById('resTotal').innerText = total.toFixed(1) + "%";
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function enterAdmin() {
+        if(prompt("رمز الدخول:") === "74742000") {
+            document.getElementById('searchSection').style.display = 'none';
+            document.getElementById('adminPortal').style.display = 'block';
+            if(document.querySelectorAll('.subject-entry').length === 0) addNewSubject();
+        }
+    }
+
+    function addNewSubject(val = {n:'', wg:'', wm:'', eg:'', em:''}) {
+        const div = document.createElement('div');
+        div.className = 'admin-box subject-entry';
+        div.innerHTML = `
+            <label>اسم المادة</label><input type="text" class="m-name" value="${val.n}">
+            <div class="flex-row">
+                <div><label>أعمال (طالب)</label><input type="number" class="m-w-got" value="${val.wg}"></div>
+                <div><label>أعمال (من)</label><input type="number" class="m-w-max" value="${val.wm}"></div>
+            </div>
+            <div class="flex-row">
+                <div><label>امتحان (طالب)</label><input type="number" class="m-e-got" value="${val.eg}"></div>
+                <div><label>امتحان (من)</label><input type="number" class="m-e-max" value="${val.em}"></div>
+            </div>
+            <button onclick="this.parentElement.remove()" style="margin-top:15px; background:none; border:none; color:#ef4444; cursor:pointer; font-weight:bold; font-size:13px;">حذف المادة <i class="fas fa-trash-alt"></i></button>`;
+        document.getElementById('subjectsContainer').appendChild(div);
+    }
+
+    // وظيفة جلب البيانات للتعديل
+    function fetchStudentForEdit() {
+        const id = document.getElementById('editSearchID').value;
+        if(!id) return alert("أدخل الرقم الوطني للبحث");
+
+        db.ref('students/' + id).once('value', snap => {
+            const data = snap.val();
+            if(data) {
+                document.getElementById('inName').value = data.name;
+                document.getElementById('inID').value = id;
+                document.getElementById('inYear').value = data.year;
+                
+                const container = document.getElementById('subjectsContainer');
+                container.innerHTML = ""; // مسح المواد الحالية
+                
+                for(let k in data.subjects) {
+                    const s = data.subjects[k];
+                    addNewSubject({n:k, wg:s.wG, wm:s.wM, eg:s.eG, em:s.eM});
+                }
+                alert("تم جلب بيانات الطالب: " + data.name);
             } else {
-                alert("عذراً، الرقم غير موجود");
+                alert("هذا الرقم غير مسجل مسبقاً.");
             }
         });
     }
 
-    // وظيفة المطور: الدخول السري
-    function checkAdmin() {
-        const pass = prompt("أدخل كلمة مرور المطور للدخول:");
-        if(pass === "7474") { // يمكنك تغيير كلمة المرور هنا
-            document.getElementById('adminPortal').style.display = 'block';
-        } else {
-            alert("خطأ! أنت لا تملك صلاحية المطور.");
-        }
+    function calculateGrade(p) {
+        if (p >= 85) return { t: "ممتاز", c: "#059669" };
+        if (p >= 75) return { t: "جيد جداً", c: "#2563eb" };
+        if (p >= 65) return { t: "جيد", c: "#d97706" };
+        if (p >= 50) return { t: "مقبول", c: "#64748b" };
+        return { t: "ضعيف", c: "#dc2626" };
     }
 
-    // المطور: الحفظ
-    function save() {
-        const k = document.getElementById('key').value;
-        const d = {
-            name: document.getElementById('n').value, id: document.getElementById('id').value,
-            mathW: document.getElementById('mw').value, mathE: document.getElementById('me').value,
-            araW: document.getElementById('aw').value, araE: document.getElementById('ae').value
-        };
-        if(k) db.child(k).update(d); else db.push(d);
-        alert("تمت العملية بنجاح");
-        reset();
-    }
+    function saveToFirebase() {
+        const id = document.getElementById('inID').value;
+        const name = document.getElementById('inName').value;
+        const year = document.getElementById('inYear').value;
+        if(!id || !name) return alert("أدخل اسم الطالب ورقمه");
 
-    // المطور: عرض القائمة للتحكم
-    db.on('value', snap => {
-        const list = document.getElementById('adminList');
-        list.innerHTML = "";
-        snap.forEach(child => {
-            const s = child.val();
-            list.innerHTML += `<tr>
-                <td>${s.name}</td>
-                <td>
-                    <button class="btn-edit" onclick="edit('${child.key}','${s.name}','${s.id}','${s.mathW}','${s.mathE}','${s.araW}','${s.araE}')">تعديل</button>
-                    <button class="btn-del" onclick="del('${child.key}')">حذف</button>
-                </td>
-            </tr>`;
+        let subjects = {}; let tS = 0; let tM = 0;
+        document.querySelectorAll('.subject-entry').forEach(row => {
+            const sN = row.querySelector('.m-name').value;
+            const wG = parseFloat(row.querySelector('.m-w-got').value) || 0;
+            const wM = parseFloat(row.querySelector('.m-w-max').value) || 0;
+            const eG = parseFloat(row.querySelector('.m-e-got').value) || 0;
+            const eM = parseFloat(row.querySelector('.m-e-max').value) || 0;
+            if(sN) {
+                subjects[sN] = { wG, wM, eG, eM, sum: (wG + eG) };
+                tS += (wG + eG); tM += (wM + eM);
+            }
         });
-    });
 
-    function edit(k,n,id,mw,me,aw,ae){
-        document.getElementById('key').value=k; document.getElementById('n').value=n;
-        document.getElementById('id').value=id; document.getElementById('mw').value=mw;
-        document.getElementById('me').value=me; document.getElementById('aw').value=aw;
-        document.getElementById('ae').value=ae;
+        const finalP = (tS / tM) * 100;
+        const grade = calculateGrade(finalP);
+        db.ref('students/' + id).set({ name, year, subjects, percent: finalP.toFixed(1), gradeText: grade.t, gradeColor: grade.c })
+        .then(() => alert("تم الحفظ/التعديل بنجاح بنسبة " + finalP.toFixed(1) + "%"));
     }
 
-    function del(k){ if(confirm("حذف؟")) db.child(k).remove(); }
-    function reset(){ document.getElementById('key').value=""; document.querySelectorAll('.admin-grid input').forEach(i=>i.value=""); }
+    function loadResult() {
+        const id = document.getElementById('searchID').value;
+        db.ref('students/' + id).once('value', snap => {
+            const data = snap.val();
+            if(data) {
+                document.getElementById('resultView').style.display = 'block';
+                document.getElementById('outName').innerText = data.name;
+                document.getElementById('outYear').innerText = "الصف: " + data.year;
+                document.getElementById('outPercent').innerText = data.percent + "%";
+                const g = document.getElementById('outGrade');
+                g.innerText = data.gradeText; g.style.color = data.gradeColor;
+                
+                let h = ""; 
+                for(let k in data.subjects) { 
+                    const s = data.subjects[k]; 
+                    h += `<tr><td class="sub-name">${k}</td><td>${s.wG}</td><td>${s.wM}</td><td>${s.eG}</td><td>${s.eM}</td><td style="color:var(--primary); font-weight:900;">${s.sum}</td></tr>`; 
+                }
+                document.getElementById('resTbody').innerHTML = h;
+                window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+            } else alert("الرقم الوطني غير موجود في قاعدة البيانات");
+        });
+    }
 </script>
 </body>
 </html>
