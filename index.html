@@ -3,43 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منظومة النتائج - مدرسة الاستقلال</title>
+    <title>منظومة نتائج الطلاب</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
-        body { font-family: sans-serif; background: #ececec; padding: 15px; text-align: center; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        input { width: 80%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
-        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-        #result { margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 5px; text-align: right; display: none; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 90%; max-width: 400px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        button:hover { background-color: #0056b3; }
+        #result { margin-top: 20px; text-align: right; border-top: 2px solid #eee; padding-top: 15px; display: none; }
+        .dev-panel { display: none; margin-top: 20px; padding: 15px; border: 1px dashed #28a745; border-radius: 10px; background: #f8fff9; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h2>لوحة المطور 🛠️</h2>
-        <p>ارفع ملف الإكسل (ورقة ١) لتحديث البيانات</p>
+<div class="container">
+    <h2>الاستعلام عن النتيجة 🔍</h2>
+    <input type="text" id="searchInput" placeholder="أدخل الرقم الوطني أو الكود السري">
+    <button onclick="handleAction()">دخول / بحث</button>
+
+    <div id="devPanel" class="dev-panel">
+        <h4>لوحة المطور 🛠️</h4>
+        <p style="font-size: 12px; color: #666;">اختر ملف الإكسل (ورقة ١) لتحديث البيانات</p>
         <input type="file" id="excelFile" accept=".xlsx, .xls">
-        <br>
-        <button onclick="uploadExcel()" style="background: #28a745;">بدء الرفع للمنظومة</button>
-        <p id="status" style="color: blue; font-weight: bold;"></p>
+        <button onclick="uploadExcel()" style="background-color: #28a745;">بدء الرفع للمنظومة</button>
+        <p id="uploadStatus" style="font-size: 13px; font-weight: bold;"></p>
     </div>
 
-    <div class="card">
-        <h2>استعلام عن نتيجة 🔍</h2>
-        <input type="text" id="searchID" placeholder="أدخل الرقم الوطني هنا">
-        <br>
-        <button onclick="searchStudent()">ابحث الآن</button>
-        <div id="result"></div>
-    </div>
+    <div id="result"></div>
+</div>
 
 <script>
-    // --- 1. بيانات Firebase (حط بيانات مشروعك هنا ضروري) ---
+    // إعدادات Firebase الخاصة بك (تأكد من وضع بياناتك هنا)
     const firebaseConfig = {
-        apiKey: "AIzaSy...",
+        apiKey: "AIzaSy...", 
         authDomain: "your-project.firebaseapp.com",
         databaseURL: "https://your-project-default-rtdb.firebaseio.com/",
         projectId: "your-project",
@@ -50,51 +51,67 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // --- 2. وظيفة رفع الإكسل ---
-    async function uploadExcel() {
-        const fileInput = document.getElementById('excelFile');
-        const status = document.getElementById('status');
-        if (!fileInput.files[0]) { alert("اختار الملف أولاً!"); return; }
-
-        status.innerText = "جاري الرفع... ⏳";
-        const data = await fileInput.files[0].arrayBuffer();
-        const workbook = XLSX.read(data);
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(sheet);
-
-        for (const row of rows) {
-            if (row.الرقم_الوطني) {
-                await db.ref('students/' + row.الرقم_الوطني).set({
-                    name: row.الاسم,
-                    id: row.الرقم_الوطني,
-                    year: row.السنة,
-                    arabic: row.عربي_أعمال,
-                    math: row.رياضيات_أعمال
-                    // تقدر تزيد باقي المواد بنفس الطريقة
-                });
-            }
+    // وظيفة التحكم (بحث أو فتح لوحة المطور)
+    function handleAction() {
+        const val = document.getElementById('searchInput').value.trim();
+        
+        if (val === "74742000") {
+            document.getElementById('devPanel').style.display = "block";
+            document.getElementById('result').style.display = "none";
+            alert("مرحباً بك يا هندسة في لوحة المطور");
+        } else if (val !== "") {
+            searchStudent(val);
+        } else {
+            alert("الرجاء إدخال رقم صحيح");
         }
-        status.innerText = "تم الرفع بنجاح! ✅";
     }
 
-    // --- 3. وظيفة البحث ---
-    function searchStudent() {
-        const id = document.getElementById('searchID').value;
+    // وظيفة البحث عن طالب
+    function searchStudent(id) {
         const resDiv = document.getElementById('result');
         db.ref('students/' + id).once('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
                 resDiv.style.display = "block";
                 resDiv.innerHTML = `
-                    <b>الاسم:</b> ${data.name} <br>
-                    <b>السنة:</b> ${data.year} <br><hr>
-                    <b>درجة العربي:</b> ${data.arabic} <br>
-                    <b>درجة الرياضيات:</b> ${data.math}
+                    <p><b>الاسم:</b> ${data.name}</p>
+                    <p><b>السنة:</b> ${data.year}</p>
+                    <hr>
+                    <p><b>العربي:</b> ${data.arabic || 0} / 40</p>
+                    <p><b>الرياضيات:</b> ${data.math || 0} / 40</p>
                 `;
             } else {
-                alert("الرقم الوطني غير موجود!");
+                alert("عذراً، الرقم الوطني غير موجود");
+                resDiv.style.display = "none";
             }
         });
+    }
+
+    // وظيفة رفع الإكسل من داخل لوحة المطور
+    async function uploadExcel() {
+        const fileInput = document.getElementById('excelFile');
+        const status = document.getElementById('uploadStatus');
+        if (!fileInput.files[0]) { alert("اختار الملف أولاً!"); return; }
+
+        status.innerText = "جاري معالجة البيانات... ⏳";
+        const data = await fileInput.files[0].arrayBuffer();
+        const workbook = XLSX.read(data);
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet);
+
+        let count = 0;
+        for (const row of rows) {
+            if (row.الرقم_الوطني) {
+                await db.ref('students/' + row.الرقم_الوطني).set({
+                    name: row.الاسم,
+                    year: row.السنة,
+                    arabic: row.عربي_أعمال,
+                    math: row.رياضيات_أعمال
+                });
+                count++;
+            }
+        }
+        status.innerText = `تم بنجاح رفع (${count}) طالبة ✅`;
     }
 </script>
 
