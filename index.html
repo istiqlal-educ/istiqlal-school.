@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منظومة مدرسة الاستقلال | الإصدار الذكي</title>
+    <title>منظومة مدرسة الاستقلال | الإصدار الشامل</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -71,8 +71,17 @@
             <p style="color: #64748b;">منظومة النتائج الإلكترونية - الطالبات</p>
         </div>
 
-        <label>الرقم الوطني للطالبة</label>
-        <input type="number" id="searchID" placeholder="أدخل الرقم الوطني...">
+        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 10px;">
+            <div>
+                <label>البحث بالاسم</label>
+                <input type="text" id="searchName" placeholder="أدخل اسم الطالبة..." oninput="searchByName()">
+            </div>
+            <div>
+                <label>الرقم الوطني</label>
+                <input type="number" id="searchID" placeholder="أو الرقم الوطني...">
+            </div>
+        </div>
+        
         <button class="btn btn-primary" onclick="loadResult()"><i class="fas fa-search"></i> عرض النتيجة</button>
 
         <div id="resultView">
@@ -99,16 +108,20 @@
 
 <div class="container" id="adminPortal">
     <div class="main-card" style="border-top: 8px solid var(--accent);">
-        <h2 style="color: var(--accent);"><i class="fas fa-edit"></i> لوحة إدخال البيانات</h2>
+        <h2 style="color: var(--accent);"><i class="fas fa-edit"></i> لوحة الإدارة</h2>
         
         <div class="admin-box">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <input type="number" id="editID" placeholder="رقم وطني للتعديل..." style="margin-bottom:0;">
+                <button onclick="fetchForEdit()" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:12px; cursor:pointer;">تعديل</button>
+            </div>
             <label>اسم الطالبة</label><input type="text" id="inName">
             <div style="display: flex; gap: 15px;">
                 <div style="flex: 2;"><label>الرقم الوطني</label><input type="number" id="inID"></div>
                 <div style="flex: 1;">
-                    <label>الصف الدراسي</label>
+                    <label>الصف</label>
                     <select id="inYear" onchange="autoFillSubjects()">
-                        <option value="">-- اختر الصف --</option>
+                        <option value="">-- اختر --</option>
                         <option value="سادس">سادس</option>
                         <option value="سابع">سابع</option>
                         <option value="ثامن">ثامن</option>
@@ -119,13 +132,13 @@
 
         <div id="subjectsContainer"></div>
         
-        <button onclick="addNewSubject()" style="background:#f1f5f9; border:2px dashed #cbd5e1; width:100%; padding:15px; border-radius:15px; cursor:pointer; margin-bottom:10px; font-weight:bold;">+ إضافة مادة يدوياً</button>
-        <button class="btn btn-accent" onclick="saveToFirebase()"><i class="fas fa-save"></i> حفظ في القاعدة</button>
-        <button onclick="location.reload()" class="btn" style="margin-top:10px;">خروج</button>
+        <button onclick="addNewSubject()" style="background:#f1f5f9; border:2px dashed #cbd5e1; width:100%; padding:15px; border-radius:15px; cursor:pointer; margin-bottom:10px; font-weight:bold;">+ إضافة مادة إضافية</button>
+        <button class="btn btn-accent" onclick="saveToFirebase()"><i class="fas fa-save"></i> حفظ التعديلات</button>
+        <button onclick="location.reload()" class="btn" style="margin-top:10px;">رجوع</button>
     </div>
 </div>
 
-<footer>تم التطوير بواسطة عماد الدين نجم &copy; 2026</footer>
+<footer>حقوق التطوير محفوظة للمهندس عماد الدين نجم &copy; 2026</footer>
 
 <script>
     const firebaseConfig = {
@@ -137,55 +150,73 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // تم تحديث مواد الصف الثامن بناءً على طلبك
     const schoolSubjects = {
         "سادس": ["التربية الإسلامية", "اللغة العربية", "الرياضيات", "العلوم", "اللغة الإنجليزية"],
         "سابع": ["التربية الإسلامية", "اللغة العربية", "الرياضيات", "العلوم", "اللغة الإنجليزية"],
-        "ثامن": [
-            "اللغة العربية", 
-            "التربية الإسلامية", 
-            "علوم", 
-            "كتابة", 
-            "اللغة الإنجليزية", 
-            "تاريخ", 
-            "حاسوب", 
-            "رياضيات", 
-            "جغرافيا"
-        ]
+        "ثامن": ["اللغة العربية", "التربية الإسلامية", "علوم", "كتابة", "اللغة الإنجليزية", "تاريخ", "حاسوب", "رياضيات", "جغرافيا"]
     };
 
     function autoFillSubjects() {
         const year = document.getElementById('inYear').value;
         const container = document.getElementById('subjectsContainer');
         container.innerHTML = ""; 
-
         if (schoolSubjects[year]) {
             schoolSubjects[year].forEach(subName => {
-                // الحفاظ على توزيع الدرجات (40 أعمال / 60 امتحان) كما في الإصدار السابق
                 addNewSubject({n: subName, wg: '', wm: 40, eg: '', em: 60}); 
             });
         }
     }
 
-    function enterAdmin() { if(prompt("الرمز:") === "74742000") { document.getElementById('searchSection').style.display='none'; document.getElementById('adminPortal').style.display='block'; } }
+    function enterAdmin() { if(prompt("رمز الدخول:") === "74742000") { document.getElementById('searchSection').style.display='none'; document.getElementById('adminPortal').style.display='block'; } }
 
     function addNewSubject(val={n:'',wg:'',wm:'',eg:'',em:''}) {
         const div = document.createElement('div'); div.className = 'admin-box subject-entry';
-        div.innerHTML = `<button onclick="this.parentElement.remove()" style="position:absolute; left:15px; top:15px; background:none; border:none; color:var(--danger); cursor:pointer;"><i class="fas fa-times-circle"></i></button>
+        div.innerHTML = `<button onclick="this.parentElement.remove()" style="position:absolute; left:10px; top:10px; background:none; border:none; color:var(--danger); cursor:pointer;"><i class="fas fa-trash"></i></button>
             <label>المادة</label><input type="text" class="m-name" value="${val.n}">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <input type="number" class="m-w-got" placeholder="أعمال" value="${val.wg}">
-                <input type="number" class="m-w-max" placeholder="من" value="${val.wm}">
-                <input type="number" class="m-e-got" placeholder="امتحان" value="${val.eg}">
-                <input type="number" class="m-e-max" placeholder="من" value="${val.em}">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
+                <div><small>أعمال</small><input type="number" class="m-w-got" value="${val.wg}"></div>
+                <div><small>من</small><input type="number" class="m-w-max" value="${val.wm}"></div>
+                <div><small>امتحان</small><input type="number" class="m-e-got" value="${val.eg}"></div>
+                <div><small>من</small><input type="number" class="m-e-max" value="${val.em}"></div>
             </div>`;
         document.getElementById('subjectsContainer').appendChild(div);
     }
 
+    function fetchForEdit() {
+        const id = document.getElementById('editID').value;
+        db.ref('students/'+id).once('value', snap => {
+            if(snap.exists()){
+                const d = snap.val();
+                document.getElementById('inName').value = d.name;
+                document.getElementById('inID').value = id;
+                document.getElementById('inYear').value = d.year;
+                const container = document.getElementById('subjectsContainer');
+                container.innerHTML = "";
+                for(let k in d.subjects){
+                    const s = d.subjects[k];
+                    addNewSubject({n: k, wg: s.wG, wm: s.wM, eg: s.eG, em: s.eM});
+                }
+            } else alert("الطالبة غير موجودة");
+        });
+    }
+
+    function searchByName() {
+        const name = document.getElementById('searchName').value;
+        if(name.length > 2) {
+            db.ref('students').orderByChild('name').startAt(name).endAt(name+"\uf8ff").once('value', snap => {
+                if(snap.exists()){
+                    const firstMatch = Object.keys(snap.val())[0];
+                    document.getElementById('searchID').value = firstMatch;
+                }
+            });
+        }
+    }
+
     function saveToFirebase() {
-        const id=document.getElementById('inID').value; const name=document.getElementById('inName').value;
+        const id=document.getElementById('inID').value;
+        const name=document.getElementById('inName').value;
         const year=document.getElementById('inYear').value;
-        if(!id||!name) return alert("الاسم والرقم ضروريان");
+        if(!id||!name) return alert("يرجى إكمال البيانات");
         let subs={}; let tS=0; let tM=0;
         document.querySelectorAll('.subject-entry').forEach(el=>{
             const n=el.querySelector('.m-name').value;
@@ -215,17 +246,17 @@
             h+=`<tr class="${isFail?'fail-row':''}"><td class="sub-name">${k}</td><td>${s.wG}</td><td>${s.wM}</td><td>${s.eG}</td><td>${s.eM}</td><td>${s.sum}</td></tr>`;
         }
         document.getElementById('resTbody').innerHTML=h;
-        const gBox=document.getElementById('outGrade'); const fBox=document.getElementById('failMissions');
+        const gBox=document.getElementById('outGrade');
         if(hasFail){
             gBox.innerHTML=`<span class="grade-badge" style="background:#fee2e2; color:var(--danger);">دور ثانٍ</span>`;
-            fBox.style.display='block'; fBox.innerHTML="المواد الراسبة: " + failed.join(' - ');
+            document.getElementById('failMissions').style.display='block';
+            document.getElementById('failMissions').innerHTML="المواد: " + failed.join(' - ');
         } else {
             let p=parseFloat(data.percent);
             let g=p>=85?{t:"ممتاز",c:"#059669"}:p>=75?{t:"جيد جداً",c:"#2563eb"}:p>=65?{t:"جيد",c:"#d97706"}:{t:"مقبول",c:"#64748b"};
             gBox.innerHTML=`<span class="grade-badge" style="background:${g.c}20; color:${g.c};">${g.t}</span>`;
-            fBox.style.display='none';
+            document.getElementById('failMissions').style.display='none';
         }
-        window.scrollTo({top: document.getElementById('resultView').offsetTop, behavior:'smooth'});
     }
 </script>
 </body>
