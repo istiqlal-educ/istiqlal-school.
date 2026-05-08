@@ -91,8 +91,7 @@
         .score-item input { margin-bottom: 0; padding: 12px; font-size: 18px; font-weight: 700; border: 2px solid #cbd5e1; border-radius: 10px; }
         .remove-btn { position: absolute; left: 15px; top: 15px; color: var(--danger); font-size: 20px; }
 
-        /* ستايل زر التعطيل الجديد */
-        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; float: left; margin-top: 5px; }
+        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; float: left; margin-top: 5px; font-weight: 700; }
         .status-online { background: #dcfce7; color: #166534; }
         .status-offline { background: #fee2e2; color: #991b1b; }
 
@@ -169,7 +168,6 @@
                 <button id="toggleSystemBtn" onclick="toggleSystemStatus()" class="btn" style="margin-top: 10px; font-size: 14px; padding: 8px;">
                     تبديل حالة المنظومة
                 </button>
-                <small style="display: block; margin-top: 5px; color: #64748b;">* عند التعطيل، لن يتمكن الطلاب من استخراج نتائجهم.</small>
             </div>
 
             <div class="admin-card">
@@ -186,7 +184,10 @@
                     <input type="number" id="inID" placeholder="الرقم الوطني">
                     <select id="inYear" onchange="autoFillSubjects()">
                         <option value="">-- الصف --</option>
-                        <option value="سادس">سادس</option><option value="سابع">سابع</option><option value="ثامن">ثامن</option>
+                        <option value="خامس">خامس</option>
+                        <option value="سادس">سادس</option>
+                        <option value="سابع">سابع</option>
+                        <option value="ثامن">ثامن</option>
                     </select>
                 </div>
             </div>
@@ -211,10 +212,9 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // متغير عالمي لحفظ حالة المنظومة
     let isSystemEnabled = true;
 
-    // مراقبة حالة المنظومة فور فتح الصفحة
+    // مراقبة حالة المنظومة من Firebase
     db.ref('system_status').on('value', snap => {
         isSystemEnabled = snap.exists() ? snap.val() : true;
         updateAdminStatusUI();
@@ -223,13 +223,14 @@
     function updateAdminStatusUI() {
         const display = document.getElementById('systemStatusDisplay');
         const btn = document.getElementById('toggleSystemBtn');
+        if(!display || !btn) return;
         if(isSystemEnabled) {
-            display.innerText = "المنظومة: مفعلة (متاحة للطلاب)";
+            display.innerText = "المنظومة: مفعلة";
             display.className = "status-badge status-online";
             btn.style.background = "var(--danger)";
             btn.innerText = "تعطيل المنظومة الآن";
         } else {
-            display.innerText = "المنظومة: معطلة (مغلقة للرصد)";
+            display.innerText = "المنظومة: معطلة";
             display.className = "status-badge status-offline";
             btn.style.background = "var(--success)";
             btn.innerText = "تفعيل المنظومة الآن";
@@ -241,9 +242,10 @@
     }
 
     const schoolSubjects = {
-        "ثامن": ["اللغة العربية", "التربية الإسلامية", "علوم", "كتابة", "اللغة الإنجليزية", "تاريخ", "حاسوب", "رياضيات", "جغرافيا"],
-        "سادس": ["التربية الإسلامية", "اللغة العربية", "الرياضيات", "العلوم", "اللغة الإنجليزية"],
-        "سابع": ["التربية الإسلامية", "اللغة العربية", "الرياضيات", "العلوم", "اللغة الإنجليزية"]
+        "خامس": ["الرياضيات", "اللغة العربية", "الحاسوب", "العلوم", "التربية الإسلامية", "اللغة الإنجليزية", "الاجتماعيات", "الكتابة"],
+        "سادس": ["الرياضيات", "اللغة العربية", "الحاسوب", "العلوم", "التربية الإسلامية", "اللغة الإنجليزية", "الاجتماعيات", "الكتابة"],
+        "سابع": ["العلوم", "الكتابة", "التربية الإسلامية", "اللغة الإنجليزية", "التاريخ", "الحاسوب", "الرياضيات", "الجغرافيا", "اللغة العربية"],
+        "ثامن": ["العلوم", "الكتابة", "التربية الإسلامية", "اللغة الإنجليزية", "التاريخ", "الحاسوب", "الرياضيات", "الجغرافيا", "اللغة العربية"]
     };
 
     function enterAdmin() { if(prompt("رمز المطور:") === "74742000") { document.getElementById('searchSection').style.display='none'; document.getElementById('adminPortal').style.display='block'; } }
@@ -303,7 +305,6 @@
         }
     }
 
-    // تعديل وظيفة التحميل لإضافة شرط "حالة المنظومة"
     function loadResult() {
         if(!isSystemEnabled) {
             alert("نعتذر، المنظومة معطلة حالياً لرصد واعتماد نتائج الامتحانات. يرجى المحاولة لاحقاً.");
