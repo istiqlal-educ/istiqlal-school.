@@ -25,29 +25,31 @@
 
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; transition: 0.2s ease; }
         body { margin: 0; background: var(--bg); color: var(--text); padding: 5px; min-height: 100vh; position: relative; }
-        .container { max-width: 1000px; margin: 15px auto; position: relative; z-index: 10; }
+        .container { max-width: 1100px; margin: 15px auto; position: relative; z-index: 10; }
         .main-card { background: var(--card); border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border); }
-        .school-header { text-align: center; margin-bottom: 25px; }
-        .school-icon { font-size: 45px; color: var(--primary); margin-bottom: 8px; cursor: pointer; }
-        input, select { width: 100%; padding: 10px; border-radius: 10px; border: 2px solid var(--border); background: #f8fafc; color: var(--text); outline: none; font-size: 15px; margin-bottom: 10px; text-align: center; }
+        
+        /* التبويبات */
+        .admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; background: #e2e8f0; font-weight: 700; cursor: pointer; color: #64748b; }
+        .tab-btn.active { background: var(--primary); color: white; }
+
+        .admin-section { display: none; }
+        .admin-section.active { display: block; }
+
+        input, select { width: 100%; padding: 10px; border-radius: 10px; border: 2px solid var(--border); background: #f8fafc; outline: none; font-size: 15px; margin-bottom: 10px; text-align: center; }
         .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 17px; }
         .btn-primary { background: var(--primary); color: white; }
         
         #resultView { display: none; margin-top: 20px; padding: 20px; border: 3px solid var(--primary); border-radius: 12px; background: #fff; }
-        .res-table { width: 100%; border-collapse: collapse; background: white; }
+        .res-table { width: 100%; border-collapse: collapse; }
         .res-table th { background: var(--primary); color: white; padding: 10px 5px; font-size: 12px; border: 1px solid #ddd; }
-        .res-table td { padding: 10px 5px; border: 1px solid #eee; text-align: center; font-weight: 900; font-size: 16px; }
+        .res-table td { padding: 10px 5px; border: 1px solid #eee; text-align: center; font-weight: 900; }
 
-        /* ستايلات بوابة المطور - شيت الرصد الشامل */
-        .admin-dashboard { background: #f8fafc; border-radius: 20px; padding: 15px; border: 1px solid var(--border); }
-        .admin-card { background: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        
+        /* شيت الرصد الجماعي */
         .bulk-student-box { border: 2px solid var(--primary); border-radius: 15px; padding: 15px; margin-bottom: 20px; background: #fff; }
         .bulk-student-name { font-weight: 900; color: var(--primary); font-size: 19px; display: block; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 2px solid #eff6ff; }
-        
         .bulk-row-grid { display: grid; grid-template-columns: 2fr 1fr 0.8fr 1fr 0.8fr; gap: 5px; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px; }
-        .bulk-row-grid label { font-size: 14px; font-weight: 700; color: #334155; }
-        .bulk-row-grid input { margin-bottom: 0; padding: 6px; font-size: 14px; border: 1px solid #cbd5e1; }
+        .bulk-row-grid input { margin-bottom: 0; padding: 6px; font-size: 13px; border: 1px solid #cbd5e1; }
         .header-labels { display: grid; grid-template-columns: 2fr 1fr 0.8fr 1fr 0.8fr; gap: 5px; text-align: center; font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 5px; }
 
         .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; float: left; margin-top: 5px; font-weight: 700; }
@@ -55,7 +57,7 @@
         .status-offline { background: #fee2e2; color: #991b1b; }
 
         @media print {
-            .btn, .search-container, .dev-footer-simple, #adminPortal, .school-header { display: none !important; }
+            .btn, .search-container, #adminPortal, .admin-tabs { display: none !important; }
             #resultView { display: block !important; width: 100%; border: none; }
         }
     </style>
@@ -64,13 +66,13 @@
 
 <div class="container" id="searchSection">
     <div class="main-card">
-        <div class="school-header">
-            <div class="school-icon" ondblclick="enterAdmin()"><i class="fas fa-school"></i></div>
+        <div class="school-header" style="text-align:center; margin-bottom:25px;">
+            <div class="school-icon" style="font-size:45px; color:var(--primary); cursor:pointer;" ondblclick="enterAdmin()"><i class="fas fa-school"></i></div>
             <h1 style="margin: 0; font-size: 28px; font-weight: 900; color: var(--primary);">منظومة نتائج الاستقلال</h1>
             <p style="color: #64748b; font-weight: 700; font-size: 14px;">نتائج الامتحانات 2026</p>
         </div>
 
-        <div class="search-container">
+        <div class="search-container" style="max-width:450px; margin:0 auto;">
             <label style="display:block; font-weight:800; margin-bottom:8px;">الرقم الوطني للطالبة:</label>
             <input type="number" id="searchID" placeholder="أدخل الرقم هنا...">
             <button class="btn btn-primary" onclick="loadResult()"><i class="fas fa-search"></i> استخراج النتيجة</button>
@@ -81,7 +83,7 @@
                 <h2 id="outName" style="margin: 0; font-size: 22px; color: var(--text);"></h2>
                 <div id="outYear" style="color: var(--accent); font-weight: 800; font-size: 16px; margin-top: 5px;"></div>
             </div>
-            <table class="res-table">
+            <table class="res-table" style="width:100%;">
                 <thead>
                     <tr><th style="width: 180px;">المادة</th><th>أعمال</th><th>من</th><th>نهائي</th><th>من</th><th>المجموع</th></tr>
                 </thead>
@@ -105,34 +107,20 @@
 </div>
 
 <div class="container" id="adminPortal" style="display:none;">
-    <div class="main-card" style="border-top: 10px solid var(--accent);">
+    <div class="main-card">
         <h2 style="color: var(--primary); text-align: center;"><i class="fas fa-tools"></i> بوابة المطور</h2>
-        <div class="admin-dashboard">
-            
-            <div class="admin-card" style="border: 2px dashed var(--primary); background: #eff6ff;">
-                <div id="systemStatusDisplay" class="status-badge">جاري التحقق...</div>
-                <button id="toggleSystemBtn" onclick="toggleSystemStatus()" class="btn" style="margin-top: 10px; font-size: 14px; padding: 8px;">تبديل حالة المنظومة</button>
-            </div>
+        
+        <div id="systemStatusDisplay" class="status-badge">...</div>
+        <button onclick="toggleSystemStatus()" class="btn" style="width:auto; padding:5px 15px; font-size:12px; margin-bottom:15px;">تبديل حالة المنظومة</button>
 
-            <div class="admin-card" style="background: #f0fdf4; border: 2px solid var(--success);">
-                <h3 style="color:var(--success); margin-top:0;"><i class="fas fa-table"></i> شيت الرصد الشامل لكل طالبات الصف</h3>
-                <select id="bulkSelectYear" onchange="loadBulkStudentsList()">
-                    <option value="">-- اختر الصف لرصد درجاته --</option>
-                    <option value="خامس">خامس</option><option value="سادس">سادس</option>
-                    <option value="سابع">سابع</option><option value="ثامن">ثامن</option>
-                </select>
-                
-                <div id="bulkStudentsContainer" style="max-height: 600px; overflow-y: auto; margin-top:15px; padding:5px;">
-                    <p style="text-align:center; color:#64748b;">اختر الصف ليظهر الجدول...</p>
-                </div>
-                
-                <button id="saveAllBulkBtn" class="btn" style="display:none; background:var(--success); color:white; margin-top:15px;" onclick="saveAllBulkData()">
-                    <i class="fas fa-save"></i> حفظ جميع الدرجات والنهايات الكبرى
-                </button>
-            </div>
+        <div class="admin-tabs">
+            <button class="tab-btn active" onclick="showTab('individualTab', this)">الرصد الفردي</button>
+            <button class="tab-btn" onclick="showTab('bulkTab', this)">الرصد الجماعي الشامل</button>
+        </div>
 
-            <div class="admin-card">
-                <label>إضافة/تعديل طالبة فردية</label>
+        <div id="individualTab" class="admin-section active">
+            <div style="background:#f8fafc; padding:15px; border-radius:15px; border:1px solid #ddd;">
+                <label>تعديل طالبة سابقة:</label>
                 <div style="display: flex; gap: 8px; margin-bottom:10px;">
                     <input type="number" id="editID" placeholder="الرقم الوطني...">
                     <button onclick="fetchForEdit()" style="background:var(--primary); color:white; border:none; padding:0 15px; border-radius:10px;">جلب</button>
@@ -149,13 +137,29 @@
                 <div id="subjectsContainer"></div>
                 <button onclick="addNewSubject()" class="btn" style="background:#e2e8f0; color:#475569; margin-bottom:15px;">+ إضافة مادة</button>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <button class="btn" style="background: var(--success); color:white;" onclick="saveToFirebase()">حفظ الطالبة</button>
+                    <button class="btn" style="background: var(--success); color:white;" onclick="saveToFirebase()">حفظ البيانات</button>
                     <button class="btn" style="background: var(--danger); color:white;" onclick="deleteStudent()">حذف</button>
                 </div>
             </div>
-            
-            <button onclick="location.reload()" class="btn" style="background:none;">خروج</button>
         </div>
+
+        <div id="bulkTab" class="admin-section">
+            <div style="background:#f0fdf4; padding:15px; border-radius:15px; border:2px solid var(--success);">
+                <select id="bulkSelectYear" onchange="loadBulkStudentsList()">
+                    <option value="">-- اختر الصف لعرض شيت الرصد --</option>
+                    <option value="خامس">خامس</option><option value="سادس">سادس</option>
+                    <option value="سابع">سابع</option><option value="ثامن">ثامن</option>
+                </select>
+                <div id="bulkStudentsContainer" style="max-height: 600px; overflow-y: auto; margin-top:10px; padding:5px;">
+                    <p style="text-align:center; color:#64748b;">اختر الصف من القائمة بالأعلى...</p>
+                </div>
+                <button id="saveAllBulkBtn" class="btn" style="display:none; background:var(--success); color:white; margin-top:15px;" onclick="saveAllBulkData()">
+                    <i class="fas fa-save"></i> حفظ جميع الطالبات في هذا الصف
+                </button>
+            </div>
+        </div>
+
+        <button onclick="location.reload()" class="btn" style="background:none; margin-top:20px;">خروج</button>
     </div>
 </div>
 
@@ -169,22 +173,22 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    function showTab(tabId, btn) {
+        document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+    }
+
     let isSystemEnabled = true;
     db.ref('system_status').on('value', snap => {
         isSystemEnabled = snap.exists() ? snap.val() : true;
-        updateAdminStatusUI();
-    });
-
-    function updateAdminStatusUI() {
         const d = document.getElementById('systemStatusDisplay');
-        const b = document.getElementById('toggleSystemBtn');
-        if(!d || !b) return;
-        d.innerText = isSystemEnabled ? "المنظومة: مفعلة" : "المنظومة: معطلة";
-        d.className = "status-badge " + (isSystemEnabled ? "status-online" : "status-offline");
-        b.innerText = isSystemEnabled ? "تعطيل المنظومة" : "تفعيل المنظومة";
-        b.style.background = isSystemEnabled ? "var(--danger)" : "var(--success)";
-    }
-
+        if(d) {
+            d.innerText = isSystemEnabled ? "المنظومة: مفعلة" : "المنظومة: معطلة";
+            d.className = "status-badge " + (isSystemEnabled ? "status-online" : "status-offline");
+        }
+    });
     function toggleSystemStatus() { db.ref('system_status').set(!isSystemEnabled); }
 
     const schoolSubjects = {
@@ -197,15 +201,14 @@
     function enterAdmin() { if(prompt("رمز المطور:") === "74742000") { document.getElementById('searchSection').style.display='none'; document.getElementById('adminPortal').style.display='block'; } }
 
     function addNewSubject(v={n:'',wg:'',wm:40,eg:'',em:60}) {
-        const div = document.createElement('div'); div.className = 'subject-entry-card';
-        div.style = "border:1px solid #ddd; padding:10px; border-radius:10px; margin-bottom:5px; position:relative; background:#fff;";
+        const div = document.createElement('div'); div.style = "border:1px solid #ddd; padding:10px; border-radius:10px; margin-bottom:5px; position:relative; background:#fff;";
         div.innerHTML = `<i class="fas fa-trash" style="position:absolute; left:10px; color:red; cursor:pointer;" onclick="this.parentElement.remove()"></i>
-            <input type="text" class="m-name" value="${v.n}" style="width:70%; margin-bottom:5px; text-align:right;">
+            <input type="text" class="m-name" value="${v.n}" style="width:70%; margin-bottom:5px;">
             <div style="display:grid; grid-template-columns:1fr 0.8fr 1fr 0.8fr; gap:5px;">
-                <input type="number" class="m-w-got" value="${v.wg}" placeholder="أعمال">
-                <input type="number" class="m-w-max" value="${v.wm}" placeholder="من">
-                <input type="number" class="m-e-got" value="${v.eg}" placeholder="نهائي">
-                <input type="number" class="m-e-max" value="${v.em}" placeholder="من">
+                <input type="number" class="m-w-got" value="${v.wg}">
+                <input type="number" class="m-w-max" value="${v.wm}">
+                <input type="number" class="m-e-got" value="${v.eg}">
+                <input type="number" class="m-e-max" value="${v.em}">
             </div>`;
         document.getElementById('subjectsContainer').appendChild(div);
     }
@@ -216,42 +219,38 @@
         if (schoolSubjects[yr]) schoolSubjects[yr].forEach(s => addNewSubject({n:s, wg:'', wm:40, eg:'', em:60}));
     }
 
-    // وظيفة الرصد الشامل (تحديث كامل حسب طلبك)
     function loadBulkStudentsList() {
         const yr = document.getElementById('bulkSelectYear').value;
         const container = document.getElementById('bulkStudentsContainer');
-        if(!yr) { container.innerHTML = ""; return; }
+        if(!yr) return;
         container.innerHTML = "<p style='text-align:center;'>جاري التحميل...</p>";
-        
         db.ref('students').orderByChild('year').equalTo(yr).once('value', snap => {
-            if(!snap.exists()) { container.innerHTML = "لا يوجد طالبات في هذا الصف"; return; }
+            if(!snap.exists()) { container.innerHTML = "لا يوجد طالبات"; return; }
             let h = "";
             snap.forEach(child => {
-                const s = child.val();
-                const sid = child.key;
+                const s = child.val(); const sid = child.key;
                 h += `<div class="bulk-student-box" data-id="${sid}">
                     <span class="bulk-student-name">${s.name}</span>
                     <div class="header-labels"><div>المادة</div><div>أعمال</div><div>من</div><div>نهائي</div><div>من</div></div>`;
                 schoolSubjects[yr].forEach(subName => {
-                    const existing = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG:'', eG:'', wM:40, eM:60};
+                    const ex = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG:'', eG:'', wM:40, eM:60};
                     h += `<div class="bulk-row-grid" data-sub="${subName}">
                         <label>${subName}</label>
-                        <input type="number" class="bw-g" value="${existing.wG}" placeholder="درجة">
-                        <input type="number" class="bw-m" value="${existing.wM}" placeholder="من">
-                        <input type="number" class="be-g" value="${existing.eG}" placeholder="درجة">
-                        <input type="number" class="be-m" value="${existing.eM}" placeholder="من">
+                        <input type="number" class="bw-g" value="${ex.wG}">
+                        <input type="number" class="bw-m" value="${ex.wM}">
+                        <input type="number" class="be-g" value="${ex.eG}">
+                        <input type="number" class="be-m" value="${ex.eM}">
                     </div>`;
                 });
                 h += `</div>`;
             });
-            container.innerHTML = h;
-            document.getElementById('saveAllBulkBtn').style.display = 'block';
+            container.innerHTML = h; document.getElementById('saveAllBulkBtn').style.display = 'block';
         });
     }
 
     async function saveAllBulkData() {
-        const rows = document.querySelectorAll('.bulk-student-box');
-        for(let box of rows) {
+        const boxes = document.querySelectorAll('.bulk-student-box');
+        for(let box of boxes) {
             const sid = box.getAttribute('data-id');
             let subs = {}; let tS = 0; let tM = 0;
             box.querySelectorAll('.bulk-row-grid').forEach(grid => {
@@ -265,7 +264,7 @@
             });
             await db.ref('students/'+sid).update({subjects:subs, totalGot:tS, totalMax:tM, percent:((tS/tM)*100).toFixed(1)});
         }
-        alert("تم حفظ كل الدرجات والنهايات بنجاح!");
+        alert("تم الحفظ بنجاح لكل طالبات الصف!");
     }
 
     function fetchForEdit() {
@@ -284,10 +283,10 @@
         const id=document.getElementById('inID').value; const name=document.getElementById('inName').value; const yr=document.getElementById('inYear').value;
         if(!id||!name) return alert("أكمل البيانات");
         let subs={}; let tS=0; let tM=0;
-        document.querySelectorAll('.subject-entry-card').forEach(el=>{
-            const n=el.querySelector('.m-name').value;
-            const wg=parseFloat(el.querySelector('.m-w-got').value)||0; const wm=parseFloat(el.querySelector('.m-w-max').value)||0;
-            const eg=parseFloat(el.querySelector('.m-e-got').value)||0; const em=parseFloat(el.querySelector('.m-e-max').value)||0;
+        document.querySelectorAll('.m-name').forEach((nEl, i)=>{
+            const n=nEl.value; const parent=nEl.parentElement;
+            const wg=parseFloat(parent.querySelector('.m-w-got').value)||0; const wm=parseFloat(parent.querySelector('.m-w-max').value)||0;
+            const eg=parseFloat(parent.querySelector('.m-e-got').value)||0; const em=parseFloat(parent.querySelector('.m-e-max').value)||0;
             if(n){ subs[n]={wG:wg, wM:wm, eG:eg, eM:em, sum:(wg+eg), max:(wm+em)}; tS+=(wg+eg); tM+=(wm+em); }
         });
         db.ref('students/'+id).set({name, year:yr, subjects:subs, percent:((tS/tM)*100).toFixed(1), totalGot:tS, totalMax:tM}).then(()=>alert("تم الحفظ"));
