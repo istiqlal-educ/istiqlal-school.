@@ -249,18 +249,32 @@
         });
     }
 
-    async function saveAllBulkData() {
-        const boxes = document.querySelectorAll('.bulk-student-box');
-        for(let box of boxes) {
-            const sid = box.getAttribute('data-id'); let subs = {}; let tS = 0; let tM = 0;
-            box.querySelectorAll('.bulk-row-grid').forEach(grid => {
-                const n = grid.querySelector('span').innerText;
-                const wg = parseFloat(grid.querySelector('.bw-g').value) || 0;
-                const wm = parseFloat(grid.querySelector('.bw-m').value) || 0;
-                const eg = parseFloat(grid.querySelector('.be-g').value) || 0;
-                const em = parseFloat(grid.querySelector('.be-m').value) || 0;
-                subs[n] = {wG:wg, wM:wm, eG:eg, eM:em, sum:(wg+eg), max:(wm+em)}; tS += (wg+eg); tM += (wm+em);
+   // دالة لتسجيل بصمة الجهاز لأول مرة
+async function registerBiometrics() {
+    if (window.PublicKeyCredential) {
+        try {
+            const credential = await navigator.credentials.create({
+                publicKey: {
+                    challenge: new Uint8Array([1, 2, 3, 4]),
+                    rp: { name: "منظومة الاستقلال" },
+                    user: {
+                        id: new Uint8Array([1]),
+                        name: "admin",
+                        displayName: "Admin"
+                    },
+                    pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+                    timeout: 60000,
+                    attestation: "direct"
+                }
             });
+            alert("تم تسجيل البصمة بنجاح على هذا الجهاز!");
+        } catch (err) {
+            console.error(err);
+            alert("فشل التسجيل، تأكد من دعم المتصفح");
+        }
+    }
+}
+ 
             await db.ref('students/'+sid).update({subjects:subs, totalGot:tS, totalMax:tM, percent:((tS/tM)*100).toFixed(1)});
         }
         alert("تم الحفظ بنجاح");
