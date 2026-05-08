@@ -24,11 +24,25 @@
         }
 
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; transition: 0.2s ease; }
-        body { margin: 0; background: var(--bg); color: var(--text); padding: 5px; min-height: 100vh; }
+        body { 
+            margin: 0; 
+            background: var(--bg); 
+            color: var(--text); 
+            padding: 5px; 
+            min-height: 100vh;
+            position: relative;
+        }
 
-        /* زيادة عرض الحاوية لفك الازدحام */
-        .container { max-width: 900px; margin: 15px auto; }
-        .main-card { background: var(--card); border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+        .container { max-width: 900px; margin: 15px auto; position: relative; z-index: 10; }
+        .main-card { 
+            background: var(--card); 
+            border-radius: 20px; 
+            padding: 25px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            border: 1px solid var(--border);
+            position: relative;
+            z-index: 10;
+        }
 
         .school-header { text-align: center; margin-bottom: 25px; }
         .school-icon { font-size: 45px; color: var(--primary); margin-bottom: 8px; cursor: pointer; }
@@ -44,17 +58,24 @@
         .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 17px; }
         .btn-primary { background: var(--primary); color: white; }
 
-        #resultView { display: none; margin-top: 20px; padding: 20px; border: 3px solid var(--primary); border-radius: 12px; background: #fff; }
+        #resultView { 
+            display: none; 
+            margin-top: 20px; 
+            padding: 20px; 
+            border: 3px solid var(--primary); 
+            border-radius: 12px; 
+            background: #fff;
+            position: relative;
+            z-index: 20; /* لضمان ظهور النتيجة فوق أي خطوط خلفية */
+        }
         
-        /* ضبط الجدول ليكون مرناً وغير متداخل */
-        .res-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
-        .res-table th { background: var(--primary); color: white; padding: 12px 5px; font-size: 11px; border: 1px solid #ddd; line-height: 1.5; }
-        .res-table td { padding: 12px 5px; border: 1px solid #eee; text-align: center; font-weight: 700; font-size: 15px; }
+        .res-table { width: 100%; border-collapse: collapse; background: white; }
+        .res-table th { background: var(--primary); color: white; padding: 12px 5px; font-size: 11px; border: 1px solid #ddd; }
+        .res-table td { padding: 12px 5px; border: 1px solid #eee; text-align: center; font-weight: 900; font-size: 16px; color: black; }
         
-        /* مساحة كافية جداً لاسم المادة لظهور ال التعريف */
         .sub-name { text-align: right !important; color: var(--primary); background: #f9fafb; font-size: 14px !important; padding-right: 15px !important; width: 180px; }
 
-        .total-section { margin-top: 0px; border: 2px solid var(--primary); border-top: none; background: #f8fafc; border-radius: 0 0 10px 10px; }
+        .total-section { margin-top: 0px; border: 2px solid var(--primary); border-top: none; background: #f8fafc; border-radius: 0 0 10px 10px; position: relative; z-index: 20; }
         .total-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid #e2e8f0; }
         .total-val { font-weight: 900; color: var(--primary); font-size: 20px; }
 
@@ -104,7 +125,7 @@
             <table class="res-table">
                 <thead>
                     <tr>
-                        <th>المادة</th>
+                        <th style="width: 180px;">المادة</th>
                         <th>أعمال السنة</th>
                         <th>النهاية الصغرى</th>
                         <th>الامتحان النهائي</th>
