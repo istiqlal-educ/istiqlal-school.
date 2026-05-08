@@ -39,13 +39,21 @@
         .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 17px; }
         .btn-primary { background: var(--primary); color: white; }
         
-        #resultView { display: none; margin-top: 20px; padding: 20px; border: 3px solid var(--primary); border-radius: 12px; background: #fff; overflow: hidden; }
-        .res-table { width: 100%; border-collapse: collapse; border: none; }
-        .res-table th { background: var(--primary); color: white; padding: 10px 5px; font-size: 12px; border: none; }
+        #resultView { display: none; margin-top: 20px; padding: 20px; border: 3px solid var(--primary); border-radius: 12px; background: #fff; }
+        .res-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+        .res-table th { background: var(--primary); color: white; padding: 12px 5px; font-size: 13px; border: none; }
         
-        /* التعديل هنا: إلغاء الحدود الجانبية تماماً لمنع الخط الأزرق من الظهور فوق الأرقام */
-        .res-table td { padding: 12px 5px; border-bottom: 1px solid #eee; border-left: none; border-right: none; text-align: center; font-weight: 900; color: #000; }
-        .res-table tr:last-child td { border-bottom: none; }
+        /* التعديل الجذري هنا لإلغاء أي خط طولي يمر فوق الأرقام */
+        .res-table td { 
+            padding: 12px 5px; 
+            border-bottom: 1px solid #eee; 
+            border-left: none !important; 
+            border-right: none !important; 
+            text-align: center; 
+            font-weight: 900; 
+            color: #000;
+            background: transparent;
+        }
 
         .bulk-student-box { border: 2px solid var(--primary); border-radius: 15px; padding: 15px; margin-bottom: 20px; background: #fff; }
         .bulk-student-name { font-weight: 900; color: var(--primary); font-size: 19px; display: block; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 2px solid #eff6ff; }
@@ -62,7 +70,7 @@
         @media print {
             .btn, .search-container, #adminPortal, .admin-tabs, .dev-footer-simple { display: none !important; }
             #resultView { display: block !important; width: 100%; border: none; padding: 0; }
-            .res-table td { border-bottom: 1px solid #000 !important; }
+            .res-table td { border-bottom: 1px solid #ccc !important; }
         }
     </style>
 </head>
@@ -87,9 +95,9 @@
                 <h2 id="outName" style="margin: 0; font-size: 22px; color: var(--text);"></h2>
                 <div id="outYear" style="color: var(--accent); font-weight: 800; font-size: 16px; margin-top: 5px;"></div>
             </div>
-            <table class="res-table" style="width:100%;">
+            <table class="res-table">
                 <thead>
-                    <tr><th style="width: 180px;">المادة</th><th>الأعمال</th><th>النهاية الصغرى</th><th>الامتحان</th><th>النهاية الكبرى</th><th>المجموع</th></tr>
+                    <tr><th style="width: 180px;">المادة</th><th>الأعمال</th><th>نهاية صغرى</th><th>الامتحان</th><th>نهاية كبرى</th><th>المجموع</th></tr>
                 </thead>
                 <tbody id="resTbody"></tbody>
             </table>
