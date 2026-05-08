@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منظومة مدرسة الاستقلال - 2026</title>
+    <title>منظومة نتائج الامتحانات الاستقلال</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,82 +12,187 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        :root { --primary: #1e3a8a; --accent: #b45309; --bg: #f1f5f9; --card: #ffffff; --border: #cbd5e1; }
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-        body { margin: 0; background: var(--bg); padding: 10px; }
-        .container { max-width: 1000px; margin: 10px auto; }
-        .main-card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border); }
-        
-        .res-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .res-table th { background: var(--primary); color: white; padding: 6px 1px; font-size: 9px; border: 1px solid #fff; }
-        .res-table td { padding: 8px 1px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900; font-size: 13px; }
+        :root {
+            --primary: #1e3a8a;
+            --accent: #b45309;
+            --success: #059669;
+            --danger: #e11d48;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --border: #cbd5e1;
+        }
 
-        input, select { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--border); margin-bottom: 10px; text-align: center; }
-        .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; }
-        .btn-primary { background: var(--primary); color: white; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { margin: 0; background: var(--bg); color: var(--text); padding: 10px; min-height: 100vh; overflow-x: hidden; }
+        .container { max-width: 1000px; margin: 10px auto; position: relative; }
+        
+        .container::before, .container::after {
+            content: "";
+            position: absolute;
+            top: 0; bottom: 0; width: 8px;
+            background: var(--primary);
+            z-index: 0; border-radius: 10px; opacity: 0.8;
+        }
+        .container::before { right: -15px; }
+        .container::after { left: -15px; }
+
+        .main-card { 
+            background: var(--card); border-radius: 20px; padding: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border);
+            position: relative; z-index: 1; width: 100%;
+        }
         
         .admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; background: #e2e8f0; font-weight: 700; cursor: pointer; }
+        .tab-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; background: #e2e8f0; font-weight: 700; cursor: pointer; color: #64748b; }
         .tab-btn.active { background: var(--primary); color: white; }
+
         .admin-section { display: none; }
         .admin-section.active { display: block; }
+
+        input, select { width: 100%; padding: 10px; border-radius: 10px; border: 2px solid var(--border); background: #f8fafc; outline: none; font-size: 15px; margin-bottom: 10px; text-align: center; }
+        .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 17px; }
+        .btn-primary { background: var(--primary); color: white; }
+        
+        #resultView { display: none; margin-top: 20px; padding: 10px; border-radius: 12px; background: #fff; }
+        
+                /* الكود الجديد المصلح للتداخل */
+        .res-table { width: 100%; border-collapse: collapse; table-layout: fixed; border: 1px solid var(--border); }
+        .res-table th { 
+            background: var(--primary); color: white; padding: 6px 1px; font-size: 9px; border: 1px solid #fff;
+            line-height: 1.1; word-wrap: break-word; vertical-align: middle; height: 40px;
+        }
+        .res-table th:first-child { width: 20%; } 
+        .res-table th:nth-child(3), .res-table th:nth-child(5) { width: 18%; font-size: 8.5px; } 
+        .res-table td { padding: 8px 1px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900; color: #000; font-size: 12px; }
+
+
+        .summary-box { margin-top: 0; border: 2px solid var(--primary); background: #f8fafc; border-radius: 0 0 10px 10px; }
+        
+        .grade-excellent { color: #065f46 !important; background: #dcfce7; padding: 2px 10px; border-radius: 8px; border: 1px solid #059669; }
+        .grade-vgood { color: #1e3a8a !important; background: #dbeafe; padding: 2px 10px; border-radius: 8px; border: 1px solid #3b82f6; }
+        .grade-good { color: #92400e !important; background: #fef3c7; padding: 2px 10px; border-radius: 8px; border: 1px solid #d97706; }
+        .grade-fail { color: #991b1b !important; background: #fee2e2; padding: 2px 10px; border-radius: 8px; border: 1px solid #ef4444; }
+
+        /* تنسيق شبكة الرصد */
+        .grid-header { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 5px; text-align: center; font-size: 11px; font-weight: bold; color: var(--primary); margin: 10px 0; }
+        .bulk-student-box { border: 2px solid var(--primary); border-radius: 15px; padding: 15px; margin-bottom: 20px; background: #fff; }
+        .bulk-row-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 5px; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px; }
+        .bulk-row-grid input { margin-bottom: 0; padding: 6px; font-size: 13px; border: 1px solid #cbd5e1; }
+
+        .dev-footer-simple { text-align: center; margin-top: 30px; padding: 20px; color: #000; font-weight: 700; font-size: 15px; border-top: 1px solid #e2e8f0; }
+
+        @media print {
+            .btn, .search-container, #adminPortal, .admin-tabs, .dev-footer-simple, .container::before, .container::after { display: none !important; }
+            #resultView { display: block !important; width: 100%; border: none; padding: 0; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container" id="searchSection">
     <div class="main-card">
-        <div style="text-align:center; margin-bottom:20px;">
-            <div class="school-icon" style="font-size:50px; color:var(--primary); cursor:pointer;" 
-                 onclick="loginWithBiometrics()" ondblclick="enterAdmin()">
-                <i class="fas fa-school"></i>
+        <div class="school-header" style="text-align:center; margin-bottom:20px;">
+            <div class="school-icon" style="font-size:40px; color:var(--primary); cursor:pointer;" ondblclick="enterAdmin()"><i class="fas fa-school"></i></div>
+            <h1 style="margin: 0; font-size: 24px; font-weight: 900; color: var(--primary);">منظومة نتائج الاستقلال</h1>
+            <p style="color: #64748b; font-weight: 700; font-size: 14px;">نتائج الامتحانات 2026</p>
+        </div>
+
+        <div class="search-container" style="max-width:400px; margin:0 auto;">
+            <label style="display:block; font-weight:800; margin-bottom:8px; text-align: center;">الرقم الوطني للطالبة:</label>
+            <input type="number" id="searchID" placeholder="أدخل الرقم هنا...">
+            <button class="btn btn-primary" onclick="loadResult()"><i class="fas fa-search"></i> استخراج النتيجة</button>
+        </div>
+
+        <div id="resultView">
+            <div style="text-align: center; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 15px;">
+                <h2 id="outName" style="margin: 0; font-size: 20px; color: var(--text);"></h2>
+                <div id="outYear" style="color: var(--accent); font-weight: 800; font-size: 15px; margin-top: 5px;"></div>
             </div>
-            <h1 style="margin: 5px 0; font-size: 24px; font-weight: 900; color: var(--primary);">منظومة مدرسة الاستقلال</h1>
-            <p style="color: #64748b; font-weight: 700;">اضغط مرة للبصمة، مرتين للكود</p>
-        </div>
+            
+            <div style="overflow-x: auto;">
+                <table class="res-table">
+                    <thead>
+                        <tr>
+                            <th>المادة</th>
+                            <th>الأعمال</th>
+                            <th>النهاية الصغرى</th>
+                            <th>الامتحان</th>
+                            <th>النهاية الكبرى</th>
+                            <th>المجموع</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resTbody"></tbody>
+                </table>
+            </div>
 
-        <div style="max-width:400px; margin:0 auto;">
-            <input type="number" id="searchID" placeholder="الرقم الوطني للطالبة">
-            <button class="btn btn-primary" onclick="loadResult()"><i class="fas fa-search"></i> استخراج الشهادة</button>
-        </div>
+            <div class="summary-box">
+                <div id="totalRow" style="display:flex; justify-content:space-between; padding:10px 15px; border-bottom:1px solid #e2e8f0;">
+                    <span>المجموع الكلي:</span><span id="outTotalSum" style="font-weight:900; color:var(--primary);"></span>
+                </div>
+                <div id="percentRow" style="display:flex; justify-content:space-between; padding:10px 15px; border-bottom:1px solid #e2e8f0;">
+                    <span>النسبة المئوية:</span><span id="outPercent" style="font-weight:900; color:var(--primary);"></span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding:10px 15px;">
+                    <span>التقدير العام:</span><span id="outGrade" style="font-weight:900;"></span>
+                </div>
+            </div>
+            
+            <div id="failMissions" style="display:none; background:#fee2e2; border:2px solid var(--danger); color:#991b1b; padding:15px; border-radius:10px; margin-top:15px; text-align:center; font-weight:900;">
+                <div style="margin-bottom:5px; text-decoration:underline;">المواد التي لم توفق فيها:</div>
+                <div id="failListItems"></div>
+            </div>
 
-        <div id="resultView" style="display:none; margin-top:25px;">
-            <h2 id="outName" style="text-align:center; color: var(--primary);"></h2>
-            <table class="res-table">
-                <thead><tr><th>المادة</th><th>أعمال</th><th>صغرى</th><th>امتحان</th><th>كبرى</th><th>المجموع</th></tr></thead>
-                <tbody id="resTbody"></tbody>
-            </table>
+            <button class="btn" style="background:#475569; color:white; margin-top:20px;" onclick="window.print()"><i class="fas fa-print"></i> طباعة الشهادة</button>
         </div>
+        <div class="dev-footer-simple">تم تطويره بواسطة عماد الدين نجم</div>
     </div>
 </div>
 
 <div class="container" id="adminPortal" style="display:none;">
     <div class="main-card">
-        <h2 style="text-align:center;">بوابة الإدارة</h2>
-        
-        <button class="btn" style="background:orange; color:white; margin-bottom:20px;" onclick="registerPasskey()">
-            <i class="fas fa-fingerprint"></i> تفعيل "النمط" أو "البصمة" لهذا الجهاز
-        </button>
-
+        <h2 style="color: var(--primary); text-align: center;"><i class="fas fa-tools"></i> بوابة المطور</h2>
         <div class="admin-tabs">
-            <button class="tab-btn active" onclick="showTab('individualTab', this)">رصد فردي</button>
-            <button class="tab-btn" onclick="showTab('bulkTab', this)">رصد جماعي</button>
+            <button class="tab-btn active" onclick="showTab('individualTab', this)">الرصد الفردي</button>
+            <button class="tab-btn" onclick="showTab('bulkTab', this)">الرصد الجماعي</button>
         </div>
-        
+
         <div id="individualTab" class="admin-section active">
-            <input type="number" id="editID" placeholder="الرقم الوطني للطالبة">
-            <button class="btn" style="background:#475569; color:white; margin-bottom:15px;" onclick="fetchForEdit()">جلب البيانات</button>
-            <input type="text" id="inName" placeholder="اسم الطالبة">
-            <select id="inYear" onchange="autoFillSubjects()">
+            <div style="background:#f8fafc; padding:15px; border-radius:15px; border:1px solid #ddd;">
+                <input type="number" id="editID" placeholder="الرقم الوطني للتعديل...">
+                <button onclick="fetchForEdit()" class="btn" style="background:var(--primary); color:white; margin-bottom:15px;">جلب البيانات</button>
+                <input type="text" id="inName" placeholder="الاسم الرباعي">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <input type="number" id="inID" placeholder="الرقم الوطني">
+                    <select id="inYear" onchange="autoFillSubjects()">
+                        <option value="">-- الصف --</option>
+                        <option value="خامس">خامس</option><option value="سادس">سادس</option>
+                        <option value="سابع">سابع</option><option value="ثامن">ثامن</option>
+                    </select>
+                </div>
+                
+                <div class="grid-header">
+                    <div>المادة</div><div>أعمال</div><div>من</div><div>امتحان</div><div>من</div>
+                </div>
+                <div id="subjectsContainer"></div>
+                <button onclick="addNewSubject()" class="btn" style="background:#e2e8f0; color:#475569; margin-bottom:15px;">+ إضافة مادة</button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="btn" style="background: var(--success); color:white;" onclick="saveToFirebase()">حفظ</button>
+                    <button class="btn" style="background: var(--danger); color:white;" onclick="deleteStudent()">حذف</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="bulkTab" class="admin-section">
+             <select id="bulkSelectYear" onchange="loadBulkStudentsList()">
                 <option value="">-- اختر الصف --</option>
                 <option value="خامس">خامس</option><option value="سادس">سادس</option>
                 <option value="سابع">سابع</option><option value="ثامن">ثامن</option>
             </select>
-            <div id="subjectsContainer"></div>
-            <button class="btn btn-primary" onclick="saveToFirebase()">حفظ البيانات</button>
+            <div id="bulkStudentsContainer"></div>
+            <button id="saveAllBulkBtn" class="btn" style="display:none; background:var(--success); color:white; margin-top:15px;" onclick="saveAllBulkData()">حفظ الكل</button>
         </div>
-        
-        <button onclick="location.reload()" class="btn" style="background:none; color:red; margin-top:20px;">خروج</button>
+        <button onclick="location.reload()" class="btn" style="background:none; margin-top:20px;">خروج</button>
     </div>
 </div>
 
@@ -101,91 +206,165 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // دالة الدخول (التحقق)
-    async function loginWithBiometrics() {
-        if (window.PublicKeyCredential) {
-            try {
-                const credential = await navigator.credentials.get({
-                    publicKey: { 
-                        challenge: new Uint8Array([1, 2, 3, 4]), 
-                        userVerification: "required",
-                        timeout: 60000
-                    }
-                });
-                if (credential) openAdmin();
-            } catch (err) {
-                console.log("فشل التحقق، الانتقال للكود السري");
-                enterAdmin(); 
-            }
-        } else { enterAdmin(); }
+    const schoolSubjects = {
+        "خامس": ["التاريخ", "التربية الإسلامية", "الجغرافيا", "الحاسوب", "الرياضيات", "العلوم", "الكتابة", "اللغة الإنجليزية", "اللغة العربية"],
+        "سادس": ["التاريخ", "التربية الإسلامية", "الجغرافيا", "الحاسوب", "الرياضيات", "العلوم", "الكتابة", "اللغة الإنجليزية", "اللغة العربية"],
+        "سابع": ["التاريخ", "التربية الإسلامية", "الجغرافيا", "الحاسوب", "الرياضيات", "العلوم", "الكتابة", "اللغة الإنجليزية", "اللغة العربية"],
+        "ثامن": ["التاريخ", "التربية الإسلامية", "الجغرافيا", "الحاسوب", "الرياضيات", "العلوم", "الكتابة", "اللغة الإنجليزية", "اللغة العربية"]
+    };
+
+    function showTab(tabId, btn) {
+        document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
     }
 
-    // دالة التسجيل (التعديل السحري لقبول النمط)
-    async function registerPasskey() {
-        try {
-            await navigator.credentials.create({
-                publicKey: {
-                    challenge: new Uint8Array([1, 2, 3, 4]),
-                    rp: { name: "مدرسة الاستقلال" },
-                    user: { id: new Uint8Array([1]), name: "admin", displayName: "Admin" },
-                    pubKeyCredParams: [{ alg: -7, type: "public-key" }, { alg: -257, type: "public-key" }],
-                    timeout: 60000,
-                    authenticatorSelection: { 
-                        authenticatorAttachment: "platform", // إجبار المتصفح على استخدام قفل الجهاز نفسه
-                        userVerification: "required",
-                        residentKey: "required"
-                    }
-                }
-            });
-            alert("تم تفعيل القفل (النمط/البصمة) بنجاح!");
-        } catch (err) { alert("خطأ: " + err.message); }
+    function enterAdmin() { if(prompt("رمز المطور:") === "74742000") { document.getElementById('searchSection').style.display='none'; document.getElementById('adminPortal').style.display='block'; } }
+
+    function addNewSubject(v={n:'',wg:'',wm:40,eg:'',em:60}) {
+        const div = document.createElement('div'); div.style = "border:1px solid #ddd; padding:8px; border-radius:10px; margin-bottom:8px; background:#fff;";
+        div.innerHTML = `<div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:5px;">
+            <input type="text" class="m-name" value="${v.n}" style="font-size:12px; margin-bottom:0;">
+            <input type="number" class="m-w-got" value="${v.wg}" placeholder="أعمال" style="margin-bottom:0; padding:5px; font-size:12px;">
+            <input type="number" class="m-w-max" value="${v.wm}" placeholder="من" style="margin-bottom:0; padding:5px; font-size:12px;">
+            <input type="number" class="m-e-got" value="${v.eg}" placeholder="امتحان" style="margin-bottom:0; padding:5px; font-size:12px;">
+            <input type="number" class="m-e-max" value="${v.em}" placeholder="من" style="margin-bottom:0; padding:5px; font-size:12px;">
+        </div>`;
+        document.getElementById('subjectsContainer').appendChild(div);
     }
 
-    function enterAdmin() { if(prompt("رمز المطور:") === "74742000") openAdmin(); }
-    function openAdmin() { document.getElementById('searchSection').style.display='none'; document.getElementById('adminPortal').style.display='block'; }
-    function showTab(t, b) { document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active')); document.getElementById(t).classList.add('active'); b.classList.add('active'); }
-
-    // دوال الرصد
     function autoFillSubjects() {
-        const subjects = ["التاريخ", "التربية الإسلامية", "الجغرافيا", "الحاسوب", "الرياضيات", "العلوم", "الكتابة", "اللغة الإنجليزية", "اللغة العربية"];
-        const con = document.getElementById('subjectsContainer'); con.innerHTML = "";
-        subjects.forEach(s => {
-            const div = document.createElement('div'); div.style="border:1px solid #ddd; padding:10px; margin-bottom:5px; border-radius:10px;";
-            div.innerHTML = `<div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:5px;">
-                <input type="text" class="m-name" value="${s}" readonly>
-                <input type="number" class="m-w-got" placeholder="أعمال">
-                <input type="number" class="m-w-max" value="40">
-                <input type="number" class="m-e-got" placeholder="امتحان">
-                <input type="number" class="m-e-max" value="60">
-            </div>`;
-            con.appendChild(div);
+        const yr = document.getElementById('inYear').value;
+        const con = document.getElementById('subjectsContainer'); con.innerHTML = ""; 
+        if (schoolSubjects[yr]) schoolSubjects[yr].forEach(s => addNewSubject({n:s, wg:'', wm:40, eg:'', em:60}));
+    }
+
+    function loadBulkStudentsList() {
+        const yr = document.getElementById('bulkSelectYear').value;
+        const container = document.getElementById('bulkStudentsContainer');
+        if(!yr) return;
+        container.innerHTML = "جاري التحميل...";
+        db.ref('students').orderByChild('year').equalTo(yr).once('value', snap => {
+            if(!snap.exists()) { container.innerHTML = "لا يوجد بيانات"; return; }
+            let h = "";
+            snap.forEach(child => {
+                const s = child.val(); const sid = child.key;
+                h += `<div class="bulk-student-box" data-id="${sid}">
+                    <strong style="display:block; margin-bottom:10px; color:var(--primary);">${s.name}</strong>
+                    <div class="grid-header" style="font-size:10px;">
+                        <div>المادة</div><div>أعمال</div><div>من</div><div>امتحان</div><div>من</div>
+                    </div>`;
+                schoolSubjects[yr].forEach(sub => {
+                    const ex = (s.subjects && s.subjects[sub]) ? s.subjects[sub] : {wG:'', eG:'', wM:40, eM:60};
+                    h += `<div class="bulk-row-grid" data-sub="${sub}">
+                        <span style="font-size:11px;">${sub}</span>
+                        <input type="number" class="bw-g" value="${ex.wG}"> <input type="number" class="bw-m" value="${ex.wM}">
+                        <input type="number" class="be-g" value="${ex.eG}"> <input type="number" class="be-m" value="${ex.eM}">
+                    </div>`;
+                });
+                h += `</div>`;
+            });
+            container.innerHTML = h; document.getElementById('saveAllBulkBtn').style.display = 'block';
+        });
+    }
+
+    async function saveAllBulkData() {
+        const boxes = document.querySelectorAll('.bulk-student-box');
+        for(let box of boxes) {
+            const sid = box.getAttribute('data-id');
+            let subs = {}; let tS = 0; let tM = 0;
+            box.querySelectorAll('.bulk-row-grid').forEach(grid => {
+                const n = grid.innerText.trim().split('\n')[0];
+                const wg = parseFloat(grid.querySelector('.bw-g').value) || 0;
+                const wm = parseFloat(grid.querySelector('.bw-m').value) || 0;
+                const eg = parseFloat(grid.querySelector('.be-g').value) || 0;
+                const em = parseFloat(grid.querySelector('.be-m').value) || 0;
+                subs[n] = {wG:wg, wM:wm, eG:eg, eM:em, sum:(wg+eg), max:(wm+em)};
+                tS += (wg+eg); tM += (wm+em);
+            });
+            await db.ref('students/'+sid).update({subjects:subs, totalGot:tS, totalMax:tM, percent:((tS/tM)*100).toFixed(1)});
+        }
+        alert("تم الحفظ بنجاح");
+    }
+
+    function fetchForEdit() {
+        const id = document.getElementById('editID').value;
+        db.ref('students/'+id).once('value', snap => {
+            if(snap.exists()){
+                const d = snap.val();
+                document.getElementById('inName').value = d.name; document.getElementById('inID').value = id; document.getElementById('inYear').value = d.year;
+                const con = document.getElementById('subjectsContainer'); con.innerHTML = "";
+                for(let k in d.subjects){ const s = d.subjects[k]; addNewSubject({n:k, wg:s.wG, wm:s.wM, eg:s.eG, em:s.eM}); }
+            } else alert("غير موجود");
         });
     }
 
     function saveToFirebase() {
-        const id=document.getElementById('editID').value; const name=document.getElementById('inName').value; const yr=document.getElementById('inYear').value;
+        const id=document.getElementById('inID').value; const name=document.getElementById('inName').value; const yr=document.getElementById('inYear').value;
+        if(!id||!name) return alert("أكمل البيانات");
         let subs={}; let tS=0; let tM=0;
         document.querySelectorAll('.m-name').forEach((nEl)=>{
-            const p=nEl.parentElement;
-            const wg=parseFloat(p.querySelector('.m-w-got').value)||0; const wm=parseFloat(p.querySelector('.m-w-max').value)||0;
-            const eg=parseFloat(p.querySelector('.m-e-got').value)||0; const em=parseFloat(p.querySelector('.m-e-max').value)||0;
-            subs[nEl.value]={wG:wg, wM:wm, eG:eg, eM:em, sum:(wg+eg), max:(wm+em)}; tS+=(wg+eg); tM+=(wm+em);
+            const n=nEl.value; const parent=nEl.parentElement;
+            const wg=parseFloat(parent.querySelector('.m-w-got').value)||0; const wm=parseFloat(parent.querySelector('.m-w-max').value)||0;
+            const eg=parseFloat(parent.querySelector('.m-e-got').value)||0; const em=parseFloat(parent.querySelector('.m-e-max').value)||0;
+            if(n){ subs[n]={wG:wg, wM:wm, eG:eg, eM:em, sum:(wg+eg), max:(wm+em)}; tS+=(wg+eg); tM+=(wm+em); }
         });
-        db.ref('students/'+id).set({name, year:yr, subjects:subs, percent:((tS/tM)*100).toFixed(1), totalGot:tS, totalMax:tM}).then(()=>alert("تم الحفظ!"));
+        db.ref('students/'+id).set({name, year:yr, subjects:subs, percent:((tS/tM)*100).toFixed(1), totalGot:tS, totalMax:tM}).then(()=>alert("تم الحفظ"));
+    }
+
+    function deleteStudent() {
+        const id = document.getElementById('inID').value;
+        if(id && confirm("حذف نهائي؟")) db.ref('students/'+id).remove().then(()=>location.reload());
     }
 
     function loadResult() {
         const sid=document.getElementById('searchID').value;
-        db.ref('students/'+sid).once('value', snap=>{
-            if(snap.exists()) {
-                const d = snap.val(); document.getElementById('resultView').style.display='block';
-                document.getElementById('outName').innerText = d.name;
-                let h=""; for(let k in d.subjects){ const s = d.subjects[k]; h+=`<tr><td>${k}</td><td>${s.wG}</td><td>${s.wM}</td><td>${s.eG}</td><td>${s.eM}</td><td>${s.sum}</td></tr>`; }
-                document.getElementById('resTbody').innerHTML=h;
-            } else alert("الرقم غير مسجل");
+        db.ref('students/'+sid).once('value', snap=>{ if(snap.exists()) showData(snap.val()); else alert("عذراً، الرقم غير مسجل."); });
+    }
+
+    function showData(data) {
+        document.getElementById('resultView').style.display='block';
+        document.getElementById('outName').innerText = data.name;
+        document.getElementById('outYear').innerText = "الصف: " + data.year;
+        
+        let h=""; let failed=[]; let hasFail=false;
+        const sortedKeys = schoolSubjects[data.year] || Object.keys(data.subjects);
+        
+        sortedKeys.forEach(k => {
+            if(data.subjects[k]) {
+                const s = data.subjects[k]; 
+                const isFail = s.sum < (s.max/2);
+                if(isFail) { hasFail=true; failed.push(k); }
+                h+=`<tr><td>${k}</td><td>${s.wG}</td><td>${s.wM}</td><td>${s.eG}</td><td>${s.eM}</td><td style="color:${isFail?'red':'black'}">${s.sum}</td></tr>`;
+            }
         });
+        document.getElementById('resTbody').innerHTML=h;
+        
+        const gradeEl = document.getElementById('outGrade');
+        const totalRow = document.getElementById('totalRow');
+        const percentRow = document.getElementById('percentRow');
+        const failBox = document.getElementById('failMissions');
+        const failList = document.getElementById('failListItems');
+
+        if(hasFail) {
+            gradeEl.innerText = "له دور ثانٍ"; gradeEl.className = "grade-fail";
+            totalRow.style.display = "none"; percentRow.style.display = "none";
+            failBox.style.display = "block"; failList.innerHTML = failed.join(' - ');
+        } else {
+            let p=parseFloat(data.percent);
+            totalRow.style.display = "flex"; percentRow.style.display = "flex";
+            failBox.style.display = "none";
+            document.getElementById('outTotalSum').innerText = data.totalGot + " من " + data.totalMax;
+            document.getElementById('outPercent').innerText = data.percent + "%";
+            
+            if(p>=85) { gradeEl.innerText = "ممتاز"; gradeEl.className = "grade-excellent"; }
+            else if(p>=75) { gradeEl.innerText = "جيد جداً"; gradeEl.className = "grade-vgood"; }
+            else if(p>=65) { gradeEl.innerText = "جيد"; gradeEl.className = "grade-good"; }
+            else if(p>=50) { gradeEl.innerText = "مقبول"; gradeEl.className = "grade-good"; }
+            else { gradeEl.innerText = "ضعيف"; gradeEl.className = "grade-fail"; }
+        }
     }
 </script>
 </body>
 </html>
-
