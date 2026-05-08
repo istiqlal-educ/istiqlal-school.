@@ -56,15 +56,13 @@
         
         #resultView { display: none; margin-top: 20px; padding: 10px; border-radius: 12px; background: #fff; }
         
-        /* ضبط الجدول لظهور كلمة المجموع كاملة */
         .res-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .res-table th { background: var(--primary); color: white; padding: 12px 2px; font-size: 11px; border: 1px solid #fff; }
-        .res-table th:last-child { width: 70px; } /* توسيع عمود المجموع */
+        .res-table th:last-child { width: 70px; }
         .res-table td { padding: 12px 2px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900; color: #000; font-size: 14px; }
 
         .summary-box { margin-top: 0; border: 2px solid var(--primary); background: #f8fafc; border-radius: 0 0 10px 10px; }
         
-        /* ألوان التقديرات */
         .grade-excellent { color: #065f46 !important; background: #dcfce7; padding: 2px 10px; border-radius: 8px; border: 1px solid #059669; }
         .grade-vgood { color: #1e3a8a !important; background: #dbeafe; padding: 2px 10px; border-radius: 8px; border: 1px solid #3b82f6; }
         .grade-good { color: #92400e !important; background: #fef3c7; padding: 2px 10px; border-radius: 8px; border: 1px solid #d97706; }
@@ -121,10 +119,10 @@
             </div>
 
             <div class="summary-box">
-                <div style="display:flex; justify-content:space-between; padding:10px 15px; border-bottom:1px solid #e2e8f0;">
+                <div id="totalRow" style="display:flex; justify-content:space-between; padding:10px 15px; border-bottom:1px solid #e2e8f0;">
                     <span>المجموع الكلي:</span><span id="outTotalSum" style="font-weight:900; color:var(--primary);"></span>
                 </div>
-                <div style="display:flex; justify-content:space-between; padding:10px 15px; border-bottom:1px solid #e2e8f0;">
+                <div id="percentRow" style="display:flex; justify-content:space-between; padding:10px 15px; border-bottom:1px solid #e2e8f0;">
                     <span>النسبة المئوية:</span><span id="outPercent" style="font-weight:900; color:var(--primary);"></span>
                 </div>
                 <div style="display:flex; justify-content:space-between; padding:10px 15px;">
@@ -132,7 +130,11 @@
                 </div>
             </div>
             
-            <div id="failMissions" style="display:none; background:#fff1f2; border:2px solid var(--danger); color:var(--danger); padding:15px; border-radius:10px; margin-top:15px; text-align:center;"></div>
+            <div id="failMissions" style="display:none; background:#fee2e2; border:2px solid var(--danger); color:#991b1b; padding:15px; border-radius:10px; margin-top:15px; text-align:center; font-weight:900;">
+                <div style="margin-bottom:5px; text-decoration:underline;">المواد الراسبة فيها الطالبة:</div>
+                <div id="failListItems"></div>
+            </div>
+
             <button class="btn" style="background:#475569; color:white; margin-top:20px;" onclick="window.print()"><i class="fas fa-print"></i> طباعة الشهادة</button>
         </div>
         <div class="dev-footer-simple">تم تطويره بواسطة عماد الدين نجم</div>
@@ -142,7 +144,6 @@
 <div class="container" id="adminPortal" style="display:none;">
     <div class="main-card">
         <h2 style="color: var(--primary); text-align: center;"><i class="fas fa-tools"></i> بوابة المطور</h2>
-        <div id="systemStatusDisplay" style="text-align:center; margin-bottom:10px; font-weight:bold;">...</div>
         <div class="admin-tabs">
             <button class="tab-btn active" onclick="showTab('individualTab', this)">الرصد الفردي</button>
             <button class="tab-btn" onclick="showTab('bulkTab', this)">الرصد الجماعي</button>
@@ -159,9 +160,6 @@
                         <option value="خامس">خامس</option><option value="سادس">سادس</option>
                         <option value="سابع">سابع</option><option value="ثامن">ثامن</option>
                     </select>
-                </div>
-                <div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:5px; text-align:center; font-size:11px; font-weight:bold; color:var(--primary); margin:10px 0;">
-                    <div>المادة</div><div>أعمال</div><div>من</div><div>امتحان</div><div>من</div>
                 </div>
                 <div id="subjectsContainer"></div>
                 <button onclick="addNewSubject()" class="btn" style="background:#e2e8f0; color:#475569; margin-bottom:15px;">+ إضافة مادة</button>
@@ -315,34 +313,47 @@
         document.getElementById('resultView').style.display='block';
         document.getElementById('outName').innerText = data.name;
         document.getElementById('outYear').innerText = "الصف: " + data.year;
-        document.getElementById('outPercent').innerText = data.percent + "%";
-        document.getElementById('outTotalSum').innerText = data.totalGot + " من " + data.totalMax;
-        let h=""; let failed=[]; let hasFail=false;
         
+        let h=""; let failed=[]; let hasFail=false;
         const sortedKeys = schoolSubjects[data.year] || Object.keys(data.subjects);
+        
         sortedKeys.forEach(k => {
             if(data.subjects[k]) {
-                const s = data.subjects[k]; const isFail = s.sum < (s.max/2);
+                const s = data.subjects[k]; 
+                const isFail = s.sum < (s.max/2);
                 if(isFail) { hasFail=true; failed.push(k); }
                 h+=`<tr><td>${k}</td><td>${s.wG}</td><td>${s.wM}</td><td>${s.eG}</td><td>${s.eM}</td><td style="color:${isFail?'red':'black'}">${s.sum}</td></tr>`;
             }
         });
         document.getElementById('resTbody').innerHTML=h;
         
-        let p=parseFloat(data.percent);
         const gradeEl = document.getElementById('outGrade');
+        const totalRow = document.getElementById('totalRow');
+        const percentRow = document.getElementById('percentRow');
+        const failBox = document.getElementById('failMissions');
+        const failList = document.getElementById('failListItems');
+
         if(hasFail) {
-            gradeEl.innerText = "له دور ثانٍ"; gradeEl.className = "grade-fail";
+            gradeEl.innerText = "له دور ثانٍ"; 
+            gradeEl.className = "grade-fail";
+            totalRow.style.display = "none";
+            percentRow.style.display = "none";
+            failBox.style.display = "block";
+            failList.innerHTML = failed.join(' - ');
         } else {
+            let p=parseFloat(data.percent);
+            totalRow.style.display = "flex";
+            percentRow.style.display = "flex";
+            failBox.style.display = "none";
+            document.getElementById('outTotalSum').innerText = data.totalGot + " من " + data.totalMax;
+            document.getElementById('outPercent').innerText = data.percent + "%";
+            
             if(p>=85) { gradeEl.innerText = "ممتاز"; gradeEl.className = "grade-excellent"; }
             else if(p>=75) { gradeEl.innerText = "جيد جداً"; gradeEl.className = "grade-vgood"; }
             else if(p>=65) { gradeEl.innerText = "جيد"; gradeEl.className = "grade-good"; }
             else if(p>=50) { gradeEl.innerText = "مقبول"; gradeEl.className = "grade-good"; }
             else { gradeEl.innerText = "ضعيف"; gradeEl.className = "grade-fail"; }
         }
-        
-        document.getElementById('failMissions').style.display=hasFail?'block':'none';
-        if(hasFail) document.getElementById('failMissions').innerHTML="المواد: "+failed.join(' - ');
     }
 </script>
 </body>
