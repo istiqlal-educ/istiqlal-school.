@@ -26,8 +26,9 @@
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; transition: 0.2s ease; }
         body { margin: 0; background: var(--bg); color: var(--text); padding: 5px; min-height: 100vh; }
 
-        .container { max-width: 850px; margin: 15px auto; }
-        .main-card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+        /* زيادة عرض الحاوية لفك الازدحام */
+        .container { max-width: 900px; margin: 15px auto; }
+        .main-card { background: var(--card); border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border); }
 
         .school-header { text-align: center; margin-bottom: 25px; }
         .school-icon { font-size: 45px; color: var(--primary); margin-bottom: 8px; cursor: pointer; }
@@ -43,19 +44,21 @@
         .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 17px; }
         .btn-primary { background: var(--primary); color: white; }
 
-        #resultView { display: none; margin-top: 20px; padding: 15px; border: 3px solid var(--primary); border-radius: 12px; background: #fff; }
-        .res-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .res-table th { background: var(--primary); color: white; padding: 8px 2px; font-size: 10px; border: 1px solid #ddd; line-height: 1.4; overflow: hidden; }
-        .res-table td { padding: 10px 2px; border: 1px solid #eee; text-align: center; font-weight: 700; font-size: 14px; word-wrap: break-word; }
+        #resultView { display: none; margin-top: 20px; padding: 20px; border: 3px solid var(--primary); border-radius: 12px; background: #fff; }
         
-        /* زيادة العرض لظهور ال التعريف بوضوح تام */
-        .sub-name { text-align: right !important; color: var(--primary); background: #f9fafb; font-size: 13px !important; padding-right: 10px !important; width: 160px !important; }
+        /* ضبط الجدول ليكون مرناً وغير متداخل */
+        .res-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+        .res-table th { background: var(--primary); color: white; padding: 12px 5px; font-size: 11px; border: 1px solid #ddd; line-height: 1.5; }
+        .res-table td { padding: 12px 5px; border: 1px solid #eee; text-align: center; font-weight: 700; font-size: 15px; }
+        
+        /* مساحة كافية جداً لاسم المادة لظهور ال التعريف */
+        .sub-name { text-align: right !important; color: var(--primary); background: #f9fafb; font-size: 14px !important; padding-right: 15px !important; width: 180px; }
 
         .total-section { margin-top: 0px; border: 2px solid var(--primary); border-top: none; background: #f8fafc; border-radius: 0 0 10px 10px; }
-        .total-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; border-bottom: 1px solid #e2e8f0; }
-        .total-val { font-weight: 900; color: var(--primary); font-size: 18px; }
+        .total-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid #e2e8f0; }
+        .total-val { font-weight: 900; color: var(--primary); font-size: 20px; }
 
-        .fail-box { background: #fff1f2; border: 2px solid var(--danger); color: var(--danger); padding: 12px; border-radius: 10px; margin-top: 15px; text-align: center; }
+        .fail-box { background: #fff1f2; border: 2px solid var(--danger); color: var(--danger); padding: 15px; border-radius: 10px; margin-top: 15px; text-align: center; font-weight: 700; }
 
         #adminPortal { display: none; }
         .admin-dashboard { background: #f8fafc; border-radius: 20px; padding: 15px; border: 1px solid var(--border); }
@@ -71,7 +74,8 @@
 
         @media print {
             .btn, .search-container, .dev-footer-simple, #adminPortal, .school-header { display: none !important; }
-            #resultView { display: block !important; width: 100%; }
+            #resultView { display: block !important; width: 100%; border: none; }
+            .main-card { box-shadow: none; border: none; }
         }
     </style>
 </head>
@@ -92,15 +96,15 @@
         </div>
 
         <div id="resultView">
-            <div style="text-align: center; margin-bottom: 12px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
-                <h2 id="outName" style="margin: 0; font-size: 20px;"></h2>
-                <div id="outYear" style="color: var(--accent); font-weight: 800; font-size: 15px;"></div>
+            <div style="text-align: center; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 15px;">
+                <h2 id="outName" style="margin: 0; font-size: 22px; color: var(--text);"></h2>
+                <div id="outYear" style="color: var(--accent); font-weight: 800; font-size: 16px; margin-top: 5px;"></div>
             </div>
             
             <table class="res-table">
                 <thead>
                     <tr>
-                        <th style="width: 160px;">المادة</th>
+                        <th>المادة</th>
                         <th>أعمال السنة</th>
                         <th>النهاية الصغرى</th>
                         <th>الامتحان النهائي</th>
@@ -119,7 +123,7 @@
             
             <div id="failMissions" class="fail-box" style="display:none;"></div>
             
-            <button class="btn" style="background: #475569; color: white; margin-top: 20px;" onclick="window.print()"><i class="fas fa-print"></i> طباعة الشهادة</button>
+            <button class="btn" style="background: #475569; color: white; margin-top: 25px;" onclick="window.print()"><i class="fas fa-print"></i> طباعة الشهادة</button>
         </div>
         
         <div class="dev-footer-simple">
