@@ -28,6 +28,7 @@
         .container { max-width: 1100px; margin: 15px auto; position: relative; z-index: 10; }
         .main-card { background: var(--card); border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border); }
         
+        /* التبويبات */
         .admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; background: #e2e8f0; font-weight: 700; cursor: pointer; color: #64748b; }
         .tab-btn.active { background: var(--primary); color: white; }
@@ -40,23 +41,11 @@
         .btn-primary { background: var(--primary); color: white; }
         
         #resultView { display: none; margin-top: 20px; padding: 20px; border: 3px solid var(--primary); border-radius: 12px; background: #fff; }
-        
-        /* التعديل هنا: إلغاء أي حدود خارجية للجدول وإلغاء الـ border-collapse لتجنب تداخل الخطوط */
-        .res-table { width: 100%; border: none !important; border-spacing: 0; margin-bottom: 0; }
-        .res-table th { background: var(--primary); color: white; padding: 12px 5px; font-size: 13px; border: none; }
-        
-        /* حذف الخط الأزرق الطولي نهائياً من الخلايا والجدول */
-        .res-table td { 
-            padding: 12px 5px; 
-            border-bottom: 1px solid #f1f5f9; 
-            border-left: none !important; 
-            border-right: none !important; 
-            text-align: center; 
-            font-weight: 900; 
-            color: #000;
-        }
-        .res-table tr:last-child td { border-bottom: none; }
+        .res-table { width: 100%; border-collapse: collapse; }
+        .res-table th { background: var(--primary); color: white; padding: 10px 5px; font-size: 12px; border: 1px solid #ddd; }
+        .res-table td { padding: 10px 5px; border: 1px solid #eee; text-align: center; font-weight: 900; }
 
+        /* شيت الرصد الجماعي */
         .bulk-student-box { border: 2px solid var(--primary); border-radius: 15px; padding: 15px; margin-bottom: 20px; background: #fff; }
         .bulk-student-name { font-weight: 900; color: var(--primary); font-size: 19px; display: block; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 2px solid #eff6ff; }
         .bulk-row-grid { display: grid; grid-template-columns: 2fr 1fr 0.8fr 1fr 0.8fr; gap: 5px; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px; }
@@ -67,12 +56,9 @@
         .status-online { background: #dcfce7; color: #166534; }
         .status-offline { background: #fee2e2; color: #991b1b; }
 
-        .dev-footer-simple { text-align: center; margin-top: 30px; padding: 20px; color: #000; font-weight: 700; font-size: 15px; border-top: 1px solid #e2e8f0; }
-
         @media print {
-            .btn, .search-container, #adminPortal, .admin-tabs, .dev-footer-simple { display: none !important; }
-            #resultView { display: block !important; width: 100%; border: none; padding: 0; }
-            .res-table td { border-bottom: 1px solid #ccc !important; }
+            .btn, .search-container, #adminPortal, .admin-tabs { display: none !important; }
+            #resultView { display: block !important; width: 100%; border: none; }
         }
     </style>
 </head>
@@ -97,9 +83,9 @@
                 <h2 id="outName" style="margin: 0; font-size: 22px; color: var(--text);"></h2>
                 <div id="outYear" style="color: var(--accent); font-weight: 800; font-size: 16px; margin-top: 5px;"></div>
             </div>
-            <table class="res-table">
+            <table class="res-table" style="width:100%;">
                 <thead>
-                    <tr><th style="width: 160px;">المادة</th><th>الأعمال</th><th>نهاية صغرى</th><th>الامتحان</th><th>نهاية كبرى</th><th>المجموع</th></tr>
+                    <tr><th style="width: 180px;">المادة</th><th>أعمال</th><th>من</th><th>نهائي</th><th>من</th><th>المجموع</th></tr>
                 </thead>
                 <tbody id="resTbody"></tbody>
             </table>
@@ -117,7 +103,6 @@
             <div id="failMissions" style="display:none; background:#fff1f2; border:2px solid var(--danger); color:var(--danger); padding:15px; border-radius:10px; margin-top:15px; text-align:center;"></div>
             <button class="btn" style="background:#475569; color:white; margin-top:25px;" onclick="window.print()"><i class="fas fa-print"></i> طباعة الشهادة</button>
         </div>
-        <div class="dev-footer-simple">تم تطويره بواسطة عماد الدين نجم</div>
     </div>
 </div>
 
@@ -175,7 +160,6 @@
         </div>
 
         <button onclick="location.reload()" class="btn" style="background:none; margin-top:20px;">خروج</button>
-        <div class="dev-footer-simple">تم تطويره بواسطة عماد الدين نجم</div>
     </div>
 </div>
 
@@ -208,20 +192,19 @@
     function toggleSystemStatus() { db.ref('system_status').set(!isSystemEnabled); }
 
     const schoolSubjects = {
-        "خامس": ["الرياضيات", "العلوم", "اللغة العربية", "اللغة الإنجليزية", "التربية الإسلامية", "الاجتماعيات", "الحاسوب", "الكتابة"],
-        "سادس": ["الرياضيات", "العلوم", "اللغة العربية", "اللغة الإنجليزية", "التربية الإسلامية", "الاجتماعيات", "الحاسوب", "الكتابة"],
-        "سابع": ["الرياضيات", "العلوم", "اللغة العربية", "اللغة الإنجليزية", "التربية الإسلامية", "التاريخ", "الجغرافيا", "الحاسوب", "الكتابة"],
-        "ثامن": ["الرياضيات", "العلوم", "اللغة العربية", "اللغة الإنجليزية", "التربية الإسلامية", "التاريخ", "الجغرافيا", "الحاسوب", "الكتابة"]
+        "خامس": ["الرياضيات", "اللغة العربية", "الحاسوب", "العلوم", "التربية الإسلامية", "اللغة الإنجليزية", "الاجتماعيات", "الكتابة"],
+        "سادس": ["الرياضيات", "اللغة العربية", "الحاسوب", "العلوم", "التربية الإسلامية", "اللغة الإنجليزية", "الاجتماعيات", "الكتابة"],
+        "سابع": ["العلوم", "الكتابة", "التربية الإسلامية", "اللغة الإنجليزية", "التاريخ", "الحاسوب", "الرياضيات", "الجغرافيا", "اللغة العربية"],
+        "ثامن": ["العلوم", "الكتابة", "التربية الإسلامية", "اللغة الإنجليزية", "التاريخ", "الحاسوب", "الرياضيات", "الجغرافيا", "اللغة العربية"]
     };
 
     function enterAdmin() { if(prompt("رمز المطور:") === "74742000") { document.getElementById('searchSection').style.display='none'; document.getElementById('adminPortal').style.display='block'; } }
 
     function addNewSubject(v={n:'',wg:'',wm:40,eg:'',em:60}) {
-        const div = document.createElement('div'); div.style = "border:1px solid #ddd; padding:10px; border-radius:10px; margin-bottom:10px; position:relative; background:#fff;";
+        const div = document.createElement('div'); div.style = "border:1px solid #ddd; padding:10px; border-radius:10px; margin-bottom:5px; position:relative; background:#fff;";
         div.innerHTML = `<i class="fas fa-trash" style="position:absolute; left:10px; color:red; cursor:pointer;" onclick="this.parentElement.remove()"></i>
-            <input type="text" class="m-name" value="${v.n}" style="width:80%; margin-bottom:8px; font-weight:bold;">
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:5px; text-align:center; font-size:11px;">
-                <span>أعمال</span><span>من</span><span>امتحان</span><span>من</span>
+            <input type="text" class="m-name" value="${v.n}" style="width:70%; margin-bottom:5px;">
+            <div style="display:grid; grid-template-columns:1fr 0.8fr 1fr 0.8fr; gap:5px;">
                 <input type="number" class="m-w-got" value="${v.wg}">
                 <input type="number" class="m-w-max" value="${v.wm}">
                 <input type="number" class="m-e-got" value="${v.eg}">
@@ -248,7 +231,7 @@
                 const s = child.val(); const sid = child.key;
                 h += `<div class="bulk-student-box" data-id="${sid}">
                     <span class="bulk-student-name">${s.name}</span>
-                    <div class="header-labels"><div>المادة</div><div>أعمال</div><div>من</div><div>امتحان</div><div>من</div></div>`;
+                    <div class="header-labels"><div>المادة</div><div>أعمال</div><div>من</div><div>نهائي</div><div>من</div></div>`;
                 schoolSubjects[yr].forEach(subName => {
                     const ex = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG:'', eG:'', wM:40, eM:60};
                     h += `<div class="bulk-row-grid" data-sub="${subName}">
