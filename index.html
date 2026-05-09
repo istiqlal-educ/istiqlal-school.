@@ -96,7 +96,7 @@
 </head>
 <body>
 
-<!-- كائن الصوت للألعاب النارية -->
+<!-- تم استبدال الرابط بصوت ألعاب نارية احترافي -->
 <audio id="fireworksAudio" src="https://assets.mixkit.co/active_storage/sfx/2012/2012-preview.mp3" preload="auto"></audio>
 
 <div id="loadingOverlay">
@@ -432,7 +432,7 @@
         document.getElementById('resTbody').innerHTML=h;
         const gradeEl = document.getElementById('outGrade');
         if(hasFail) {
-            gradeEl.innerText = "لها دور ثانٍ"; gradeEl.className = "grade-fail";
+            gradeEl.innerText = "لها دور ثانٍ"; gradeEl.className = "status-fail-text";
             document.getElementById('totalRow').style.display="none"; document.getElementById('percentRow').style.display="none";
             document.getElementById('failMissions').style.display="block"; document.getElementById('failListItems').innerText = failed.join(' - ');
         } else {
@@ -456,7 +456,7 @@
         // تشغيل صوت الألعاب النارية
         const audio = document.getElementById('fireworksAudio');
         audio.currentTime = 0;
-        audio.play().catch(e => console.log("الصوت يتطلب تفاعل المستخدم أولاً"));
+        audio.play().catch(e => console.log("الصوت يتطلب تفاعل المستخدم"));
 
         var duration = 3 * 1000;
         var end = Date.now() + duration;
