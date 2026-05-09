@@ -80,7 +80,11 @@
         .grid-header { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 5px; text-align: center; font-size: 11px; font-weight: bold; color: var(--primary); margin: 10px 0; }
         .bulk-student-box { border: 2px solid var(--primary); border-radius: 15px; padding: 15px; margin-bottom: 20px; background: #fff; position: relative; }
         .bulk-row-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 5px; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px; }
-        .bulk-row-grid input { margin-bottom: 0; padding: 6px; font-size: 13px; }
+
+        /* ستايلات الألوان المطلوبة للإحصائيات */
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .status-pass { background: #dcfce7; color: #059669; border: 1px solid #059669; }
+        .status-fail { background: #fee2e2; color: #dc2626; border: 1px solid #dc2626; }
 
         .dev-footer-simple { text-align: center; margin-top: 30px; padding: 20px; color: #000; font-weight: 700; font-size: 15px; border-top: 1px solid #e2e8f0; }
 
@@ -255,6 +259,7 @@
                 let isFail = false;
                 for(let k in s.subjects) { if(s.subjects[k].sum < (s.subjects[k].max/2)) { isFail = true; break; } }
                 if(isFail) failed++; else passed++;
+                // هنا التعديل المطلوب للألوان
                 rows += `<tr onclick="viewFromStats('${s.id}')" style="cursor:pointer; border-bottom:1px solid #eee;">
                     <td style="padding:10px; font-weight:700; color:var(--primary);">${s.name}</td>
                     <td style="padding:10px; text-align:center;"><span class="status-badge ${isFail?'status-fail':'status-pass'}">${isFail?'دور ثانٍ':'ناجحة'}</span></td>
@@ -272,8 +277,8 @@
     function viewFromStats(id) {
         document.getElementById('adminPortal').style.display='none';
         document.getElementById('searchSection').style.display='block';
-        document.getElementById('searchBox').style.display='none'; // إخفاء صندوق البحث
-        document.getElementById('backToStatsBtn').style.display='flex'; // إظهار زر العودة
+        document.getElementById('searchBox').style.display='none';
+        document.getElementById('backToStatsBtn').style.display='flex';
         document.getElementById('searchID').value = id;
         loadResult();
     }
@@ -290,9 +295,9 @@
     function loadResult() {
         const sid=document.getElementById('searchID').value;
         if(!sid) return;
-        document.getElementById('loadingOverlay').style.display='flex'; // إظهار التحميل
+        document.getElementById('loadingOverlay').style.display='flex';
         
-        setTimeout(() => { // تأخير وهمي بسيط لجمالية التحميل
+        setTimeout(() => {
             db.ref('students/'+sid).once('value', snap=>{ 
                 document.getElementById('loadingOverlay').style.display='none';
                 if(snap.exists()) showData(snap.val()); 
@@ -332,7 +337,6 @@
         }
     }
 
-    // باقي الدوال (الحفظ والرصد) تبقى كما هي من الكود السابق لضمان عمل المنظومة
     function autoFillSubjects() {
         const yr = document.getElementById('inYear').value;
         const con = document.getElementById('subjectsContainer'); con.innerHTML = ""; 
@@ -367,3 +371,4 @@
 </script>
 </body>
 </html>
+
