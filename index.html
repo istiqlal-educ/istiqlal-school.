@@ -217,15 +217,16 @@
         btn.classList.add('active');
     }
 
-    // تم تعديل الدخول ليتم عبر Firebase مباشرة (إخفاء كلمة السر من الكود)
     function enterAdmin() {
         const pass = prompt("رمز المطور:");
-        db.ref('admin_config/access_key').once('value', snap => {
-            if(pass === snap.val()) {
+        // الربط مع المسار الموجود في صورتك الأخيرة (settings/dev_pass)
+        db.ref('settings/dev_pass').once('value', snap => {
+            const serverPass = snap.val();
+            if(String(pass).trim() === String(serverPass).trim()) {
                 document.getElementById('searchSection').style.display='none';
                 document.getElementById('adminPortal').style.display='block';
             } else {
-                alert("الرمز غير صحيح");
+                alert("الرمز غير صحيح، يرجى مراجعة إعدادات Firebase");
             }
         });
     }
@@ -267,7 +268,7 @@
                     const ex = (s.subjects && s.subjects[sub]) ? s.subjects[sub] : {wG:'', eG:'', wM:40, eM:60};
                     h += `<div class="bulk-row-grid" data-sub="${sub}">
                         <span style="font-size:11px;">${sub}</span>
-                        <input type="number" class="bw-g" value="${ex.wG}"> <input type="number" class="bw-m" value="${ex.wM}">
+                        <input type="number" class="bw-g" value="${ex.wG}"> <input type="number" class="bw-m" value="${ex.bw-m}">
                         <input type="number" class="be-g" value="${ex.eG}"> <input type="number" class="be-m" value="${ex.eM}">
                     </div>`;
                 });
