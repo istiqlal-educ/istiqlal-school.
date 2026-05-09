@@ -97,7 +97,6 @@
 
 <div id="loadingOverlay">
     <div class="spinner"></div>
-    <p style="margin-top:15px; font-weight:900; color:var(--primary);">جاري جلب البيانات...</p>
 </div>
 
 <div class="container" id="searchSection">
@@ -133,9 +132,9 @@
                 <thead>
                     <tr>
                         <th style="width: 26%;">المادة</th>
-                        <th>أعمال من</th>
+                        <th>أعمال</th>
                         <th>النهاية الصغرى</th>
-                        <th>امتحان من</th>
+                        <th>امتحان</th>
                         <th>النهاية الكبرى</th>
                         <th>المجموع</th>
                     </tr>
@@ -195,7 +194,7 @@
                 <option value="سابع">سابع</option><option value="ثامن">ثامن</option>
             </select>
             <div id="individualHeaderLabels" style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:5px; font-size:11px; font-weight:bold; text-align:center; color:var(--primary); margin-bottom:5px;">
-                <span>المادة</span><span>أعمال من</span><span>من</span><span>امتحان من</span><span>من</span>
+                <span>المادة</span><span>أعمال</span><span>من</span><span>امتحان</span><span>من</span>
             </div>
             <div id="subjectsContainer"></div>
             <button class="btn" style="background: var(--success); color:white;" onclick="saveToFirebase()">حفظ ورصد الطالبة</button>
@@ -312,7 +311,7 @@
                 html += `<div class="bulk-row" data-id="${c.key}">
                     <i class="fas fa-trash delete-btn" onclick="deleteStudent('${c.key}')"></i>
                     <div style="font-weight:900; color:var(--primary); margin-bottom:10px;">${s.name} (${c.key})</div>
-                    <div class="bulk-header-labels"><span>المادة</span><span>أعمال من</span><span>من</span><span>امتحان من</span><span>من</span></div>`;
+                    <div class="bulk-header-labels"><span>المادة</span><span>أعمال</span><span>من</span><span>امتحان</span><span>من</span></div>`;
                 
                 schoolSubjects[yr].forEach(subName => {
                     const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG:0, wM:40, eG:0, eM:60};
@@ -412,14 +411,10 @@
         const sid=document.getElementById('searchID').value;
         if(!sid) return;
         
-        document.getElementById('loadingOverlay').style.display='flex';
-        setTimeout(() => {
-            db.ref('students/'+sid).once('value', snap=>{ 
-                document.getElementById('loadingOverlay').style.display='none';
-                if(snap.exists()) showData(snap.val()); 
-                else { alert("عذراً، الرقم غير مسجل."); location.reload(); }
-            });
-        }, 800);
+        db.ref('students/'+sid).once('value', snap=>{ 
+            if(snap.exists()) showData(snap.val()); 
+            else { alert("عذراً، الرقم غير مسجل."); location.reload(); }
+        });
     }
 
     function showData(data) {
