@@ -27,7 +27,6 @@
         body { margin: 0; background: var(--bg); color: var(--text); padding: 10px; min-height: 100vh; overflow-x: hidden; }
         .container { max-width: 1000px; margin: 10px auto; position: relative; }
         
-        /* Loading Overlay */
         #loadingOverlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255,255,255,0.8); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;
@@ -73,20 +72,13 @@
         .grade-excellent { color: #065f46 !important; background: #dcfce7; padding: 2px 10px; border-radius: 8px; border: 1px solid #059669; }
         .grade-fail { color: #991b1b !important; background: #fee2e2; padding: 2px 10px; border-radius: 8px; border: 1px solid #ef4444; }
 
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .stat-card { background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
-        .stat-val { display: block; font-size: 20px; font-weight: 900; color: var(--primary); }
-
-        .grid-header { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 5px; text-align: center; font-size: 11px; font-weight: bold; color: var(--primary); margin: 10px 0; }
-        .bulk-student-box { border: 2px solid var(--primary); border-radius: 15px; padding: 15px; margin-bottom: 20px; background: #fff; position: relative; }
-        .bulk-row-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 5px; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px; }
-
-        /* ستايلات الألوان المطلوبة للإحصائيات */
         .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
         .status-pass { background: #dcfce7; color: #059669; border: 1px solid #059669; }
         .status-fail { background: #fee2e2; color: #dc2626; border: 1px solid #dc2626; }
 
         .dev-footer-simple { text-align: center; margin-top: 30px; padding: 20px; color: #000; font-weight: 700; font-size: 15px; border-top: 1px solid #e2e8f0; }
+        
+        .wish-text-inline { color: #e11d48; font-weight: 800; font-size: 13px; margin-right: 10px; vertical-align: middle; }
 
         @media print {
             .btn, .search-container, #adminPortal, .admin-tabs, .dev-footer-simple, .container::before, .container::after, #backToStatsBtn { display: none !important; }
@@ -109,8 +101,11 @@
             <p style="color: #64748b; font-weight: 700; font-size: 14px;">نتائج الامتحانات 2026</p>
         </div>
 
-        <div class="search-container" id="searchBox" style="max-width:400px; margin:0 auto;">
-            <label style="font-weight:800; display:block; margin-bottom:8px;">الرقم الوطني للطالبة:</label>
+        <div class="search-container" id="searchBox" style="max-width:450px; margin:0 auto;">
+            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+                <label style="font-weight:800; margin-bottom:0;">الرقم الوطني للطالبة:</label>
+                <span class="wish-text-inline">بالتوفيق لجميع طالباتنا</span>
+            </div>
             <input type="number" id="searchID" placeholder="أدخل الرقم هنا...">
             <button class="btn btn-primary" onclick="loadResult()"><i class="fas fa-search"></i> استخراج النتيجة</button>
         </div>
@@ -126,7 +121,16 @@
             </div>
             
             <table class="res-table">
-                <thead><tr><th>المادة</th><th>أعمال</th><th>من</th><th>امتحان</th><th>من</th><th>المجموع</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>المادة</th>
+                        <th>أعمال</th>
+                        <th>النهاية الصغرى</th>
+                        <th>امتحان</th>
+                        <th>النهاية الكبرى</th>
+                        <th>المجموع</th>
+                    </tr>
+                </thead>
                 <tbody id="resTbody"></tbody>
             </table>
 
@@ -259,7 +263,6 @@
                 let isFail = false;
                 for(let k in s.subjects) { if(s.subjects[k].sum < (s.subjects[k].max/2)) { isFail = true; break; } }
                 if(isFail) failed++; else passed++;
-                // هنا التعديل المطلوب للألوان
                 rows += `<tr onclick="viewFromStats('${s.id}')" style="cursor:pointer; border-bottom:1px solid #eee;">
                     <td style="padding:10px; font-weight:700; color:var(--primary);">${s.name}</td>
                     <td style="padding:10px; text-align:center;"><span class="status-badge ${isFail?'status-fail':'status-pass'}">${isFail?'دور ثانٍ':'ناجحة'}</span></td>
@@ -296,7 +299,6 @@
         const sid=document.getElementById('searchID').value;
         if(!sid) return;
         document.getElementById('loadingOverlay').style.display='flex';
-        
         setTimeout(() => {
             db.ref('students/'+sid).once('value', snap=>{ 
                 document.getElementById('loadingOverlay').style.display='none';
@@ -349,11 +351,10 @@
     }
 
     function saveToFirebase() {
-        const id = document.getElementById('editID').value || document.getElementById('inID')?.value;
+        const id = document.getElementById('editID').value;
         const name = document.getElementById('inName').value;
         const yr = document.getElementById('inYear').value;
         if(!id || !name || !yr) return alert("أكمل البيانات");
-        
         let subs = {}; let tG=0; let tM=0;
         document.querySelectorAll('#subjectsContainer > div').forEach(div => {
             const n = div.querySelector('input[type="text"]').value;
@@ -364,11 +365,9 @@
             subs[n] = {wG:wg, wM:wm, eG:eg, eM:em, sum:(wg+eg), max:(wm+em)};
             tG+=(wg+eg); tM+=(wm+em);
         });
-
         db.ref('students/'+id).set({name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1)})
         .then(()=>alert("تم الحفظ"));
     }
 </script>
 </body>
 </html>
-
