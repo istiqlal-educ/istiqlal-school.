@@ -95,7 +95,9 @@
 </head>
 <body>
 
-<audio id="fireworksAudio" src="https://www.soundjay.com/misc/sounds/firework-show-01.mp3" preload="auto"></audio>
+<audio id="fireworksAudio" preload="auto">
+    <source src="https://assets.mixkit.co/active_storage/sfx/2012/2012-preview.mp3" type="audio/mpeg">
+</audio>
 
 <div id="loadingOverlay">
     <div class="spinner"></div>
@@ -104,7 +106,6 @@
 
 <div class="container" id="searchSection">
     <div class="main-card">
-        <!-- قسم الهيدر والبحث سيختفي عند عرض النتيجة -->
         <div id="welcomeArea">
             <div class="school-header" style="text-align:center; margin-bottom:20px;">
                 <div class="school-icon" style="font-size:40px; color:var(--primary); cursor:pointer;" ondblclick="enterAdmin()"><i class="fas fa-school"></i></div>
@@ -137,9 +138,9 @@
                     <tr>
                         <th style="width: 26%;">المادة</th>
                         <th>أعمال</th>
-                        <th>من</th>
+                        <th>النهاية الصغرى</th>
                         <th>امتحان</th>
-                        <th>من</th>
+                        <th>النهاية الكبرى</th>
                         <th>المجموع</th>
                     </tr>
                 </thead>
@@ -182,8 +183,15 @@
         </div>
 
         <div id="individualTab" class="admin-section active">
-            <input type="number" id="editID" placeholder="الرقم الوطني للتعديل...">
-            <button onclick="fetchForEdit()" class="btn" style="background:var(--primary); color:white; margin-bottom:15px;">جلب البيانات</button>
+            <div style="background:#f1f5f9; padding:15px; border-radius:12px; margin-bottom:15px; border:1px dashed var(--primary);">
+                <label style="font-weight:900; display:block; margin-bottom:5px;">البحث عن طالبة للتعديل:</label>
+                <input type="number" id="editID" placeholder="الرقم الوطني للتعديل...">
+                <button onclick="fetchForEdit()" class="btn" style="background:var(--primary); color:white;">جلب البيانات</button>
+            </div>
+            
+            <hr style="margin:20px 0; opacity:0.2;">
+
+            <input type="number" id="newStudentID" placeholder="الرقم الوطني للطالبة الجديدة...">
             <input type="text" id="inName" placeholder="الاسم الرباعي">
             <select id="inYear" onchange="autoFillSubjects()">
                 <option value="">-- الصف --</option>
@@ -191,10 +199,10 @@
                 <option value="سابع">سابع</option><option value="ثامن">ثامن</option>
             </select>
             <div id="individualHeaderLabels" style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:5px; font-size:11px; font-weight:bold; text-align:center; color:var(--primary); margin-bottom:5px;">
-                <span>المادة</span><span>أعمال</span><span>من</span><span>امتحان</span><span>من</span>
+                <span>المادة</span><span>أعمال</span><span>صغرى</span><span>امتحان</span><span>كبرى</span>
             </div>
             <div id="subjectsContainer"></div>
-            <button class="btn" style="background: var(--success); color:white;" onclick="saveToFirebase()">حفظ الطالبة</button>
+            <button class="btn" style="background: var(--success); color:white;" onclick="saveToFirebase()">حفظ ورصد الطالبة</button>
         </div>
 
         <div id="bulkTab" class="admin-section">
@@ -273,6 +281,7 @@
             document.getElementById('loadingOverlay').style.display='none';
             if(!snap.exists()) return alert("طالبة غير موجودة");
             const data = snap.val();
+            document.getElementById('newStudentID').value = id; // وضع الرقم في خانة الإضافة للتأكيد
             document.getElementById('inName').value = data.name;
             document.getElementById('inYear').value = data.year;
             
@@ -307,7 +316,7 @@
                 html += `<div class="bulk-row" data-id="${c.key}">
                     <i class="fas fa-trash delete-btn" onclick="deleteStudent('${c.key}')"></i>
                     <div style="font-weight:900; color:var(--primary); margin-bottom:10px;">${s.name} (${c.key})</div>
-                    <div class="bulk-header-labels"><span>المادة</span><span>أعمال</span><span>من</span><span>امتحان</span><span>من</span></div>`;
+                    <div class="bulk-header-labels"><span>المادة</span><span>أعمال</span><span>صغرى</span><span>امتحان</span><span>كبرى</span></div>`;
                 
                 schoolSubjects[yr].forEach(subName => {
                     const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG:0, wM:40, eG:0, eM:60};
@@ -388,7 +397,7 @@
     function viewFromStats(id) {
         document.getElementById('adminPortal').style.display='none';
         document.getElementById('searchSection').style.display='block';
-        document.getElementById('welcomeArea').style.display='none'; // إخفاء البحث عند العرض من الإحصائيات
+        document.getElementById('welcomeArea').style.display='none';
         document.getElementById('backToStatsBtn').style.display='flex';
         document.getElementById('searchID').value = id;
         loadResult();
@@ -398,7 +407,7 @@
         document.getElementById('resultView').style.display='none';
         document.getElementById('searchSection').style.display='none';
         document.getElementById('adminPortal').style.display='block';
-        document.getElementById('welcomeArea').style.display='block'; // استعادة البحث
+        document.getElementById('welcomeArea').style.display='block';
         document.getElementById('backToStatsBtn').style.display='none';
         showTab('statsTab', document.getElementById('statsTabBtn'));
     }
@@ -406,6 +415,11 @@
     function loadResult() {
         const sid=document.getElementById('searchID').value;
         if(!sid) return;
+        
+        // محاولة تجهيز الصوت (حيلة للمتصفحات)
+        const audio = document.getElementById('fireworksAudio');
+        audio.play().then(() => { audio.pause(); audio.currentTime = 0; }).catch(() => {});
+
         document.getElementById('loadingOverlay').style.display='flex';
         setTimeout(() => {
             db.ref('students/'+sid).once('value', snap=>{ 
@@ -417,7 +431,6 @@
     }
 
     function showData(data) {
-        // إخفاء منطقة الترحيب والبحث تماماً عند ظهور النتيجة
         document.getElementById('welcomeArea').style.display = 'none';
         document.getElementById('resultView').style.display='block';
         
@@ -458,8 +471,7 @@
 
     function triggerCelebration() {
         const audio = document.getElementById('fireworksAudio');
-        audio.currentTime = 0;
-        audio.play().catch(e => console.warn("ملاحظة: المتصفح يتطلب تفاعل المستخدم لتشغيل الصوت."));
+        audio.play().catch(e => console.error("فشل تشغيل الصوت:", e));
 
         var duration = 4 * 1000;
         var end = Date.now() + duration;
@@ -498,10 +510,10 @@
     }
 
     function saveToFirebase() {
-        const id = document.getElementById('editID').value;
+        const id = document.getElementById('newStudentID').value; // استخدام الخانة الجديدة
         const name = document.getElementById('inName').value;
         const yr = document.getElementById('inYear').value;
-        if(!id || !name || !yr) return alert("أكمل البيانات");
+        if(!id || !name || !yr) return alert("أكمل البيانات (الرقم الوطني، الاسم، الصف)");
         let subs = {}; let tG=0; let tM=0;
         document.querySelectorAll('#subjectsContainer > div').forEach(div => {
             const n = div.querySelector('input[type="text"]').value;
@@ -513,7 +525,7 @@
             tG+=(wg+eg); tM+=(wm+em);
         });
         db.ref('students/'+id).set({name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1)})
-        .then(()=>alert("تم الحفظ"));
+        .then(()=>alert("تم حفظ ورصد بيانات الطالبة بنجاح"));
     }
 </script>
 </body>
