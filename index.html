@@ -82,9 +82,13 @@
         .status-fail { background: #fee2e2; color: #dc2626; }
 
         .grid-header { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 5px; text-align: center; font-size: 11px; font-weight: bold; color: var(--primary); margin: 10px 0; }
-        .bulk-student-box { border: 2px solid var(--primary); border-radius: 15px; padding: 15px; margin-bottom: 20px; background: #fff; }
+        .bulk-student-box { border: 2px solid var(--primary); border-radius: 15px; padding: 15px; margin-bottom: 20px; background: #fff; position: relative; }
         .bulk-row-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 5px; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px; }
         .bulk-row-grid input { margin-bottom: 0; padding: 6px; font-size: 13px; border: 1px solid #cbd5e1; }
+
+        /* ستايل زر الحذف الصغير */
+        .bulk-delete-btn { position: absolute; left: 10px; top: 10px; background: none; border: none; color: var(--danger); cursor: pointer; font-size: 18px; transition: 0.3s; }
+        .bulk-delete-btn:hover { transform: scale(1.2); }
 
         .dev-footer-simple { text-align: center; margin-top: 30px; padding: 20px; color: #000; font-weight: 700; font-size: 15px; border-top: 1px solid #e2e8f0; }
 
@@ -107,7 +111,6 @@
         <div class="search-container" style="max-width:400px; margin:0 auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                 <label style="font-weight:800;">الرقم الوطني للطالبة:</label>
-                <!-- تم حذف القلب كما طلبت -->
                 <span style="font-size: 12px; color: var(--accent); font-weight: 700;">بالتوفيق لجميع طالباتنا</span>
             </div>
             
@@ -197,7 +200,7 @@
 
         <div id="bulkTab" class="admin-section">
              <select id="bulkSelectYear" onchange="loadBulkStudentsList()">
-                <option value="">-- اختر الصف --</option>
+                <option value="">-- اختر الصف لعرض الطالبات --</option>
                 <option value="خامس">خامس</option><option value="سادس">سادس</option>
                 <option value="سابع">سابع</option><option value="ثامن">ثامن</option>
             </select>
@@ -341,7 +344,10 @@
             studentsArr.forEach(s => {
                 const sid = s.id;
                 h += `<div class="bulk-student-box" data-id="${sid}">
-                    <strong style="display:block; margin-bottom:10px; color:var(--primary);">${s.name}</strong>
+                    <!-- زر الحذف الجديد -->
+                    <button class="bulk-delete-btn" onclick="bulkDelete('${sid}', '${s.name}')" title="حذف الطالبة"><i class="fas fa-trash-alt"></i></button>
+                    
+                    <strong style="display:block; margin-bottom:10px; color:var(--primary); text-align:center;">${s.name}</strong>
                     <div class="grid-header" style="font-size:10px;">
                         <div>المادة</div><div>أعمال</div><div>من</div><div>امتحان</div><div>من</div>
                     </div>`;
@@ -357,6 +363,18 @@
             });
             container.innerHTML = h; document.getElementById('saveAllBulkBtn').style.display = 'block';
         });
+    }
+
+    // وظيفة الحذف من الرصد الجماعي
+    function bulkDelete(id, name) {
+        if(confirm(`هل أنت متأكد من حذف الطالبة (${name}) نهائياً؟`)) {
+            db.ref('students/' + id).remove()
+            .then(() => {
+                alert("تم الحذف بنجاح");
+                loadBulkStudentsList(); // تحديث القائمة فوراً
+            })
+            .catch(err => alert("خطأ في الحذف: " + err.message));
+        }
     }
 
     async function saveAllBulkData() {
@@ -458,3 +476,4 @@
 </script>
 </body>
 </html>
+
