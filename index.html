@@ -60,25 +60,33 @@
         
         #resultView { display: none; margin-top: 20px; padding: 10px; border-radius: 12px; background: #fff; }
         
+        /* تعديل الجدول لضمان احتواء الحروف */
         .res-table { width: 100%; border-collapse: collapse; table-layout: fixed; border: 1px solid var(--border); }
         .res-table th { 
-            background: var(--primary); color: white; padding: 6px 1px; font-size: 9px; border: 1px solid #fff;
-            line-height: 1.1; word-wrap: break-word; vertical-align: middle; height: 40px;
+            background: var(--primary); color: white; padding: 4px 1px; font-size: 9px; border: 1px solid #fff;
+            line-height: 1.1; word-wrap: break-word; vertical-align: middle; height: 45px;
+            overflow: hidden; text-overflow: ellipsis;
         }
-        .res-table td { padding: 8px 1px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900; color: #000; font-size: 12px; }
+        .res-table td { padding: 8px 1px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900; color: #000; font-size: 11px; word-break: break-all; }
 
         .summary-box { margin-top: 0; border: 2px solid var(--primary); background: #f8fafc; border-radius: 0 0 10px 10px; }
         
-        .grade-excellent { color: #065f46 !important; background: #dcfce7; padding: 2px 10px; border-radius: 8px; border: 1px solid #059669; }
-        .grade-fail { color: #991b1b !important; background: #fee2e2; padding: 2px 10px; border-radius: 8px; border: 1px solid #ef4444; }
-
-        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        .status-pass { background: #dcfce7; color: #059669; border: 1px solid #059669; }
-        .status-fail { background: #fee2e2; color: #dc2626; border: 1px solid #dc2626; }
+        /* صناديق الإحصائيات الجمالية */
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+        .stat-box { padding: 15px; border-radius: 15px; text-align: center; border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; }
+        .stat-box:hover { transform: translateY(-3px); }
+        .stat-box span { display: block; font-weight: 900; }
+        .stat-title { font-size: 12px; color: #64748b; margin-bottom: 5px; }
+        .stat-value { font-size: 22px; color: var(--primary); }
 
         .dev-footer-simple { text-align: center; margin-top: 30px; padding: 20px; color: #000; font-weight: 700; font-size: 15px; border-top: 1px solid #e2e8f0; }
-        
         .wish-text-inline { color: #e11d48; font-weight: 800; font-size: 13px; margin-right: 10px; vertical-align: middle; }
+
+        /* الرصد الجماعي - تنسيق */
+        .bulk-row { background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); position: relative; }
+        .bulk-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 5px; margin-top: 10px; }
+        .bulk-header-labels { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 5px; font-size: 10px; font-weight: bold; text-align: center; color: var(--primary); }
+        .delete-btn { position: absolute; left: 10px; top: 10px; color: var(--danger); cursor: pointer; font-size: 18px; }
 
         @media print {
             .btn, .search-container, #adminPortal, .admin-tabs, .dev-footer-simple, .container::before, .container::after, #backToStatsBtn { display: none !important; }
@@ -123,7 +131,7 @@
             <table class="res-table">
                 <thead>
                     <tr>
-                        <th>المادة</th>
+                        <th style="width: 25%;">المادة</th>
                         <th>أعمال</th>
                         <th>النهاية الصغرى</th>
                         <th>امتحان</th>
@@ -184,7 +192,7 @@
 
         <div id="bulkTab" class="admin-section">
              <select id="bulkSelectYear" onchange="loadBulkStudentsList()">
-                <option value="">-- اختر الصف --</option>
+                <option value="">-- اختر الصف لجلب الطالبات --</option>
                 <option value="خامس">خامس</option><option value="سادس">سادس</option>
                 <option value="سابع">سابع</option><option value="ثامن">ثامن</option>
             </select>
@@ -200,10 +208,10 @@
             </select>
             <div id="statsContent" style="display:none;">
                 <div class="stats-grid">
-                    <div class="stat-card"><span id="countTotal" class="stat-val">0</span><span>إجمالي</span></div>
-                    <div class="stat-card"><span id="countPass" class="stat-val" style="color:var(--success)">0</span><span>ناجحة</span></div>
-                    <div class="stat-card"><span id="countFail" class="stat-val" style="color:var(--danger)">0</span><span>راسبة</span></div>
-                    <div class="stat-card"><span id="passPercent" class="stat-val">0%</span><span>النسبة</span></div>
+                    <div class="stat-box"><span class="stat-title">الإجمالي</span><span id="countTotal" class="stat-value">0</span></div>
+                    <div class="stat-box"><span class="stat-title">ناجحة</span><span id="countPass" class="stat-value" style="color:var(--success)">0</span></div>
+                    <div class="stat-box"><span class="stat-title">راسبة</span><span id="countFail" class="stat-value" style="color:var(--danger)">0</span></div>
+                    <div class="stat-box"><span class="stat-title">النسبة</span><span id="passPercent" class="stat-value">0%</span></div>
                 </div>
                 <table style="width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden;">
                     <thead style="background:var(--primary); color:white;"><tr><th style="padding:10px;">الاسم</th><th style="padding:10px;">الحالة</th></tr></thead>
@@ -250,6 +258,72 @@
         });
     }
 
+    // الرصد الجماعي المطور
+    function loadBulkStudentsList() {
+        const yr = document.getElementById('bulkSelectYear').value;
+        const con = document.getElementById('bulkStudentsContainer');
+        if(!yr) { con.innerHTML = ""; return; }
+        
+        document.getElementById('loadingOverlay').style.display='flex';
+        db.ref('students').orderByChild('year').equalTo(yr).once('value', snap => {
+            document.getElementById('loadingOverlay').style.display='none';
+            let html = "";
+            snap.forEach(c => {
+                const s = c.val();
+                html += `<div class="bulk-row" data-id="${c.key}">
+                    <i class="fas fa-trash delete-btn" onclick="deleteStudent('${c.key}')"></i>
+                    <div style="font-weight:900; color:var(--primary); margin-bottom:10px;">${s.name} (${c.key})</div>
+                    <div class="bulk-header-labels"><span>المادة</span><span>أعمال</span><span>صغرى</span><span>امتحان</span><span>كبرى</span></div>`;
+                
+                schoolSubjects[yr].forEach(subName => {
+                    const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG:0, wM:40, eG:0, eM:60};
+                    html += `<div class="bulk-grid" data-subject="${subName}">
+                        <input type="text" value="${subName}" readonly style="font-size:10px; background:#eee;">
+                        <input type="number" class="wG" value="${subData.wG}">
+                        <input type="number" class="wM" value="${subData.wM}">
+                        <input type="number" class="eG" value="${subData.eG}">
+                        <input type="number" class="eM" value="${subData.eM}">
+                    </div>`;
+                });
+                html += `</div>`;
+            });
+            con.innerHTML = html || "<p style='text-align:center;'>لا يوجد طالبات في هذا الصف</p>";
+            document.getElementById('saveAllBulkBtn').style.display = html ? "block" : "none";
+        });
+    }
+
+    function deleteStudent(id) {
+        if(confirm("هل أنت متأكد من حذف هذه الطالبة نهائياً؟")) {
+            db.ref('students/'+id).remove().then(() => {
+                alert("تم الحذف بنجاح");
+                loadBulkStudentsList();
+            });
+        }
+    }
+
+    function saveAllBulkData() {
+        const rows = document.querySelectorAll('.bulk-row');
+        let updates = {};
+        rows.forEach(row => {
+            const id = row.getAttribute('data-id');
+            const name = row.querySelector('div').innerText.split(' (')[0];
+            const yr = document.getElementById('bulkSelectYear').value;
+            let subs = {}; let tG=0; let tM=0;
+            
+            row.querySelectorAll('.bulk-grid').forEach(grid => {
+                const subName = grid.getAttribute('data-subject');
+                const wg = parseFloat(grid.querySelector('.wG').value) || 0;
+                const wm = parseFloat(grid.querySelector('.wM').value) || 0;
+                const eg = parseFloat(grid.querySelector('.eG').value) || 0;
+                const em = parseFloat(grid.querySelector('.eM').value) || 0;
+                subs[subName] = {wG:wg, wM:wm, eG:eg, eM:em, sum:(wg+eg), max:(wm+em)};
+                tG+=(wg+eg); tM+=(wm+em);
+            });
+            updates['students/'+id] = {name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1)};
+        });
+        db.ref().update(updates).then(() => alert("تم حفظ جميع التعديلات بنجاح"));
+    }
+
     function loadClassStats() {
         const yr = document.getElementById('statsSelectYear').value;
         const content = document.getElementById('statsContent');
@@ -271,7 +345,7 @@
             document.getElementById('countTotal').innerText = students.length;
             document.getElementById('countPass').innerText = passed;
             document.getElementById('countFail').innerText = failed;
-            document.getElementById('passPercent').innerText = ((passed/students.length)*100).toFixed(1) + "%";
+            document.getElementById('passPercent').innerText = students.length > 0 ? ((passed/students.length)*100).toFixed(1) + "%" : "0%";
             document.getElementById('statsTbody').innerHTML = rows;
             content.style.display = 'block';
         });
