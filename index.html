@@ -248,6 +248,42 @@
         if (schoolSubjects[yr]) schoolSubjects[yr].forEach(s => addNewSubject({n:s, wg:'', wm:40, eg:'', em:60}));
     }
 
+    function saveToFirebase() {
+        const id = document.getElementById('inID').value;
+        const name = document.getElementById('inName').value;
+        const yr = document.getElementById('inYear').value;
+        
+        if(!id || !name || !yr) return alert("يرجى إكمال جميع البيانات (الاسم، الرقم، الصف)");
+
+        let subs = {}; let tS = 0; let tM = 0;
+        document.querySelectorAll('.m-name').forEach((nEl) => {
+            const n = nEl.value;
+            const parent = nEl.parentElement;
+            const wg = parseFloat(parent.querySelector('.m-w-got').value) || 0;
+            const wm = parseFloat(parent.querySelector('.m-w-max').value) || 0;
+            const eg = parseFloat(parent.querySelector('.m-e-got').value) || 0;
+            const em = parseFloat(parent.querySelector('.m-e-max').value) || 0;
+            if(n) {
+                subs[n] = {wG: wg, wM: wm, eG: eg, eM: em, sum: (wg + eg), max: (wm + em)};
+                tS += (wg + eg); tM += (wm + em);
+            }
+        });
+
+        db.ref('students/' + id).set({
+            name: name,
+            year: yr,
+            subjects: subs,
+            percent: ((tS / tM) * 100).toFixed(1),
+            totalGot: tS,
+            totalMax: tM
+        }).then(() => {
+            alert("تم حفظ الطالبة: " + name + " بنجاح");
+            document.getElementById('inName').value = "";
+            document.getElementById('inID').value = "";
+            document.querySelectorAll('.m-w-got, .m-e-got').forEach(input => input.value = "");
+        }).catch(err => alert("خطأ في الحفظ: " + err));
+    }
+
     function loadBulkStudentsList() {
         const yr = document.getElementById('bulkSelectYear').value;
         const container = document.getElementById('bulkStudentsContainer');
@@ -306,19 +342,6 @@
                 for(let k in d.subjects){ const s = d.subjects[k]; addNewSubject({n:k, wg:s.wG, wm:s.wM, eg:s.eG, em:s.eM}); }
             } else alert("غير موجود");
         });
-    }
-
-    function saveToFirebase() {
-        const id=document.getElementById('inID').value; const name=document.getElementById('inName').value; const yr=document.getElementById('inYear').value;
-        if(!id||!name) return alert("أكمل البيانات");
-        let subs={}; let tS=0; let tM=0;
-        document.querySelectorAll('.m-name').forEach((nEl)=>{
-            const n=nEl.value; const parent=nEl.parentElement;
-            const wg=parseFloat(parent.querySelector('.m-w-got').value)||0; const wm=parseFloat(parent.querySelector('.m-w-max').value)||0;
-            const eg=parseFloat(parent.querySelector('.m-e-got').value)||0; const em=parseFloat(parent.querySelector('.m-e-max').value)||0;
-            if(n){ subs[n]={wG:wg, wM:wm, eG:eg, eM:em, sum:(wg+eg), max:(wm+em)}; tS+=(wg+eg); tM+=(wm+em); }
-        });
-        db.ref('students/'+id).set({name, year:yr, subjects:subs, percent:((tS/tM)*100).toFixed(1), totalGot:tS, totalMax:tM}).then(()=>alert("تم الحفظ بنجاح"));
     }
 
     function deleteStudent() {
