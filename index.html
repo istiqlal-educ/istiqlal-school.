@@ -10,6 +10,8 @@
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- مكتبة الألعاب النارية -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
         :root {
@@ -60,7 +62,6 @@
         
         #resultView { display: none; margin-top: 20px; padding: 10px; border-radius: 12px; background: #fff; }
         
-        /* تحسين جدول الشهادة لمنع ضياع الحروف */
         .res-table { width: 100%; border-collapse: collapse; table-layout: fixed; border: 1px solid var(--border); }
         .res-table th { 
             background: var(--primary); color: white; padding: 5px 2px; font-size: 10px; border: 1px solid #fff;
@@ -70,9 +71,10 @@
 
         .summary-box { margin-top: 0; border: 2px solid var(--primary); background: #f8fafc; border-radius: 0 0 10px 10px; }
         
-        /* ألوان الإحصائيات المطلوبة */
+        /* ألوان الإحصائيات والتقديرات */
         .status-pass-text { color: var(--success) !important; font-weight: 900; }
         .status-fail-text { color: var(--danger) !important; font-weight: 900; }
+        .grade-success-color { color: var(--success) !important; font-weight: 900; }
 
         .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
         .stat-box { padding: 15px; border-radius: 15px; text-align: center; border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
@@ -238,8 +240,8 @@
     const db = firebase.database();
 
     const schoolSubjects = {
-        "خامس": [ "التربية الإسلامية", "الحاسوب", "الرياضيات", "العلوم", "الكتابة", "اللغة الإنجليزية", "الاجتماعيات","اللغة العربية"],
-        "سادس": [ "التربية الإسلامية", "الحاسوب", "الرياضيات", "العلوم", "الكتابة", "اللغة الإنجليزية", "الاجتماعيات", "اللغة العربية"],
+        "خامس": ["التاريخ", "التربية الإسلامية", "الجغرافيا", "الحاسوب", "الرياضيات", "العلوم", "الكتابة", "اللغة الإنجليزية", "اللغة العربية"],
+        "سادس": ["التاريخ", "التربية الإسلامية", "الجغرافيا", "الحاسوب", "الرياضيات", "العلوم", "الكتابة", "اللغة الإنجليزية", "اللغة العربية"],
         "سابع": ["التاريخ", "التربية الإسلامية", "الجغرافيا", "الحاسوب", "الرياضيات", "العلوم", "الكتابة", "اللغة الإنجليزية", "اللغة العربية"],
         "ثامن": ["التاريخ", "التربية الإسلامية", "الجغرافيا", "الحاسوب", "الرياضيات", "العلوم", "الكتابة", "اللغة الإنجليزية", "اللغة العربية"]
     };
@@ -261,7 +263,6 @@
         });
     }
 
-    // تم إصلاح هذه الوظيفة
     function fetchForEdit() {
         const id = document.getElementById('editID').value;
         if(!id) return alert("أدخل الرقم الوطني أولاً");
@@ -439,9 +440,44 @@
             document.getElementById('outTotalSum').innerText = data.totalGot + " من " + data.totalMax;
             document.getElementById('outPercent').innerText = data.percent + "%";
             let p=parseFloat(data.percent);
-            if(p>=85) { gradeEl.innerText="ممتاز"; gradeEl.className="grade-excellent"; }
-            else if(p>=75) gradeEl.innerText="جيد جداً"; else if(p>=65) gradeEl.innerText="جيد"; else gradeEl.innerText="مقبول";
+            
+            // إضافة اللون الأخضر للتقديرات
+            gradeEl.classList.add('grade-success-color');
+            
+            if(p>=85) gradeEl.innerText="ممتاز";
+            else if(p>=75) gradeEl.innerText="جيد جداً"; 
+            else if(p>=65) gradeEl.innerText="جيد"; 
+            else gradeEl.innerText="مقبول";
+
+            // إطلاق الألعاب النارية احتفالاً بالنجاح
+            triggerCelebration();
         }
+    }
+
+    function triggerCelebration() {
+        var duration = 3 * 1000;
+        var end = Date.now() + duration;
+
+        (function frame() {
+          confetti({
+            particleCount: 3,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 },
+            colors: ['#1e3a8a', '#b45309', '#059669']
+          });
+          confetti({
+            particleCount: 3,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 },
+            colors: ['#1e3a8a', '#b45309', '#059669']
+          });
+
+          if (Date.now() < end) {
+            requestAnimationFrame(frame);
+          }
+        }());
     }
 
     function autoFillSubjects() {
