@@ -60,32 +60,32 @@
         
         #resultView { display: none; margin-top: 20px; padding: 10px; border-radius: 12px; background: #fff; }
         
-        /* تعديل الجدول لضمان احتواء الحروف */
+        /* تحسين جدول الشهادة لمنع ضياع الحروف */
         .res-table { width: 100%; border-collapse: collapse; table-layout: fixed; border: 1px solid var(--border); }
         .res-table th { 
-            background: var(--primary); color: white; padding: 4px 1px; font-size: 9px; border: 1px solid #fff;
-            line-height: 1.1; word-wrap: break-word; vertical-align: middle; height: 45px;
-            overflow: hidden; text-overflow: ellipsis;
+            background: var(--primary); color: white; padding: 5px 2px; font-size: 10px; border: 1px solid #fff;
+            line-height: 1.2; word-wrap: break-word; vertical-align: middle; height: auto;
         }
-        .res-table td { padding: 8px 1px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900; color: #000; font-size: 11px; word-break: break-all; }
+        .res-table td { padding: 10px 2px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900; color: #000; font-size: 13px; overflow: hidden; }
 
         .summary-box { margin-top: 0; border: 2px solid var(--primary); background: #f8fafc; border-radius: 0 0 10px 10px; }
         
-        /* صناديق الإحصائيات الجمالية */
+        /* ألوان الإحصائيات المطلوبة */
+        .status-pass-text { color: var(--success) !important; font-weight: 900; }
+        .status-fail-text { color: var(--danger) !important; font-weight: 900; }
+
         .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
-        .stat-box { padding: 15px; border-radius: 15px; text-align: center; border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; }
-        .stat-box:hover { transform: translateY(-3px); }
-        .stat-box span { display: block; font-weight: 900; }
-        .stat-title { font-size: 12px; color: #64748b; margin-bottom: 5px; }
-        .stat-value { font-size: 22px; color: var(--primary); }
+        .stat-box { padding: 15px; border-radius: 15px; text-align: center; border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .stat-title { font-size: 12px; color: #64748b; margin-bottom: 5px; display: block; font-weight: 900; }
+        .stat-value { font-size: 22px; color: var(--primary); display: block; font-weight: 900; }
 
         .dev-footer-simple { text-align: center; margin-top: 30px; padding: 20px; color: #000; font-weight: 700; font-size: 15px; border-top: 1px solid #e2e8f0; }
         .wish-text-inline { color: #e11d48; font-weight: 800; font-size: 13px; margin-right: 10px; vertical-align: middle; }
 
-        /* الرصد الجماعي - تنسيق */
+        /* الرصد الجماعي - المسميات الجديدة */
         .bulk-row { background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); position: relative; }
         .bulk-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 5px; margin-top: 10px; }
-        .bulk-header-labels { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 5px; font-size: 10px; font-weight: bold; text-align: center; color: var(--primary); }
+        .bulk-header-labels { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 5px; font-size: 11px; font-weight: bold; text-align: center; color: var(--primary); }
         .delete-btn { position: absolute; left: 10px; top: 10px; color: var(--danger); cursor: pointer; font-size: 18px; }
 
         @media print {
@@ -131,7 +131,7 @@
             <table class="res-table">
                 <thead>
                     <tr>
-                        <th style="width: 25%;">المادة</th>
+                        <th style="width: 26%;">المادة</th>
                         <th>أعمال</th>
                         <th>النهاية الصغرى</th>
                         <th>امتحان</th>
@@ -258,7 +258,6 @@
         });
     }
 
-    // الرصد الجماعي المطور
     function loadBulkStudentsList() {
         const yr = document.getElementById('bulkSelectYear').value;
         const con = document.getElementById('bulkStudentsContainer');
@@ -273,7 +272,7 @@
                 html += `<div class="bulk-row" data-id="${c.key}">
                     <i class="fas fa-trash delete-btn" onclick="deleteStudent('${c.key}')"></i>
                     <div style="font-weight:900; color:var(--primary); margin-bottom:10px;">${s.name} (${c.key})</div>
-                    <div class="bulk-header-labels"><span>المادة</span><span>أعمال</span><span>صغرى</span><span>امتحان</span><span>كبرى</span></div>`;
+                    <div class="bulk-header-labels"><span>المادة</span><span>أعمال من</span><span>من</span><span>امتحان من</span><span>من</span></div>`;
                 
                 schoolSubjects[yr].forEach(subName => {
                     const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG:0, wM:40, eG:0, eM:60};
@@ -339,7 +338,7 @@
                 if(isFail) failed++; else passed++;
                 rows += `<tr onclick="viewFromStats('${s.id}')" style="cursor:pointer; border-bottom:1px solid #eee;">
                     <td style="padding:10px; font-weight:700; color:var(--primary);">${s.name}</td>
-                    <td style="padding:10px; text-align:center;"><span class="status-badge ${isFail?'status-fail':'status-pass'}">${isFail?'دور ثانٍ':'ناجحة'}</span></td>
+                    <td style="padding:10px; text-align:center;"><span class="${isFail?'status-fail-text':'status-pass-text'}">${isFail?'لها دور ثانٍ':'ناجحة'}</span></td>
                 </tr>`;
             });
             document.getElementById('countTotal').innerText = students.length;
@@ -399,7 +398,7 @@
         document.getElementById('resTbody').innerHTML=h;
         const gradeEl = document.getElementById('outGrade');
         if(hasFail) {
-            gradeEl.innerText = "له دور ثانٍ"; gradeEl.className = "grade-fail";
+            gradeEl.innerText = "لها دور ثانٍ"; gradeEl.className = "grade-fail";
             document.getElementById('totalRow').style.display="none"; document.getElementById('percentRow').style.display="none";
             document.getElementById('failMissions').style.display="block"; document.getElementById('failListItems').innerText = failed.join(' - ');
         } else {
