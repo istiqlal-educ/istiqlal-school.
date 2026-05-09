@@ -308,25 +308,19 @@
         });
     }
 
-    // التعديل المطلوب: الحفظ بناءً على الاسم والرقم والصف فقط وبدون درجات
+    // تصحيح دالة الحفظ لتعمل بناءً على طلبك (الاسم، الرقم، الصف) فقط
     function saveToFirebase() {
         const id = document.getElementById('inID').value; 
         const name = document.getElementById('inName').value; 
         const yr = document.getElementById('inYear').value;
         
-        if(!id || !name || !yr) return alert("الرجاء إدخال الاسم والرقم الوطني واختيار الصف");
+        if(!id || !name || !yr) return alert("أكمل البيانات (الاسم، الرقم، الصف)");
 
         let subs = {};
+        // بناء هيكل المواد تلقائياً بدون درجات
         if (schoolSubjects[yr]) {
             schoolSubjects[yr].forEach(s => {
-                subs[s] = {
-                    wG: '', 
-                    wM: 40, 
-                    eG: '', 
-                    eM: 60, 
-                    sum: 0,
-                    max: 100
-                };
+                subs[s] = { wG: '', wM: 40, eG: '', eM: 60, sum: 0, max: 100 };
             });
         }
 
@@ -338,9 +332,9 @@
             totalGot: 0,
             totalMax: 0
         }).then(() => {
-            alert("تم تسجيل الطالبة بنجاح في المنظومة");
-            document.getElementById('inID').value = '';
-            document.getElementById('inName').value = '';
+            alert("تم حفظ الطالبة بنجاح");
+        }).catch((e) => {
+            alert("خطأ: " + e.message);
         });
     }
 
