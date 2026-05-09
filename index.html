@@ -95,6 +95,7 @@
 </head>
 <body>
 
+<!-- تم تغيير الرابط لصوت ألعاب نارية فقط بدون أي صوت بشري -->
 <audio id="fireworksAudio" preload="auto">
     <source src="https://assets.mixkit.co/active_storage/sfx/2012/2012-preview.mp3" type="audio/mpeg">
 </audio>
@@ -198,8 +199,9 @@
                 <option value="خامس">خامس</option><option value="سادس">سادس</option>
                 <option value="سابع">سابع</option><option value="ثامن">ثامن</option>
             </select>
+            <!-- تم تعديل العناوين هنا لتصبح أعمال من / امتحان من -->
             <div id="individualHeaderLabels" style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:5px; font-size:11px; font-weight:bold; text-align:center; color:var(--primary); margin-bottom:5px;">
-                <span>المادة</span><span>أعمال</span><span>صغرى</span><span>امتحان</span><span>كبرى</span>
+                <span>المادة</span><span>أعمال</span><span>من</span><span>امتحان</span><span>من</span>
             </div>
             <div id="subjectsContainer"></div>
             <button class="btn" style="background: var(--success); color:white;" onclick="saveToFirebase()">حفظ ورصد الطالبة</button>
@@ -281,7 +283,7 @@
             document.getElementById('loadingOverlay').style.display='none';
             if(!snap.exists()) return alert("طالبة غير موجودة");
             const data = snap.val();
-            document.getElementById('newStudentID').value = id; // وضع الرقم في خانة الإضافة للتأكيد
+            document.getElementById('newStudentID').value = id; 
             document.getElementById('inName').value = data.name;
             document.getElementById('inYear').value = data.year;
             
@@ -316,7 +318,7 @@
                 html += `<div class="bulk-row" data-id="${c.key}">
                     <i class="fas fa-trash delete-btn" onclick="deleteStudent('${c.key}')"></i>
                     <div style="font-weight:900; color:var(--primary); margin-bottom:10px;">${s.name} (${c.key})</div>
-                    <div class="bulk-header-labels"><span>المادة</span><span>أعمال</span><span>صغرى</span><span>امتحان</span><span>كبرى</span></div>`;
+                    <div class="bulk-header-labels"><span>المادة</span><span>أعمال</span><span>من</span><span>امتحان</span><span>من</span></div>`;
                 
                 schoolSubjects[yr].forEach(subName => {
                     const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG:0, wM:40, eG:0, eM:60};
@@ -416,7 +418,6 @@
         const sid=document.getElementById('searchID').value;
         if(!sid) return;
         
-        // محاولة تجهيز الصوت (حيلة للمتصفحات)
         const audio = document.getElementById('fireworksAudio');
         audio.play().then(() => { audio.pause(); audio.currentTime = 0; }).catch(() => {});
 
@@ -479,16 +480,12 @@
         (function frame() {
           confetti({
             particleCount: 5,
-            angle: 60,
-            spread: 55,
-            origin: { x: 0 },
+            angle: 60, spread: 55, origin: { x: 0 },
             colors: ['#1e3a8a', '#b45309', '#059669', '#FFD700']
           });
           confetti({
             particleCount: 5,
-            angle: 120,
-            spread: 55,
-            origin: { x: 1 },
+            angle: 120, spread: 55, origin: { x: 1 },
             colors: ['#1e3a8a', '#b45309', '#059669', '#FFD700']
           });
 
@@ -510,7 +507,7 @@
     }
 
     function saveToFirebase() {
-        const id = document.getElementById('newStudentID').value; // استخدام الخانة الجديدة
+        const id = document.getElementById('newStudentID').value; 
         const name = document.getElementById('inName').value;
         const yr = document.getElementById('inYear').value;
         if(!id || !name || !yr) return alert("أكمل البيانات (الرقم الوطني، الاسم، الصف)");
@@ -530,3 +527,4 @@
 </script>
 </body>
 </html>
+
