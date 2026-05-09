@@ -133,9 +133,9 @@
                     <tr>
                         <th style="width: 26%;">المادة</th>
                         <th>أعمال</th>
-                        <th>أعمال من</th>
+                        <th>من</th>
                         <th>امتحان</th>
-                        <th>امتحان من</th>
+                        <th>من</th>
                         <th>المجموع</th>
                     </tr>
                 </thead>
@@ -186,6 +186,9 @@
                 <option value="خامس">خامس</option><option value="سادس">سادس</option>
                 <option value="سابع">سابع</option><option value="ثامن">ثامن</option>
             </select>
+            <div id="individualHeaderLabels" style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:5px; font-size:11px; font-weight:bold; text-align:center; color:var(--primary); margin-bottom:5px;">
+                <span>المادة</span><span>أعمال</span><span>من</span><span>امتحان</span><span>من</span>
+            </div>
             <div id="subjectsContainer"></div>
             <button class="btn" style="background: var(--success); color:white;" onclick="saveToFirebase()">حفظ الطالبة</button>
         </div>
@@ -272,7 +275,7 @@
                 html += `<div class="bulk-row" data-id="${c.key}">
                     <i class="fas fa-trash delete-btn" onclick="deleteStudent('${c.key}')"></i>
                     <div style="font-weight:900; color:var(--primary); margin-bottom:10px;">${s.name} (${c.key})</div>
-                    <div class="bulk-header-labels"><span>المادة</span><span>أعمال</span><span>أعمال من</span><span>امتحان</span><span>امتحان من</span></div>`;
+                    <div class="bulk-header-labels"><span>المادة</span><span>أعمال</span><span>من</span><span>امتحان</span><span>من</span></div>`;
                 
                 schoolSubjects[yr].forEach(subName => {
                     const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG:0, wM:40, eG:0, eM:60};
@@ -444,4 +447,3 @@
 </script>
 </body>
 </html>
-
