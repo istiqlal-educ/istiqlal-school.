@@ -248,6 +248,7 @@
         if (schoolSubjects[yr]) schoolSubjects[yr].forEach(s => addNewSubject({n:s, wg:'', wm:40, eg:'', em:60}));
     }
 
+    // التعديل هنا لترتيب الأسماء أبجدياً فقط
     function loadBulkStudentsList() {
         const yr = document.getElementById('bulkSelectYear').value;
         const container = document.getElementById('bulkStudentsContainer');
@@ -255,9 +256,19 @@
         container.innerHTML = "جاري التحميل...";
         db.ref('students').orderByChild('year').equalTo(yr).once('value', snap => {
             if(!snap.exists()) { container.innerHTML = "لا يوجد بيانات لهذا الصف"; return; }
-            let h = "";
+            
+            // تحويل البيانات لمصفوفة لترتيبها أبجدياً حسب الاسم
+            let studentsArr = [];
             snap.forEach(child => {
-                const s = child.val(); const sid = child.key;
+                studentsArr.push({ id: child.key, ...child.val() });
+            });
+            
+            // الترتيب الأبجدي (باللغة العربية)
+            studentsArr.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+
+            let h = "";
+            studentsArr.forEach(s => {
+                const sid = s.id;
                 h += `<div class="bulk-student-box" data-id="${sid}">
                     <strong style="display:block; margin-bottom:10px; color:var(--primary);">${s.name}</strong>
                     <div class="grid-header" style="font-size:10px;">
@@ -308,16 +319,16 @@
         });
     }
 
-    // تصحيح دالة الحفظ لتعمل بناءً على طلبك (الاسم، الرقم، الصف) فقط
     function saveToFirebase() {
-        const id = document.getElementById('inID').value; 
-        const name = document.getElementById('inName').value; 
+        const idInput = document.getElementById('inID');
+        const nameInput = document.getElementById('inName');
+        const id = idInput.value; 
+        const name = nameInput.value; 
         const yr = document.getElementById('inYear').value;
         
         if(!id || !name || !yr) return alert("أكمل البيانات (الاسم، الرقم، الصف)");
 
         let subs = {};
-        // بناء هيكل المواد تلقائياً بدون درجات
         if (schoolSubjects[yr]) {
             schoolSubjects[yr].forEach(s => {
                 subs[s] = { wG: '', wM: 40, eG: '', eM: 60, sum: 0, max: 100 };
@@ -332,7 +343,9 @@
             totalGot: 0,
             totalMax: 0
         }).then(() => {
-            alert("تم حفظ الطالبة بنجاح");
+            alert("تم حفظ الطالبة " + name + " بنجاح");
+            idInput.value = "";
+            nameInput.value = "";
         }).catch((e) => {
             alert("خطأ: " + e.message);
         });
