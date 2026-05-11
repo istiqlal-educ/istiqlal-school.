@@ -578,5 +578,42 @@
         .then(()=>alert("تم الحفظ")).catch(err => alert("خطأ: " + err.message));
     }
 </script>
+    <style>
+    .whatsapp-float {
+        position: fixed;
+        bottom: 20px;
+        left: 20px; /* جهة اليسار لكي لا يغطي أي أزرار أساسية */
+        background-color: #25d366;
+        color: #FFF;
+        border-radius: 50px;
+        padding: 10px 20px;
+        font-weight: 700;
+        font-size: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 9999;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: transform 0.3s ease;
+    }
+    .whatsapp-float:hover {
+        transform: scale(1.05);
+        color: #fff;
+    }
+    .whatsapp-float i {
+        font-size: 20px;
+    }
+    /* إخفاء الزر عند الطباعة */
+    @media print {
+        .whatsapp-float { display: none !important; }
+    }
+</style>
+
+<a href="https://wa.me/218920317335" class="whatsapp-float" target="_blank">
+    <i class="fab fa-whatsapp"></i>
+    <span>للاستفسار والتواصل</span>
+</a>
+
 </body>
     </html>
