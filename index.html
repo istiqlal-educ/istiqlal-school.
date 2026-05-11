@@ -49,6 +49,19 @@
             position: relative; z-index: 1; width: 100%;
         }
         
+        /* النافذة الراقية الجديدة */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px;
+            text-align: center; box-shadow: 0 15px 30px rgba(0,0,0,0.2); animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-content h3 { margin-top: 0; color: var(--primary); font-size: 18px; }
+        .modal-content input { margin: 15px 0; border: 2px solid #e2e8f0; text-align: center; }
+
         .admin-tabs { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
         .tab-btn { flex: 1; min-width: 100px; padding: 10px; border-radius: 10px; border: none; background: #e2e8f0; font-weight: 700; cursor: pointer; color: #64748b; }
         .tab-btn.active { background: var(--primary); color: white; }
@@ -70,7 +83,6 @@
         .res-table td { padding: 4px 1px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900; color: #000; font-size: 11px; overflow: hidden; }
 
         .summary-box { margin-top: 0; border: 2px solid var(--primary); background: #f8fafc; border-radius: 0 0 10px 10px; }
-        
         .status-pass-text { color: var(--success) !important; font-weight: 900; }
         .status-fail-text { color: var(--danger) !important; font-weight: 900; }
         .grade-success-color { color: var(--success) !important; font-weight: 900; }
@@ -172,6 +184,18 @@
     </div>
 </div>
 
+<div id="adminModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3><i class="fas fa-lock"></i> بوابة المطور</h3>
+        <p style="font-size: 12px; color: #64748b;">يرجى إدخال الرمز السري للدخول</p>
+        <input type="password" id="devPassInput" placeholder="ادخل الرمز هنا...">
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-primary" style="padding: 8px; font-size: 14px;" onclick="checkDevPass()">دخول</button>
+            <button class="btn" style="background:#e2e8f0; padding: 8px; font-size: 14px;" onclick="closeAdminModal()">إلغاء</button>
+        </div>
+    </div>
+</div>
+
 <div class="container" id="adminPortal" style="display:none;">
     <div class="main-card">
         <h2 style="color: var(--primary); text-align: center;"><i class="fas fa-tools"></i> بوابة المطور</h2>
@@ -252,7 +276,6 @@
 </div>
 
 <script>
-    // تم تحديث الإعدادات لضمان الربط الصحيح مع Firebase Authentication
     const firebaseConfig = {
       apiKey: "AIzaSyDKEPjQMKD2lt74sdGM0k796icnyFTmmIQ",
       authDomain: "istiqlal-school-302c8.firebaseapp.com",
@@ -281,14 +304,24 @@
     }
 
     function enterAdmin() {
-        const pass = prompt("رمز المطور:");
+        document.getElementById('adminModal').style.display = 'flex';
+        document.getElementById('devPassInput').focus();
+    }
+
+    function closeAdminModal() {
+        document.getElementById('adminModal').style.display = 'none';
+        document.getElementById('devPassInput').value = '';
+    }
+
+    function checkDevPass() {
+        const pass = document.getElementById('devPassInput').value;
         if(!pass) return;
 
+        closeAdminModal();
         document.getElementById('loadingOverlay').style.display='flex';
 
         db.ref('settings/dev_pass').once('value', snap => {
             if(String(pass).trim() === String(snap.val()).trim()) {
-                // تسجيل الدخول باستخدام حسابك وبكلمة المرور الخاصة بك
                 auth.signInWithEmailAndPassword("istiqlaladmin@gmail.com", "emadnajm74742000")
                 .then(() => {
                     document.getElementById('loadingOverlay').style.display='none';
@@ -310,30 +343,18 @@
         const yr = document.getElementById('quickAddYear').value;
         const text = document.getElementById('quickAddArea').value;
         if(!yr || !text.trim()) return alert("الرجاء اختيار الصف وكتابة البيانات أولاً");
-
         const lines = text.trim().split('\n');
-        let updates = {};
-        let count = 0;
-
+        let updates = {}; let count = 0;
         lines.forEach(line => {
             const parts = line.split(/[-،,]/);
             if(parts.length >= 2) {
-                const name = parts[0].trim();
-                const id = parts[1].trim();
-                
+                const name = parts[0].trim(); const id = parts[1].trim();
                 let subs = {};
-                schoolSubjects[yr].forEach(s => {
-                    subs[s] = {wG:0, wM:40, eG:0, eM:60, sum:0, max:100};
-                });
-
-                updates['students/'+id] = {
-                    name: name, year: yr, subjects: subs, 
-                    totalGot: 0, totalMax: schoolSubjects[yr].length * 100, percent: "0.0"
-                };
+                schoolSubjects[yr].forEach(s => { subs[s] = {wG:0, wM:40, eG:0, eM:60, sum:0, max:100}; });
+                updates['students/'+id] = { name: name, year: yr, subjects: subs, totalGot: 0, totalMax: schoolSubjects[yr].length * 100, percent: "0.0" };
                 count++;
             }
         });
-
         if(count > 0) {
             document.getElementById('loadingOverlay').style.display='flex';
             db.ref().update(updates).then(() => {
@@ -341,9 +362,7 @@
                 alert(`تم بنجاح تسجيل ${count} طالبة في الصف ${yr}`);
                 document.getElementById('quickAddArea').value = "";
             });
-        } else {
-            alert("تأكد من تنسيق البيانات: الاسم - الرقم الوطني");
-        }
+        } else alert("تأكد من تنسيق البيانات: الاسم - الرقم الوطني");
     }
 
     function fetchForEdit() {
@@ -357,7 +376,6 @@
             document.getElementById('newStudentID').value = id; 
             document.getElementById('inName').value = data.name;
             document.getElementById('inYear').value = data.year;
-            
             const con = document.getElementById('subjectsContainer');
             con.innerHTML = "";
             schoolSubjects[data.year].forEach(s => {
@@ -365,12 +383,9 @@
                 const div = document.createElement('div');
                 div.innerHTML = `<div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:5px; margin-bottom:5px;">
                     <input type="text" value="${s}" readonly style="color:var(--success); font-weight:bold;">
-                    <input type="number" class="wG" value="${subData.wG}">
-                    <input type="number" class="wM" value="${subData.wM}">
-                    <input type="number" class="eG" value="${subData.eG}">
-                    <input type="number" class="eM" value="${subData.eM}">
-                </div>`;
-                con.appendChild(div);
+                    <input type="number" class="wG" value="${subData.wG}"> <input type="number" class="wM" value="${subData.wM}">
+                    <input type="number" class="eG" value="${subData.eG}"> <input type="number" class="eM" value="${subData.eM}">
+                </div>`; con.appendChild(div);
             });
         });
     }
@@ -379,35 +394,25 @@
         const yr = document.getElementById('bulkSelectYear').value;
         const con = document.getElementById('bulkStudentsContainer');
         if(!yr) { con.innerHTML = ""; return; }
-        
         document.getElementById('loadingOverlay').style.display='flex';
         db.ref('students').orderByChild('year').equalTo(yr).once('value', snap => {
             document.getElementById('loadingOverlay').style.display='none';
-            
             let studentsList = [];
-            snap.forEach(c => {
-                studentsList.push({ key: c.key, data: c.val() });
-            });
-
+            snap.forEach(c => { studentsList.push({ key: c.key, data: c.val() }); });
             studentsList.sort((a, b) => a.data.name.localeCompare(b.data.name, 'ar'));
-
             let html = "";
             studentsList.forEach(item => {
-                const s = item.data;
-                const id = item.key;
+                const s = item.data; const id = item.key;
                 html += `<div class="bulk-row" data-id="${id}">
                     <i class="fas fa-trash delete-btn" onclick="deleteStudent('${id}')"></i>
                     <div style="font-weight:900; color:var(--primary); margin-bottom:10px;">${s.name} (${id})</div>
                     <div class="bulk-header-labels"><span>المادة</span><span>أعمال</span><span>من</span><span>امتحان</span><span>من</span></div>`;
-                
                 schoolSubjects[yr].forEach(subName => {
                     const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG:0, wM:40, eG:0, eM:60};
                     html += `<div class="bulk-grid" data-subject="${subName}">
                         <input type="text" value="${subName}" readonly style="font-size:10px; background:#f0fdf4; color:var(--success); font-weight:bold;">
-                        <input type="number" class="wG" value="${subData.wG}">
-                        <input type="number" class="wM" value="${subData.wM}">
-                        <input type="number" class="eG" value="${subData.eG}">
-                        <input type="number" class="eM" value="${subData.eM}">
+                        <input type="number" class="wG" value="${subData.wG}"> <input type="number" class="wM" value="${subData.wM}">
+                        <input type="number" class="eG" value="${subData.eG}"> <input type="number" class="eM" value="${subData.eM}">
                     </div>`;
                 });
                 html += `</div>`;
@@ -419,10 +424,7 @@
 
     function deleteStudent(id) {
         if(confirm("هل أنت متأكد من حذف هذه الطالبة نهائياً؟")) {
-            db.ref('students/'+id).remove().then(() => {
-                alert("تم الحذف بنجاح");
-                loadBulkStudentsList();
-            });
+            db.ref('students/'+id).remove().then(() => { alert("تم الحذف بنجاح"); loadBulkStudentsList(); });
         }
     }
 
@@ -434,7 +436,6 @@
             const name = row.querySelector('div').innerText.split(' (')[0];
             const yr = document.getElementById('bulkSelectYear').value;
             let subs = {}; let tG=0; let tM=0;
-            
             row.querySelectorAll('.bulk-grid').forEach(grid => {
                 const subName = grid.getAttribute('data-subject');
                 const wg = parseFloat(grid.querySelector('.wG').value) || 0;
@@ -456,9 +457,7 @@
         db.ref('students').orderByChild('year').equalTo(yr).once('value', snap => {
             let students = []; let passed = 0; let failed = 0;
             snap.forEach(c => { students.push({id: c.key, ...c.val()}); });
-            
             students.sort((a,b) => a.name.localeCompare(b.name, 'ar'));
-            
             let rows = "";
             students.forEach(s => {
                 let isFail = false;
@@ -499,7 +498,6 @@
     function loadResult() {
         const sid=document.getElementById('searchID').value;
         if(!sid) return;
-        
         db.ref('students/'+sid).once('value', snap=>{ 
             if(snap.exists()) showData(snap.val()); 
             else { alert("عذراً، الرقم غير مسجل."); location.reload(); }
@@ -509,15 +507,13 @@
     function showData(data) {
         document.getElementById('welcomeArea').style.display = 'none';
         document.getElementById('resultView').style.display='block';
-        
         document.getElementById('outName').innerText = data.name;
         document.getElementById('outYear').innerText = "الصف: " + data.year;
         let h=""; let failed=[]; let hasFail=false;
         const sortedKeys = schoolSubjects[data.year] || Object.keys(data.subjects);
         sortedKeys.forEach(k => {
             if(data.subjects[k]) {
-                const s = data.subjects[k]; 
-                const isFail = s.sum < (s.max/2);
+                const s = data.subjects[k]; const isFail = s.sum < (s.max/2);
                 if(isFail) { hasFail=true; failed.push(k); }
                 h+=`<tr><td>${k}</td><td>${s.wG}</td><td>${s.wM}</td><td>${s.eG}</td><td>${s.eM}</td><td style="color:${isFail?'red':'black'}">${s.sum}</td></tr>`;
             }
@@ -533,37 +529,19 @@
             document.getElementById('failMissions').style.display="none";
             document.getElementById('outTotalSum').innerText = data.totalGot + " من " + data.totalMax;
             document.getElementById('outPercent').innerText = data.percent + "%";
-            let p=parseFloat(data.percent);
-            
-            gradeEl.classList.add('grade-success-color');
-            if(p>=85) gradeEl.innerText="ممتاز";
-            else if(p>=75) gradeEl.innerText="جيد جداً"; 
-            else if(p>=65) gradeEl.innerText="جيد"; 
-            else gradeEl.innerText="مقبول";
-
+            let p=parseFloat(data.percent); gradeEl.classList.add('grade-success-color');
+            if(p>=85) gradeEl.innerText="ممتاز"; else if(p>=75) gradeEl.innerText="جيد جداً"; 
+            else if(p>=65) gradeEl.innerText="جيد"; else gradeEl.innerText="مقبول";
             triggerCelebration();
         }
     }
 
     function triggerCelebration() {
-        var duration = 4 * 1000;
-        var end = Date.now() + duration;
-
+        var duration = 4 * 1000; var end = Date.now() + duration;
         (function frame() {
-          confetti({
-            particleCount: 5,
-            angle: 60, spread: 55, origin: { x: 0 },
-            colors: ['#1e3a8a', '#b45309', '#059669', '#FFD700']
-          });
-          confetti({
-            particleCount: 5,
-            angle: 120, spread: 55, origin: { x: 1 },
-            colors: ['#1e3a8a', '#b45309', '#059669', '#FFD700']
-          });
-
-          if (Date.now() < end) {
-            requestAnimationFrame(frame);
-          }
+          confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#1e3a8a', '#b45309', '#059669', '#FFD700'] });
+          confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#1e3a8a', '#b45309', '#059669', '#FFD700'] });
+          if (Date.now() < end) requestAnimationFrame(frame);
         }());
     }
 
@@ -579,9 +557,7 @@
     }
 
     function saveToFirebase() {
-        const id = document.getElementById('newStudentID').value; 
-        const name = document.getElementById('inName').value;
-        const yr = document.getElementById('inYear').value;
+        const id = document.getElementById('newStudentID').value; const name = document.getElementById('inName').value; const yr = document.getElementById('inYear').value;
         if(!id || !name || !yr) return alert("أكمل البيانات (الرقم الوطني، الاسم، الصف)");
         let subs = {}; let tG=0; let tM=0;
         document.querySelectorAll('#subjectsContainer > div').forEach(div => {
@@ -590,12 +566,10 @@
             const wm = parseFloat(div.querySelector('.wM').value) || 0;
             const eg = parseFloat(div.querySelector('.eG').value) || 0;
             const em = parseFloat(div.querySelector('.eM').value) || 0;
-            subs[n] = {wG:wg, wM:wm, eG:eg, eM:em, sum:(wg+eg), max:(wm+em)};
-            tG+=(wg+eg); tM+=(wm+em);
+            subs[n] = {wG:wg, wM:wm, eG:eg, eM:em, sum:(wg+eg), max:(wm+em)}; tG+=(wg+eg); tM+=(wm+em);
         });
         db.ref('students/'+id).set({name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1)})
-        .then(()=>alert("تم حفظ ورصد بيانات الطالبة بنجاح"))
-        .catch(err => alert("عذراً، لا تملك صلاحية الحفظ: " + err.message));
+        .then(()=>alert("تم حفظ ورصد بيانات الطالبة بنجاح")).catch(err => alert("عذراً، خطأ: " + err.message));
     }
 </script>
 </body>
