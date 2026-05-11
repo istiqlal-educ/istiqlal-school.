@@ -211,7 +211,6 @@
             <button id="saveAllBulkBtn" class="btn" style="display:none; background:var(--success); color:white; margin-top:15px;" onclick="saveAllBulkData()">حفظ الكل</button>
         </div>
 
-        <!-- القسم الجديد المضاف: الإضافة الجماعية -->
         <div id="quickAddTab" class="admin-section">
             <div style="background:#f0f9ff; padding:15px; border-radius:12px; border:2px solid var(--primary);">
                 <h3 style="color:var(--primary); text-align:center; margin-top:0;">إضافة طالبات دفعة واحدة</h3>
@@ -284,7 +283,6 @@
         });
     }
 
-    // دالة الإضافة الجماعية الجديدة
     function processQuickAdd() {
         const yr = document.getElementById('quickAddYear').value;
         const text = document.getElementById('quickAddArea').value;
@@ -354,6 +352,7 @@
         });
     }
 
+    // تم تعديل هذه الدالة لتقوم بالترتيب الأبجدي تلقائياً
     function loadBulkStudentsList() {
         const yr = document.getElementById('bulkSelectYear').value;
         const con = document.getElementById('bulkStudentsContainer');
@@ -362,12 +361,23 @@
         document.getElementById('loadingOverlay').style.display='flex';
         db.ref('students').orderByChild('year').equalTo(yr).once('value', snap => {
             document.getElementById('loadingOverlay').style.display='none';
-            let html = "";
+            
+            // تحويل البيانات لمصفوفة لسهولة الترتيب
+            let studentsList = [];
             snap.forEach(c => {
-                const s = c.val();
-                html += `<div class="bulk-row" data-id="${c.key}">
-                    <i class="fas fa-trash delete-btn" onclick="deleteStudent('${c.key}')"></i>
-                    <div style="font-weight:900; color:var(--primary); margin-bottom:10px;">${s.name} (${c.key})</div>
+                studentsList.push({ key: c.key, data: c.val() });
+            });
+
+            // الترتيب الأبجدي بناءً على الاسم
+            studentsList.sort((a, b) => a.data.name.localeCompare(b.data.name, 'ar'));
+
+            let html = "";
+            studentsList.forEach(item => {
+                const s = item.data;
+                const id = item.key;
+                html += `<div class="bulk-row" data-id="${id}">
+                    <i class="fas fa-trash delete-btn" onclick="deleteStudent('${id}')"></i>
+                    <div style="font-weight:900; color:var(--primary); margin-bottom:10px;">${s.name} (${id})</div>
                     <div class="bulk-header-labels"><span>المادة</span><span>أعمال</span><span>من</span><span>امتحان</span><span>من</span></div>`;
                 
                 schoolSubjects[yr].forEach(subName => {
@@ -426,7 +436,10 @@
         db.ref('students').orderByChild('year').equalTo(yr).once('value', snap => {
             let students = []; let passed = 0; let failed = 0;
             snap.forEach(c => { students.push({id: c.key, ...c.val()}); });
+            
+            // ترتيب أبجدي في الإحصائيات أيضاً
             students.sort((a,b) => a.name.localeCompare(b.name, 'ar'));
+            
             let rows = "";
             students.forEach(s => {
                 let isFail = false;
