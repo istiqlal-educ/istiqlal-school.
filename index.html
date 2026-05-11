@@ -9,7 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
@@ -251,11 +252,15 @@
 </div>
 
 <script>
+    // تم تحديث الإعدادات لضمان الربط الصحيح مع Firebase Authentication
     const firebaseConfig = {
-      apiKey: "AIzaSyDKEPjQMKD2lt74sdGM0k7hY2Wb8E-X55g", 
+      apiKey: "AIzaSyDKEPjQMKD2lt74sdGM0k796icnyFTmmIQ",
+      authDomain: "istiqlal-school-302c8.firebaseapp.com",
       databaseURL: "https://istiqlal-school-302c8-default-rtdb.firebaseio.com",
       projectId: "istiqlal-school-302c8",
-      appId: "1:1037263844752:web:56dc0ba0d346045610a514"
+      storageBucket: "istiqlal-school-302c8.firebasestorage.app",
+      messagingSenderId: "1037263844752",
+      appId: "1:1037263844752:web:56dc0badd84262b5e3ef15"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
@@ -275,7 +280,6 @@
         btn.classList.add('active');
     }
 
-    // الدالة المعدلة لربط رمز المطور بحساب Firebase (الأمان الجديد)
     function enterAdmin() {
         const pass = prompt("رمز المطور:");
         if(!pass) return;
@@ -284,8 +288,7 @@
 
         db.ref('settings/dev_pass').once('value', snap => {
             if(String(pass).trim() === String(snap.val()).trim()) {
-                // تسجيل دخول صامت بالحساب الجديد
-                // استبدل Istiqlal@2026 بالباسوورد الحقيقي الخاص بك
+                // تسجيل الدخول باستخدام حسابك وبكلمة المرور الخاصة بك
                 auth.signInWithEmailAndPassword("istiqlaladmin@gmail.com", "emadnajm74742000")
                 .then(() => {
                     document.getElementById('loadingOverlay').style.display='none';
