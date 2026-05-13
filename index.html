@@ -144,16 +144,29 @@
             </div>
             
             <table class="res-table">
-                <thead>
-                    <tr>
-                        <th style="width: 26%;">المادة</th>
-                        <th>أعمال</th>
-                        <th>النهاية الصغرى</th>
-                        <th>امتحان</th>
-                        <th>النهاية الكبرى</th>
-                        <th>المجموع</th>
-                    </tr>
-                </thead>
+      <thead>
+    <tr>
+        <th rowspan="3" style="width: 20%;">المادة</th>
+        <th colspan="4">درجة الفصلين</th>
+        <th colspan="4">النتيجة النهائية للتلميذ</th>
+    </tr>
+    <tr>
+        <th rowspan="2">التفاصيل</th>
+        <th rowspan="2">الدرجة المقررة</th>
+        <th colspan="2">درجة التلميذ</th>
+        <th colspan="2">النهايات</th>
+        <th rowspan="2">المجموع</th>
+        <th rowspan="2">الدور الثاني</th>
+    </tr>
+    <tr>
+        <th>ف1</th>
+        <th>ف2</th>
+        <th>كُبرى</th>
+        <th>صُغرى</th>
+    </tr>
+</thead>
+          
+               </thead> 
                 <tbody id="resTbody"></tbody>
             </table>
 
@@ -510,13 +523,34 @@
         document.getElementById('outYear').innerText = "الصف: " + data.year;
         let h=""; let failed=[]; let hasFail=false;
         const sortedKeys = schoolSubjects[data.year] || Object.keys(data.subjects);
-        sortedKeys.forEach(k => {
+                sortedKeys.forEach(k => {
             if(data.subjects[k]) {
-                const s = data.subjects[k]; const isFail = s.sum < (s.max/2);
+                const s = data.subjects[k]; 
+                const isFail = s.sum < (s.max/2);
                 if(isFail) { hasFail=true; failed.push(k); }
-                h+=`<tr><td>${k}</td><td>${s.wG}</td><td>${s.wM}</td><td>${s.eG}</td><td>${s.eM}</td><td style="color:${isFail?'red':'black'}">${s.sum}</td></tr>`;
+                
+                // إنشاء صفين للمادة الواحدة (أعمال + امتحان) طبقاً للنموذج الرسمي
+                h += `
+                <tr>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #ddd;">${k}</td>
+                    <td style="border:1px solid #ddd;">الأعمال</td>
+                    <td style="border:1px solid #ddd;">16</td>
+                    <td style="border:1px solid #ddd;">${s.wG || '0'}</td> <!-- ف1 -->
+                    <td style="border:1px solid #ddd;">0</td> <!-- ف2 -->
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #ddd;">80</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #ddd;">40</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #ddd; color:${isFail?'red':'black'}">${s.sum}</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #ddd;">${s.secondExam || '-'}</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #ddd;">امتحان الفصل</td>
+                    <td style="border:1px solid #ddd;">24</td>
+                    <td style="border:1px solid #ddd;">${s.eG || '0'}</td> <!-- ف1 -->
+                    <td style="border:1px solid #ddd;">0</td> <!-- ف2 -->
+                </tr>`;
             }
         });
+
         document.getElementById('resTbody').innerHTML=h;
         const gradeEl = document.getElementById('outGrade');
         const msgArea = document.getElementById('adminMessageArea');
@@ -616,4 +650,4 @@
 </a>
 
 </body>
-                    </html>
+</html>
