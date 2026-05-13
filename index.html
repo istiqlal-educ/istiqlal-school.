@@ -508,36 +508,66 @@
         });
     }
 
+    
     function showData(data) {
-        document.getElementById('adminMessageArea').innerText = "";
-        document.getElementById('welcomeArea').style.display = 'none';
-        document.getElementById('resultView').style.display='block';
-        document.getElementById('outName').innerText = data.name;
-        document.getElementById('outYear').innerText = "الصف: " + data.year;
-        let h=""; let failed=[]; let hasFail=false;
-        const sortedKeys = schoolSubjects[data.year] || Object.keys(data.subjects);
-        sortedKeys.forEach(k => {
-            if(data.subjects[k]) {
-                const s = data.subjects[k]; const isFail = s.sum < (s.max/2);
-                if(isFail) { hasFail=true; failed.push(k); }
-                
-                // تعديل العرض لتقسيم الدرجة على الفصلين (بشكل متساوٍ للعرض فقط)
-                const f1w = (s.wG / 2).toFixed(1);
-                const f1e = (s.eG / 2).toFixed(1);
-                const f2w = (s.wG - f1w).toFixed(1);
-                const f2e = (s.eG - f1e).toFixed(1);
+    document.getElementById('adminMessageArea').innerText = "";
+    document.getElementById('welcomeArea').style.display = 'none';
+    document.getElementById('resultView').style.display = 'block';
+    document.getElementById('outName').innerText = data.name;
+    document.getElementById('outYear').innerText = "الصف: " + data.year;
+    
+    let h = ""; let failed = []; let hasFail = false;
+    const sortedKeys = schoolSubjects[data.year] || Object.keys(data.subjects);
+    
+    // رأس الجدول بتوزيعة (أعمال الطالب/نهاية الأعمال) و (امتحان الطالب/نهاية الامتحان)
+    let tableHeader = `
+        <tr>
+            <th rowspan="2" style="width: 20%;">المادة</th>
+            <th colspan="2">الفصل الأول</th>
+            <th colspan="2">الفصل الثاني</th>
+            <th rowspan="2" style="background:#f1f5f9; color:var(--primary);">نهاية المادة<br>(الأستاذ)</th>
+            <th rowspan="2" style="background:var(--primary); color:white;">مجموع<br>الطالب</th>
+        </tr>
+        <tr>
+            <th>أعمال الطالب / من</th>
+            <th>امتحان الطالب / من</th>
+            <th>أعمال الطالب / من</th>
+            <th>امتحان الطالب / من</th>
+        </tr>`;
+    document.querySelector('.res-table thead').innerHTML = tableHeader;
 
-                h+=`<tr>
-                    <td style="text-align:right; padding-right:8px;">${k}</td>
-                    <td>${f1w}</td>
-                    <td>${f1e}</td>
-                    <td>${f2w}</td>
-                    <td>${f2e}</td>
-                    <td style="color:${isFail?'red':'black'}">${s.sum}</td>
-                </tr>`;
-            }
-        });
-        document.getElementById('resTbody').innerHTML=h;
+    sortedKeys.forEach(k => {
+        if(data.subjects[k]) {
+            const s = data.subjects[k]; 
+            const isFail = s.sum < (s.max / 2);
+            if(isFail) { hasFail = true; failed.push(k); }
+
+            // تقسيم النهايات الكبرى والدرجات (نص بنص للفصلين)
+            const wMax = (s.wM / 2); // نهاية الأعمال للفصل الواحد
+            const eMax = (s.eM / 2); // نهاية الامتحان للفصل الواحد
+            
+            const f1w = (s.wG / 2).toFixed(1); // أعمال طالب ف1
+            const f1e = (s.eG / 2).toFixed(1); // امتحان طالب ف1
+            
+            const f2w = (s.wG - f1w).toFixed(1); // أعمال طالب ف2
+            const f2e = (s.eG - f1e).toFixed(1); // امتحان طالب ف2
+
+            h += `<tr>
+                <td style="text-align:right; padding-right:8px; font-weight:bold;">${k}</td>
+                <td>${f1w} <span style="color:#64748b; font-size:10px;">/ ${wMax}</span></td>
+                <td>${f1e} <span style="color:#64748b; font-size:10px;">/ ${eMax}</span></td>
+                <td>${f2w} <span style="color:#64748b; font-size:10px;">/ ${wMax}</span></td>
+                <td>${f2e} <span style="color:#64748b; font-size:10px;">/ ${eMax}</span></td>
+                <td style="background:#f8fafc; font-weight:bold;">${s.max}</td>
+                <td style="font-weight:900; background:#eff6ff; color:${isFail ? 'red' : 'black'}">${s.sum}</td>
+            </tr>`;
+        }
+    });
+    
+    document.getElementById('resTbody').innerHTML = h;
+    // الـ 619 سطر الباقية تستمر هنا بدون أي تعديل
+}
+    document.getElementById('resTbody').innerHTML=h;
         const gradeEl = document.getElementById('outGrade');
         const msgArea = document.getElementById('adminMessageArea');
         let msg = "";
