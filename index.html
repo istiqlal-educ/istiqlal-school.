@@ -142,7 +142,29 @@
                 <h2 id="outName" style="margin: 0; font-size: 17px; color: var(--text);"></h2>
                 <div id="outYear" style="color: var(--accent); font-weight: 800; font-size: 13px; margin-top: 1px;"></div>
             </div>
+            <div class="summary-box">
+                <div id="totalRow" style="display:flex; justify-content:space-between; padding:5px 12px; border-bottom:1px solid #e2e8f0; font-size:13px;">
+                    <span>المجموع الكلي:</span><span id="outTotalSum" style="font-weight:900; color:var(--primary);"></span>
+                </div>
+                <div id="percentRow" style="display:flex; justify-content:space-between; padding:5px 12px; border-bottom:1px solid #e2e8f0; font-size:13px;">
+                    <span>النسبة المئوية:</span><span id="outPercent" style="font-weight:900; color:var(--primary);"></span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding:5px 12px; font-size:13px;">
+                    <span>التقدير العام:</span><span id="outGrade" style="font-weight:900;"></span>
+                </div>
+                <div id="adminMessageArea" style="text-align:center; padding:10px; font-weight:700; color:var(--primary); font-size:14px; font-style:italic; border-top:1px solid #eee;"></div>
+            </div>
             
+            <div id="failMissions" style="display:none; background:#fee2e2; border:2px solid var(--danger); color:#991b1b; padding:8px; border-radius:10px; margin-top:8px; text-align:center; font-weight:900; font-size:12px;">
+                <div style="margin-bottom:2px; text-decoration:underline;">المواد التي لم توفق فيها:</div>
+                <div id="failListItems"></div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:10px;">
+                <button class="btn" style="background:#475569; color:white; padding: 10px; font-size:14px;" onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>
+                <button class="btn" style="background:#e2e8f0; padding: 10px; font-size:14px;" onclick="location.reload()">بحث جديد</button>
+            </div>
+        </div>
             <table class="res-table">
       <thead>
     <tr>
@@ -171,29 +193,7 @@
                 <tbody id="resTbody"></tbody>
             </table>
 
-            <div class="summary-box">
-                <div id="totalRow" style="display:flex; justify-content:space-between; padding:5px 12px; border-bottom:1px solid #e2e8f0; font-size:13px;">
-                    <span>المجموع الكلي:</span><span id="outTotalSum" style="font-weight:900; color:var(--primary);"></span>
-                </div>
-                <div id="percentRow" style="display:flex; justify-content:space-between; padding:5px 12px; border-bottom:1px solid #e2e8f0; font-size:13px;">
-                    <span>النسبة المئوية:</span><span id="outPercent" style="font-weight:900; color:var(--primary);"></span>
-                </div>
-                <div style="display:flex; justify-content:space-between; padding:5px 12px; font-size:13px;">
-                    <span>التقدير العام:</span><span id="outGrade" style="font-weight:900;"></span>
-                </div>
-                <div id="adminMessageArea" style="text-align:center; padding:10px; font-weight:700; color:var(--primary); font-size:14px; font-style:italic; border-top:1px solid #eee;"></div>
-            </div>
             
-            <div id="failMissions" style="display:none; background:#fee2e2; border:2px solid var(--danger); color:#991b1b; padding:8px; border-radius:10px; margin-top:8px; text-align:center; font-weight:900; font-size:12px;">
-                <div style="margin-bottom:2px; text-decoration:underline;">المواد التي لم توفق فيها:</div>
-                <div id="failListItems"></div>
-            </div>
-
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:10px;">
-                <button class="btn" style="background:#475569; color:white; padding: 10px; font-size:14px;" onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>
-                <button class="btn" style="background:#e2e8f0; padding: 10px; font-size:14px;" onclick="location.reload()">بحث جديد</button>
-            </div>
-        </div>
         <div class="dev-footer-simple">تم تطويره بواسطة عماد الدين نجم</div>
     </div>
 </div>
