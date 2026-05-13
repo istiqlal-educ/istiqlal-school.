@@ -552,62 +552,85 @@ th, td {
         });
     }
 
-    function showData(data) {
+      function showData(data) {
         document.getElementById('adminMessageArea').innerText = "";
         document.getElementById('welcomeArea').style.display = 'none';
-        document.getElementById('resultView').style.display='block';
+        document.getElementById('resultView').style.display = 'block';
         document.getElementById('outName').innerText = data.name;
         document.getElementById('outYear').innerText = "الصف: " + data.year;
-                        h += `
-                    <tr>
-                        <td rowspan="2">${name}</td>
-                        <td class="header-bg">الأعمال</td>
-                        <td>${wMax}</td>
-                        <td>${f1_w}</td>
-                        <td>${f2_w}</td>
-                        <td rowspan="2">${s.sum}</td>
-                        <td rowspan="2">${s.max}</td>
-                        <td rowspan="2">${s.max / 2}</td>
-                        
-                        <!-- الخانة الجديدة لعمود امتحان الدور الثاني 40% -->
-                        <td rowspan="2"></td> 
-                        
-                        <!-- الخانة الخاصة بنتيجة الدور الثاني -->
-                        <td rowspan="2"></td>
-                    </tr>
-                    <tr>
-                        <td class="header-bg">امتحان نهاية الفصل</td>
-                        <td>${eMax}</td>
-                        <td>${f1_e}</td>
-                        <td>${f2_e}</td>
-                    </tr>
-                `;
-            <td rowspan="2">${name}</td>
-            <td class="header-bg">الأعمال</td>
-            <td>${wMax}</td>
-            <td>${f1_w}</td>
-            <td>${f2_w}</td>
-            <td rowspan="2">${s.sum}</td>
-            <td rowspan="2">${s.max}</td>
-            <td rowspan="2"></td>
-            <td rowspan="2">${s.max / 2}</td>
-            <td rowspan="2"></td>
-        </tr>
-        <tr>
-            <td class="header-bg">امتحان نهاية الفصل</td>
-            <td>${eMax}</td>
-            <td>${f1_e}</td>
-            <td>${f2_e}</td>
-        </tr>
-    `;
-}
-document.getElementById('resTbody').innerHTML = h;
 
-        document.getElementById('resTbody').innerHTML=h;
+        let h = "";
+        const subjects = data.subjects;
+        let failed = [];
+        let hasFail = false;
+
+        for (let name in subjects) {
+            let s = subjects[name];
+            let wMax = (s.wM / 2);
+            let eMax = (s.eM / 2);
+            let f1_w = (s.wG / 2).toFixed(0);
+            let f1_e = (s.eG / 2).toFixed(0);
+            let f2_w = (s.wG - f1_w).toFixed(0);
+            let f2_e = (s.eG - f1_e).toFixed(0);
+
+            // التحقق من النجاح والرسوب (لو المجموع أقل من نص الدرجة الكبرى)
+            if (s.sum < (s.max / 2)) {
+                hasFail = true;
+                failed.push(name);
+            }
+
+            h += `
+                <tr>
+                    <td rowspan="2">${name}</td>
+                    <td class="header-bg">الأعمال</td>
+                    <td>${wMax}</td>
+                    <td>${f1_w}</td>
+                    <td>${f2_w}</td>
+                    <td rowspan="2">${s.sum}</td>
+                    <td rowspan="2">${s.max}</td>
+                    <td rowspan="2">${s.max / 2}</td>
+                    <td rowspan="2"></td> 
+                    <td rowspan="2"></td>
+                </tr>
+                <tr>
+                    <td class="header-bg">امتحان نهاية الفصل</td>
+                    <td>${eMax}</td>
+                    <td>${f1_e}</td>
+                    <td>${f2_e}</td>
+                </tr>`;
+        }
+
+        document.getElementById('resTbody').innerHTML = h;
         const gradeEl = document.getElementById('outGrade');
         const msgArea = document.getElementById('adminMessageArea');
         let msg = "";
 
+        if (hasFail) {
+            gradeEl.innerText = "لها دور ثانٍ"; 
+            gradeEl.className = "status-fail-text";
+            document.getElementById('totalRow').style.display = "none"; 
+            document.getElementById('percentRow').style.display = "none";
+            document.getElementById('failMissions').style.display = "block"; 
+            document.getElementById('failListItems').innerText = failed.join(' - ');
+            msg = "لكل جواد كبوة، ونحن بانتظار عودتكِ للنجاح في الدور الثاني بإذن الله. ❤️";
+        } else {
+            document.getElementById('totalRow').style.display = "flex"; 
+            document.getElementById('percentRow').style.display = "flex";
+            document.getElementById('failMissions').style.display = "none";
+            document.getElementById('outTotalSum').innerText = data.totalGot + " من " + data.totalMax;
+            document.getElementById('outPercent').innerText = data.percent + "%";
+            let p = parseFloat(data.percent); 
+            gradeEl.classList.add('grade-success-color');
+            
+            if (p >= 85) { gradeEl.innerText = "ممتاز"; msg = "ما شاء الله! أنتِ فخر لمدرسة الاستقلال، واصلي تألقك يا مبدعة. 🌟"; }
+            else if (p >= 75) { gradeEl.innerText = "جيد جداً"; msg = "أداء رائع ومتميز، تفصلك خطوات بسيطة عن القمة، بالتوفيق. ✨"; }
+            else if (p >= 65) { gradeEl.innerText = "جيد"; msg = "نتيجة طيبة، ونحن نثق أن لديكِ قدرات أكبر.. بالتّوفيق! 💪"; }
+            else { gradeEl.innerText = "مقبول"; msg = "مبروك النجاح، وبالإصرار ستحققين نتائج أفضل في المرة القادمة. 🌹"; }
+            triggerCelebration();
+        }
+        msgArea.innerText = msg;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
         if(hasFail) {
             gradeEl.innerText = "لها دور ثانٍ"; gradeEl.className = "status-fail-text";
             document.getElementById('totalRow').style.display="none"; document.getElementById('percentRow').style.display="none";
@@ -635,7 +658,6 @@ document.getElementById('resTbody').innerHTML = h;
           confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#1e3a8a', '#b45309', '#059669', '#FFD700'] });
           if (Date.now() < end) requestAnimationFrame(frame);
         }());
-        
     }
 
     function autoFillSubjects() {
@@ -663,6 +685,7 @@ document.getElementById('resTbody').innerHTML = h;
         });
         db.ref('students/'+id).set({name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1)})
         .then(()=>alert("تم الحفظ")).catch(err => alert("خطأ: " + err.message));
+    }
 </script>
     <style>
     .whatsapp-float {
@@ -703,3 +726,4 @@ document.getElementById('resTbody').innerHTML = h;
 
 </body>
     </html>
+
