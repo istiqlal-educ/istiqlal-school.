@@ -236,7 +236,7 @@
                 <option value="سابع">سابع</option><option value="ثامن">ثامن</option>
             </select>
             <div id="individualHeaderLabels" style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:5px; font-size:11px; font-weight:bold; text-align:center; color:var(--primary); margin-bottom:5px;">
-                <span>المادة</span><span>أعمال</span><span>من</span><span>امتحان</span><span>من</span>
+                <span>المادة</span><span>أعمال 1</span><span>إمتحـان 1</span><span>أعمال 2</span><span>إمتحـان 2</span>
             </div>
             <div id="subjectsContainer"></div>
             <button class="btn" style="background: var(--success); color:white;" onclick="saveToFirebase()">حفظ ورصد الطالبة</button>
@@ -363,7 +363,7 @@
             if(parts.length >= 2) {
                 const name = parts[0].trim(); const id = parts[1].trim();
                 let subs = {};
-                schoolSubjects[yr].forEach(s => { subs[s] = {wG:0, wM:40, eG:0, eM:60, sum:0, max:100}; });
+                schoolSubjects[yr].forEach(s => { subs[s] = {wG1:0, eG1:0, wG2:0, eG2:0, sum:0, max:100}; });
                 updates['students/'+id] = { name: name, year: yr, subjects: subs, totalGot: 0, totalMax: schoolSubjects[yr].length * 100, percent: "0.0" };
                 count++;
             }
@@ -392,12 +392,12 @@
             const con = document.getElementById('subjectsContainer');
             con.innerHTML = "";
             schoolSubjects[data.year].forEach(s => {
-                const subData = data.subjects[s] || {wG:0, wM:40, eG:0, eM:60};
+                const subData = data.subjects[s] || {wG1:0, eG1:0, wG2:0, eG2:0};
                 const div = document.createElement('div');
                 div.innerHTML = `<div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:5px; margin-bottom:5px;">
                     <input type="text" value="${s}" readonly style="color:var(--success); font-weight:bold;">
-                    <input type="number" class="wG" value="${subData.wG}"> <input type="number" class="wM" value="${subData.wM}">
-                    <input type="number" class="eG" value="${subData.eG}"> <input type="number" class="eM" value="${subData.eM}">
+                    <input type="number" class="wG1" value="${subData.wG1 || 0}"> <input type="number" class="eG1" value="${subData.eG1 || 0}">
+                    <input type="number" class="wG2" value="${subData.wG2 || 0}"> <input type="number" class="eG2" value="${subData.eG2 || 0}">
                 </div>`; con.appendChild(div);
             });
         });
@@ -419,13 +419,13 @@
                 html += `<div class="bulk-row" data-id="${id}">
                     <i class="fas fa-trash delete-btn" onclick="deleteStudent('${id}')"></i>
                     <div style="font-weight:900; color:var(--primary); margin-bottom:10px;">${s.name} (${id})</div>
-                    <div class="bulk-header-labels"><span>المادة</span><span>أعمال</span><span>من</span><span>امتحان</span><span>من</span></div>`;
+                    <div class="bulk-header-labels"><span>المادة</span><span>أ1</span><span>إ1</span><span>أ2</span><span>إ2</span></div>`;
                 schoolSubjects[yr].forEach(subName => {
-                    const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG:0, wM:40, eG:0, eM:60};
+                    const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG1:0, eG1:0, wG2:0, eG2:0};
                     html += `<div class="bulk-grid" data-subject="${subName}">
                         <input type="text" value="${subName}" readonly style="font-size:10px; background:#f0fdf4; color:var(--success); font-weight:bold;">
-                        <input type="number" class="wG" value="${subData.wG}"> <input type="number" class="wM" value="${subData.wM}">
-                        <input type="number" class="eG" value="${subData.eG}"> <input type="number" class="eM" value="${subData.eM}">
+                        <input type="number" class="wG1" value="${subData.wG1 || 0}"> <input type="number" class="eG1" value="${subData.eG1 || 0}">
+                        <input type="number" class="wG2" value="${subData.wG2 || 0}"> <input type="number" class="eG2" value="${subData.eG2 || 0}">
                     </div>`;
                 });
                 html += `</div>`;
@@ -451,12 +451,13 @@
             let subs = {}; let tG=0; let tM=0;
             row.querySelectorAll('.bulk-grid').forEach(grid => {
                 const subName = grid.getAttribute('data-subject');
-                const wg = parseFloat(grid.querySelector('.wG').value) || 0;
-                const wm = parseFloat(grid.querySelector('.wM').value) || 40;
-                const eg = parseFloat(grid.querySelector('.eG').value) || 0;
-                const em = parseFloat(grid.querySelector('.eM').value) || 60;
-                subs[subName] = {wG:wg, wM:wm, eG:eg, eM:em, sum:(wg+eg), max:(wm+em)};
-                tG+=(wg+eg); tM+=(wm+em);
+                const wg1 = parseFloat(grid.querySelector('.wG1').value) || 0;
+                const eg1 = parseFloat(grid.querySelector('.eG1').value) || 0;
+                const wg2 = parseFloat(grid.querySelector('.wG2').value) || 0;
+                const eg2 = parseFloat(grid.querySelector('.eG2').value) || 0;
+                const total = wg1 + eg1 + wg2 + eg2;
+                subs[subName] = {wG1:wg1, eG1:eg1, wG2:wg2, eG2:eg2, sum:total, max:100};
+                tG+=total; tM+=100;
             });
             updates['students/'+id] = {name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1)};
         });
@@ -525,32 +526,38 @@
         document.getElementById('outYear').innerText = "الصف: " + data.year;
         let h=""; let failed=[]; let hasFail=false;
         const sortedKeys = schoolSubjects[data.year] || Object.keys(data.subjects);
-        // هذا الجزء يبدأ من السطر 528 في ملفك
-sortedKeys.forEach(k => {
-    if (data.subjects[k]) {
-        const s = data.subjects[k];
-        const isFail = s.sum < (s.max / 2);
-        if (isFail) { hasFail = true; failed.push(k); }
+                sortedKeys.forEach(k => {
+            if(data.subjects[k]) {
+                const s = data.subjects[k]; 
+                const isFail = s.sum < (s.max/2);
+                if(isFail) { hasFail=true; failed.push(k); }
+                
+                // حساب درجات الفصلين للعرض في الجدول الرسمي
+                const term1 = (s.wG1 || 0) + (s.eG1 || 0);
+                const term2 = (s.wG2 || 0) + (s.eG2 || 0);
+                                                             h += `
+                <tr>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:2px;">${k}</td>
+                    <td style="border:1px solid #000; padding:2px;">الأعمال</td>
+                    <td style="border:1px solid #000; padding:2px;">16</td>
+                    <td style="border:1px solid #000; padding:2px;">${s.wG1 || '0'}</td>
+                    <td style="border:1px solid #000; padding:2px;">${s.wG2 || '0'}</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:2px;">80</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:2px;">40</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:2px; color:${isFail?'red':'black'}">${s.sum || 0}</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:1px; min-width:30px;">${s.secondExam || '-'}</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:2px; min-width:30px">-</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #000; padding:2px;">امتحان نهاية الفصل</td>
+                    <td style="border:1px solid #000; padding:2px;">24</td>
+                    <td style="border:1px solid #000; padding:2px;">${s.eG1 || '0'}</td>
+                    <td style="border:1px solid #000; padding:2px;">${s.eG2 || '0'}</td>
+                </tr>`;
 
-        // بناء صفوف المادة (فصل أول وفصل ثاني)
-        h += `
-        <tr>
-            <td rowspan="2" style="vertical-align:middle; border:1px solid #000;">${k}</td>
-            <td style="border:1px solid #000;">الفصل الأول</td>
-            <td style="border:1px solid #000;">${s.wG1 || 0}</td>
-            <td style="border:1px solid #000;">${s.eG1 || 0}</td>
-            <td rowspan="2" style="vertical-align:middle; border:1px solid #000;">${s.max || 100}</td>
-            <td rowspan="2" style="vertical-align:middle; border:1px solid #000;">${(s.max / 2) || 50}</td>
-            <td rowspan="2" style="vertical-align:middle; border:1px solid #000; color:${isFail ? 'red' : 'black'}">${s.sum || 0}</td>
-            <td rowspan="2" style="vertical-align:middle; border:1px solid #000;">${s.secondExam || '-'}</td>
-        </tr>
-        <tr>
-            <td style="border:1px solid #000;">الفصل الثاني</td>
-            <td style="border:1px solid #000;">${s.wG2 || 0}</td>
-            <td style="border:1px solid #000;">${s.eG2 || 0}</td>
-        </tr>`;
-    }
-});
+            }
+        });
+
         document.getElementById('resTbody').innerHTML=h;
         document.getElementById('resultTable').style.display = 'table';
         const gradeEl = document.getElementById('outGrade');
@@ -586,88 +593,42 @@ sortedKeys.forEach(k => {
         }());
     }
 
-    
-   function autoFillSubjects() {
-    const yr = document.getElementById('inYear').value;
-    const con = document.getElementById('subjectsContainer');
-    if (!con) return;
-    con.innerHTML = ""; // هذا السطر يمسح الواجهة القديمة ويجبرها على التحديث
-
-    if (schoolSubjects[yr]) {
-        schoolSubjects[yr].forEach(s => {
-            const div = document.createElement('div');
-            // التعديل الجذري في الـ HTML ليصبح 4 خانات
-            div.innerHTML = `
-            <div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:5px; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;">
-                <input type="text" value="${s}" readonly style="color:var(--success); font-weight:bold; border:none; background:none;">
+    function autoFillSubjects() {
+        const yr = document.getElementById('inYear').value;
+        const con = document.getElementById('subjectsContainer'); con.innerHTML = ""; 
+        if (schoolSubjects[yr]) schoolSubjects[yr].forEach(s => {
+            const div = document.createElement('div'); div.innerHTML = `<div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:5px; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;">
+                <input type="text" value="${s}" readonly style="color:var(--success); font-weight:bold; border:none; background:none;"> 
                 <input type="number" placeholder="أ1" class="wG1" style="width:100%; border:1px solid #ddd; text-align:center;">
                 <input type="number" placeholder="إ1" class="eG1" style="width:100%; border:1px solid #ddd; text-align:center;">
                 <input type="number" placeholder="أ2" class="wG2" style="width:100%; border:1px solid #ddd; text-align:center;">
                 <input type="number" placeholder="إ2" class="eG2" style="width:100%; border:1px solid #ddd; text-align:center;">
-            </div>`;
-            con.appendChild(div);
+            </div>`; con.appendChild(div);
         });
     }
-}
 
- function saveToFirebase() {
-    const id = document.getElementById('newStudentID').value;
-    const name = document.getElementById('inName').value;
-    const yr = document.getElementById('inYear').value;
-
-    if (!id || !name || !yr) return alert("أكمل البيانات");
-
-    let subs = {}; let tG = 0; let tM = 0;
-
-    document.querySelectorAll('#subjectsContainer > div').forEach(div => {
-        const n = div.querySelector('input[type="text"]').value;
-        
-        // جلب القيم الأربعة للفصلين
-        const wg1 = parseFloat(div.querySelector('.wG1').value) || 0;
-        const eg1 = parseFloat(div.querySelector('.eG1').value) || 0;
-        const wg2 = parseFloat(div.querySelector('.wG2').value) || 0;
-        const eg2 = parseFloat(div.querySelector('.eG2').value) || 0;
-
-        // حساب مجموع المادة
-        const totalSub = wg1 + eg1 + wg2 + eg2;
-        const maxSub = 100; 
-
-        // تخزين البيانات بالأسماء الصحيحة للعرض
-        subs[n] = {
-            wG1: wg1,
-            eG1: eg1,
-            wG2: wg2,
-            eG2: eg2,
-            sum: totalSub,
-            max: maxSub
-        };
-
-        tG += totalSub; 
-        tM += maxSub;   
-    }); 
-
-    // إرسال البيانات المجمعة إلى Firebase
-    db.ref('students/' + id).set({
-        name: name,
-        year: yr,
-        subjects: subs,
-        totalGot: tG,
-        totalMax: tM,
-        percent: ((tG / tM) * 100).toFixed(1)
-    })
-    .then(() => {
-        alert("تم حفظ بيانات الطالب " + name + " بنجاح");
-        // يمكنك إضافة سطر هنا لتفريغ الخانات بعد الحفظ إذا أردت
-    })
-    .catch(err => alert("خطأ في الحفظ: " + err.message));
-}
-
+    function saveToFirebase() {
+        const id = document.getElementById('newStudentID').value; const name = document.getElementById('inName').value; const yr = document.getElementById('inYear').value;
+        if(!id || !name || !yr) return alert("أكمل البيانات");
+        let subs = {}; let tG=0; let tM=0;
+        document.querySelectorAll('#subjectsContainer > div').forEach(div => {
+            const n = div.querySelector('input[type="text"]').value;
+            const wg1 = parseFloat(div.querySelector('.wG1').value) || 0;
+            const eg1 = parseFloat(div.querySelector('.eG1').value) || 0;
+            const wg2 = parseFloat(div.querySelector('.wG2').value) || 0;
+            const eg2 = parseFloat(div.querySelector('.eG2').value) || 0;
+            const total = wg1 + eg1 + wg2 + eg2;
+            subs[n] = {wG1:wg1, eG1:eg1, wG2:wg2, eG2:eg2, sum:total, max:100}; tG+=total; tM+=100;
+        });
+        db.ref('students/'+id).set({name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1)})
+        .then(()=>alert("تم الحفظ بنجاح")).catch(err => alert("خطأ: " + err.message));
+    }
 </script>
     <style>
     .whatsapp-float {
         position: fixed;
         bottom: 20px;
-        left: 20px; /* جهة اليسار لكي لا يغطي أي أزرار أساسية */
+        left: 20px; 
         background-color: #25d366;
         color: #FFF;
         border-radius: 50px;
@@ -689,7 +650,6 @@ sortedKeys.forEach(k => {
     .whatsapp-float i {
         font-size: 20px;
     }
-    /* إخفاء الزر عند الطباعة */
     @media print {
         .whatsapp-float { display: none !important; }
     }
