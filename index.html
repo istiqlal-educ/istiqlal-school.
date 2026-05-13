@@ -603,30 +603,29 @@ sortedKeys.forEach(k => {
 </div>`;
     });
 }
-
-
     function saveToFirebase() {
-    const id = document.getElementById('newStudentID').value; 
-    const name = document.getElementById('inName').value; 
+    const id = document.getElementById('newStudentID').value;
+    const name = document.getElementById('inName').value;
     const yr = document.getElementById('inYear').value;
-    
-    if(!id || !name || !yr) return alert("أكمل البيانات");
-    
-    let subs = {}; let tG=0; let tM=0;
-    
+
+    if (!id || !name || !yr) return alert("أكمل البيانات");
+
+    let subs = {}; let tG = 0; let tM = 0;
+
     document.querySelectorAll('#subjectsContainer > div').forEach(div => {
         const n = div.querySelector('input[type="text"]').value;
-        // جلب القيم الأربعة
+        
+        // جلب القيم الأربعة للفصلين
         const wg1 = parseFloat(div.querySelector('.wG1').value) || 0;
         const eg1 = parseFloat(div.querySelector('.eG1').value) || 0;
         const wg2 = parseFloat(div.querySelector('.wG2').value) || 0;
         const eg2 = parseFloat(div.querySelector('.eG2').value) || 0;
-        
-        // 1. حساب مجموع المادة للفصلين
+
+        // حساب مجموع المادة
         const totalSub = wg1 + eg1 + wg2 + eg2;
         const maxSub = 100; 
 
-        // 2. تخزين البيانات بالأسماء الصحيحة (wG1, eG1, wG2, eG2)
+        // تخزين البيانات بالأسماء الصحيحة للعرض
         subs[n] = {
             wG1: wg1,
             eG1: eg1,
@@ -638,9 +637,9 @@ sortedKeys.forEach(k => {
 
         tG += totalSub; 
         tM += maxSub;   
-    }); // نهاية حلقة forEach (السطر 638 في صورتك)
+    }); 
 
-    // 3. إرسال البيانات المجمعة إلى Firebase
+    // إرسال البيانات المجمعة إلى Firebase
     db.ref('students/' + id).set({
         name: name,
         year: yr,
@@ -649,7 +648,10 @@ sortedKeys.forEach(k => {
         totalMax: tM,
         percent: ((tG / tM) * 100).toFixed(1)
     })
-    .then(() => alert("تم حفظ بيانات الطالب " + name + " بنجاح"))
+    .then(() => {
+        alert("تم حفظ بيانات الطالب " + name + " بنجاح");
+        // يمكنك إضافة سطر هنا لتفريغ الخانات بعد الحفظ إذا أردت
+    })
     .catch(err => alert("خطأ في الحفظ: " + err.message));
 }
 
