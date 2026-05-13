@@ -363,7 +363,7 @@
             if(parts.length >= 2) {
                 const name = parts[0].trim(); const id = parts[1].trim();
                 let subs = {};
-                schoolSubjects[yr].forEach(s => { subs[s] = {wG1:0, eG1:0, wG2:0, eG2:0, sum:0, max:100}; });
+                schoolSubjects[yr].forEach(s => { subs[s] = {wG1:0, eG1:0, wG2:0, eG2:0, sum:0, max:100, min:50}; });
                 updates['students/'+id] = { name: name, year: yr, subjects: subs, totalGot: 0, totalMax: schoolSubjects[yr].length * 100, percent: "0.0" };
                 count++;
             }
@@ -456,7 +456,7 @@
                 const wg2 = parseFloat(grid.querySelector('.wG2').value) || 0;
                 const eg2 = parseFloat(grid.querySelector('.eG2').value) || 0;
                 const total = wg1 + eg1 + wg2 + eg2;
-                subs[subName] = {wG1:wg1, eG1:eg1, wG2:wg2, eG2:eg2, sum:total, max:100};
+                subs[subName] = {wG1:wg1, eG1:eg1, wG2:wg2, eG2:eg2, sum:total, max:100, min:50};
                 tG+=total; tM+=100;
             });
             updates['students/'+id] = {name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1)};
@@ -475,7 +475,7 @@
             let rows = "";
             students.forEach(s => {
                 let isFail = false;
-                for(let k in s.subjects) { if(s.subjects[k].sum < (s.subjects[k].max/2)) { isFail = true; break; } }
+                for(let k in s.subjects) { if(s.subjects[k].sum < (s.subjects[k].min || 50)) { isFail = true; break; } }
                 if(isFail) failed++; else passed++;
                 rows += `<tr onclick="viewFromStats('${s.id}')" style="cursor:pointer; border-bottom:1px solid #eee;">
                     <td style="padding:10px; font-weight:700; color:var(--primary);">${s.name}</td>
@@ -526,24 +526,24 @@
         document.getElementById('outYear').innerText = "الصف: " + data.year;
         let h=""; let failed=[]; let hasFail=false;
         const sortedKeys = schoolSubjects[data.year] || Object.keys(data.subjects);
-                sortedKeys.forEach(k => {
+        
+        sortedKeys.forEach(k => {
             if(data.subjects[k]) {
                 const s = data.subjects[k]; 
-                const isFail = s.sum < (s.max/2);
+                const maxVal = s.max || 100;
+                const minVal = s.min || 50; // درجة المعيار (الصغرى)
+                const isFail = s.sum < minVal;
                 if(isFail) { hasFail=true; failed.push(k); }
                 
-                // حساب درجات الفصلين للعرض في الجدول الرسمي
-                const term1 = (s.wG1 || 0) + (s.eG1 || 0);
-                const term2 = (s.wG2 || 0) + (s.eG2 || 0);
-                                                             h += `
+                h += `
                 <tr>
                     <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:2px;">${k}</td>
                     <td style="border:1px solid #000; padding:2px;">الأعمال</td>
                     <td style="border:1px solid #000; padding:2px;">16</td>
                     <td style="border:1px solid #000; padding:2px;">${s.wG1 || '0'}</td>
                     <td style="border:1px solid #000; padding:2px;">${s.wG2 || '0'}</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:2px;">80</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:2px;">40</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:2px;">${maxVal}</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:2px;">${minVal}</td>
                     <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:2px; color:${isFail?'red':'black'}">${s.sum || 0}</td>
                     <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:1px; min-width:30px;">${s.secondExam || '-'}</td>
                     <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:2px; min-width:30px">-</td>
@@ -554,7 +554,6 @@
                     <td style="border:1px solid #000; padding:2px;">${s.eG1 || '0'}</td>
                     <td style="border:1px solid #000; padding:2px;">${s.eG2 || '0'}</td>
                 </tr>`;
-
             }
         });
 
@@ -618,42 +617,12 @@
             const wg2 = parseFloat(div.querySelector('.wG2').value) || 0;
             const eg2 = parseFloat(div.querySelector('.eG2').value) || 0;
             const total = wg1 + eg1 + wg2 + eg2;
-            subs[n] = {wG1:wg1, eG1:eg1, wG2:wg2, eG2:eg2, sum:total, max:100}; tG+=total; tM+=100;
+            subs[n] = {wG1:wg1, eG1:eg1, wG2:wg2, eG2:eg2, sum:total, max:100, min:50}; tG+=total; tM+=100;
         });
         db.ref('students/'+id).set({name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1)})
         .then(()=>alert("تم الحفظ بنجاح")).catch(err => alert("خطأ: " + err.message));
     }
 </script>
-    <style>
-    .whatsapp-float {
-        position: fixed;
-        bottom: 20px;
-        left: 20px; 
-        background-color: #25d366;
-        color: #FFF;
-        border-radius: 50px;
-        padding: 10px 20px;
-        font-weight: 700;
-        font-size: 14px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        z-index: 9999;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        transition: transform 0.3s ease;
-    }
-    .whatsapp-float:hover {
-        transform: scale(1.05);
-        color: #fff;
-    }
-    .whatsapp-float i {
-        font-size: 20px;
-    }
-    @media print {
-        .whatsapp-float { display: none !important; }
-    }
-</style>
 
 <a href="https://wa.me/218920317335" class="whatsapp-float" target="_blank">
     <i class="fab fa-whatsapp"></i>
