@@ -72,7 +72,7 @@
         .btn { width: 100%; padding: 12px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; }
         .btn-primary { background: var(--primary); color: white; }
         
-        /* تنسيق جدول الشهادة الجديد */
+        /* تنسيق جدول الشهادة المحدث */
         .res-table { width: 100%; border-collapse: collapse; border: 2px solid #000; margin-bottom: 5px; }
         .res-table th { 
             background: #f1f5f9; color: #000; padding: 5px; font-size: 10px; border: 1px solid #000;
@@ -124,7 +124,6 @@
             </div>
         </div>
 
-        <!-- واجهة الشهادة (النتيجة) المحدثة طبق الأصل من الصورة 1000256498.jpg -->
         <div id="resultView" style="display:none; padding: 30px; border: 3px double #000;">
             <button id="backToStatsBtn" class="btn" style="background:var(--accent); color:white; margin-bottom:15px; padding: 8px; font-size:13px; display:none;" onclick="returnToStats()">
                 <i class="fas fa-arrow-right"></i> العودة للإحصائيات
@@ -139,7 +138,6 @@
                 <thead>
                     <tr>
                         <th rowspan="3" style="width:15%">المواد الدراسية</th>
-                        <th rowspan="3" style="width:5%; transform: rotate(-90deg);">عدد الحصص</th>
                         <th colspan="4">درجة الفصلين</th>
                         <th colspan="2">النهائيات</th>
                         <th rowspan="3" style="width:8%">مجموع الفصلين</th>
@@ -147,12 +145,12 @@
                     </tr>
                     <tr>
                         <th rowspan="2" style="width:12%">التفاصيل</th>
-                        <th rowspan="2" style="width:8%">الدرجة المقررة لكل فصل</th>
+                        <th rowspan="2" style="width:10%">الدرجة المقررة لكل فصل</th>
                         <th colspan="2">درجة التلميذ</th>
-                        <th rowspan="2" style="width:7%">الكبرى</th>
-                        <th rowspan="2" style="width:7%">الصغرى</th>
-                        <th rowspan="2" style="width:8%; transform: rotate(-90deg);">امتحان الدور الثاني 40%</th>
-                        <th rowspan="2" style="width:8%; transform: rotate(-90deg);">نتيجة الدور الثاني</th>
+                        <th rowspan="2" style="width:10%">الكبرى</th>
+                        <th rowspan="2" style="width:10%">الصغرى</th>
+                        <th rowspan="2" style="width:10%; transform: rotate(-90deg);">امتحان الدور الثاني 40%</th>
+                        <th rowspan="2" style="width:10%; transform: rotate(-90deg);">نتيجة الدور الثاني</th>
                     </tr>
                     <tr>
                         <th>الفصل الأول</th>
@@ -160,7 +158,6 @@
                     </tr>
                 </thead>
                 <tbody id="resBody">
-                    <!-- سيتم توليد الأسطر برمجياً -->
                 </tbody>
             </table>
 
@@ -200,7 +197,6 @@
     </div>
 </div>
 
-<!-- بقية عناصر الإدمن والمودال تظل كما هي -->
 <div id="adminModal" class="modal-overlay">
     <div class="modal-content">
         <h3><i class="fas fa-lock"></i> بوابة المطور</h3>
@@ -293,7 +289,6 @@
 </div>
 
 <script>
-    // الإعدادات ثابتة
     const firebaseConfig = {
       apiKey: "AIzaSyDKEPjQMKD2lt74sdGM0k796icnyFTmmIQ",
       authDomain: "istiqlal-school-302c8.firebaseapp.com",
@@ -355,7 +350,6 @@
         });
     }
 
-    // دوال الرصد والمعالجة
     function processQuickAdd() {
         const yr = document.getElementById('quickAddYear').value;
         const text = document.getElementById('quickAddArea').value;
@@ -521,7 +515,6 @@
         });
     }
 
-    // دالة عرض الشهادة المحدثة طبق الأصل من الكود المطلوب
     function renderCertificate(data) {
         document.getElementById('welcomeArea').style.display='none';
         document.getElementById('resultView').style.display='block';
@@ -533,7 +526,6 @@
 
         subList.forEach(sName => {
             let s = data.subjects[sName] || {wG:0, wM:40, eG:0, eM:60, sum:0, max:100};
-            // تقسيم الدرجات بناءً على القيم المخزنة أو الافتراضية
             let wg = s.wG || 0; let wm = s.wM || 40;
             let eg = s.eG || 0; let em = s.eM || 60;
             let totalSub = wg + eg;
@@ -541,11 +533,9 @@
             let passMark = maxSub / 2;
             if(totalSub < passMark) { hasFail = true; fails.push(sName); }
 
-            // سطر الأعمال + سطر الامتحان لكل مادة كما في الصورة 1000256498.jpg
             html += `
             <tr>
                 <td rowspan="2" style="font-weight:900;">${sName}</td>
-                <td rowspan="2"></td>
                 <td>الأعمال</td>
                 <td>${wm}</td>
                 <td>${wg}</td>
@@ -566,7 +556,6 @@
         
         document.getElementById('resBody').innerHTML = html;
         
-        // حساب التقدير والرسالة التحفيزية
         let p = parseFloat(data.percent);
         let msg = "";
         
