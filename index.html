@@ -74,13 +74,12 @@
         
         #resultView { display: none; margin-top: 5px; padding: 2px; border-radius: 12px; background: #fff; }
         
-        /* تعديل الشهادة لتناسب الفصلين مع النهاية الكبرى */
         .res-table { width: 100%; border-collapse: collapse; table-layout: fixed; border: 1.5px solid #000; margin-bottom: 5px; }
         .res-table th { 
-            background: #f1f5f9; color: #000; padding: 4px 1px; font-size: 9px; border: 1px solid #000;
-            line-height: 1.2; word-wrap: break-word; vertical-align: middle; font-weight: 900;
+            background: #f1f5f9; color: #000; padding: 2px 1px; font-size: 8px; border: 1px solid #000;
+            line-height: 1.1; word-wrap: break-word; vertical-align: middle; font-weight: 900;
         }
-        .res-table td { padding: 6px 1px; border: 1px solid #000; text-align: center; font-weight: 900; color: #000; font-size: 10.5px; }
+        .res-table td { padding: 4px 1px; border: 1px solid #000; text-align: center; font-weight: 900; color: #000; font-size: 9.5px; }
 
         .summary-box { margin-top: 0; border: 2px solid var(--primary); background: #f8fafc; border-radius: 0 0 10px 10px; }
         .status-pass-text { color: var(--success) !important; font-weight: 900; }
@@ -95,10 +94,9 @@
         .dev-footer-simple { text-align: center; margin-top: 15px; padding: 8px; color: #000; font-weight: 700; font-size: 13px; border-top: 1px solid #e2e8f0; }
         .wish-text-inline { color: #e11d48; font-weight: 800; font-size: 11px; margin-right: 5px; vertical-align: middle; }
 
-        /* تعديلات الرصد الجماعي والفردي للأعمدة الجديدة */
         .bulk-row { background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); position: relative; }
-        .bulk-grid { display: grid; grid-template-columns: 1.5fr repeat(8, 1fr) 1fr; gap: 2px; margin-top: 5px; }
-        .bulk-header-labels { display: grid; grid-template-columns: 1.5fr repeat(8, 1fr) 1fr; gap: 2px; font-size: 8px; font-weight: bold; text-align: center; color: var(--primary); }
+        .bulk-grid { display: grid; grid-template-columns: 1.5fr repeat(8, 1fr) 1.2fr; gap: 2px; margin-top: 5px; }
+        .bulk-header-labels { display: grid; grid-template-columns: 1.5fr repeat(8, 1fr) 1.2fr; gap: 2px; font-size: 7.5px; font-weight: bold; text-align: center; color: var(--primary); }
         .delete-btn { position: absolute; left: 10px; top: 10px; color: var(--danger); cursor: pointer; font-size: 18px; }
 
         @media print {
@@ -148,19 +146,19 @@
             <table class="res-table">
                 <thead>
                     <tr>
-                        <th rowspan="2" style="width: 18%;">المادة</th>
+                        <th rowspan="2" style="width: 15%;">المادة</th>
                         <th colspan="2">الفصل الأول</th>
                         <th colspan="2">الفصل الثاني</th>
                         <th rowspan="2">صغرى</th>
                         <th rowspan="2">كبرى</th>
                         <th rowspan="2">المجموع</th>
-                        <th rowspan="2">النتيجة</th>
+                        <th rowspan="2" style="width: 8%;">النتيجة</th>
                     </tr>
                     <tr>
-                        <th>أعمال</th>
-                        <th>امتحان</th>
-                        <th>أعمال</th>
-                        <th>امتحان</th>
+                        <th style="font-size: 7px;">أعمال / من</th>
+                        <th style="font-size: 7px;">امتحان / من</th>
+                        <th style="font-size: 7px;">أعمال / من</th>
+                        <th style="font-size: 7px;">امتحان / من</th>
                     </tr>
                 </thead>
                 <tbody id="resTbody"></tbody>
@@ -193,7 +191,6 @@
     </div>
 </div>
 
-<!-- مودال بوابة المطور -->
 <div id="adminModal" class="modal-overlay">
     <div class="modal-content">
         <h3><i class="fas fa-lock"></i> بوابة المطور</h3>
@@ -206,7 +203,6 @@
     </div>
 </div>
 
-<!-- بوابة التحكم -->
 <div class="container" id="adminPortal" style="display:none;">
     <div class="main-card">
         <h2 style="color: var(--primary); text-align: center;"><i class="fas fa-tools"></i> بوابة المطور</h2>
@@ -217,7 +213,6 @@
             <button class="tab-btn" id="statsTabBtn" onclick="showTab('statsTab', this)">إحصائيات الصفوف</button>
         </div>
 
-        <!-- تبويب الرصد الفردي -->
         <div id="individualTab" class="admin-section active">
             <div style="background:#f1f5f9; padding:15px; border-radius:12px; margin-bottom:15px; border:1px dashed var(--primary);">
                 <label style="font-weight:900; display:block; margin-bottom:5px;">البحث عن طالبة للتعديل:</label>
@@ -232,14 +227,13 @@
                 <option value="خامس">خامس</option><option value="سادس">سادس</option>
                 <option value="سابع">سابع</option><option value="ثامن">ثامن</option>
             </select>
-            <div id="individualHeaderLabels" class="bulk-header-labels" style="margin-bottom:5px;">
+            <div class="bulk-header-labels" style="margin-bottom:5px;">
                 <span>المادة</span><span>أ1</span><span>من</span><span>إ1</span><span>من</span><span>أ2</span><span>من</span><span>إ2</span><span>من</span><span>المجموع</span>
             </div>
             <div id="subjectsContainer"></div>
             <button class="btn" style="background: var(--success); color:white;" onclick="saveToFirebase()">حفظ ورصد الطالبة</button>
         </div>
 
-        <!-- تبويب الرصد الجماعي -->
         <div id="bulkTab" class="admin-section">
              <select id="bulkSelectYear" onchange="loadBulkStudentsList()">
                 <option value="">-- اختر الصف لجلب الطالبات --</option>
@@ -250,7 +244,6 @@
             <button id="saveAllBulkBtn" class="btn" style="display:none; background:var(--success); color:white; margin-top:15px;" onclick="saveAllBulkData()">حفظ الكل</button>
         </div>
 
-        <!-- تبويب الإضافة الجماعية -->
         <div id="quickAddTab" class="admin-section">
             <div style="background:#f0f9ff; padding:15px; border-radius:12px; border:2px solid var(--primary);">
                 <h3 style="color:var(--primary); text-align:center; margin-top:0;">إضافة طالبات دفعة واحدة</h3>
@@ -265,7 +258,6 @@
             </div>
         </div>
 
-        <!-- تبويب الإحصائيات -->
         <div id="statsTab" class="admin-section">
             <select id="statsSelectYear" onchange="loadClassStats()">
                 <option value="">-- اختر الصف --</option>
@@ -378,7 +370,6 @@
             const eg1 = parseFloat(div.querySelector('.eG1').value) || 0; const em1 = parseFloat(div.querySelector('.em1').value) || 0;
             const wg2 = parseFloat(div.querySelector('.wG2').value) || 0; const wm2 = parseFloat(div.querySelector('.wm2').value) || 0;
             const eg2 = parseFloat(div.querySelector('.eG2').value) || 0; const em2 = parseFloat(div.querySelector('.em2').value) || 0;
-            
             const sum = wg1 + eg1 + wg2 + eg2;
             const max = wm1 + em1 + wm2 + em2;
             subs[n] = {wG1:wg1, wm1, eG1:eg1, em1, wG2:wg2, wm2, eG2:eg2, em2, sum, max};
@@ -468,8 +459,10 @@
                 if(isFail) { hasFail=true; failed.push(k); }
                 h+=`<tr>
                     <td style="text-align:right; padding-right:5px;">${k}</td>
-                    <td>${s.wG1 || 0}</td><td>${s.eG1 || 0}</td>
-                    <td>${s.wG2 || 0}</td><td>${s.eG2 || 0}</td>
+                    <td>${s.wG1||0} <span style="font-size:7px; color:#666;">/ ${s.wm1||0}</span></td>
+                    <td>${s.eG1||0} <span style="font-size:7px; color:#666;">/ ${s.em1||0}</span></td>
+                    <td>${s.wG2||0} <span style="font-size:7px; color:#666;">/ ${s.wm2||0}</span></td>
+                    <td>${s.eG2||0} <span style="font-size:7px; color:#666;">/ ${s.em2||0}</span></td>
                     <td>${s.max/2}</td><td>${s.max}</td>
                     <td style="color:${isFail?'red':'black'}">${s.sum}</td>
                     <td style="color:${isFail?'red':'green'}">${isFail?'ض':'ن'}</td>
@@ -510,7 +503,6 @@
         }());
     }
 
-    // بقية الوظائف الأساسية من الكود الأصلي
     function processQuickAdd() {
         const yr = document.getElementById('quickAddYear').value;
         const text = document.getElementById('quickAddArea').value;
