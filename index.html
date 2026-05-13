@@ -122,6 +122,22 @@
             .btn, .search-container, #adminPortal, .admin-tabs, .dev-footer-simple, .container::before, .container::after, #backToStatsBtn, .school-header { display: none !important; }
             #resultView { display: block !important; width: 100%; border: none; padding: 0; }
         }
+        /* هذا الكود يقلص المساحات الضائعة */
+#resultView {
+    transform: scale(0.9); /* تصغير الشهادة بنسبة 10% لتناسب الشاشة */
+    transform-origin: top center;
+    margin-top: 0;
+}
+
+table {
+    border-spacing: 0;
+    width: 100%;
+}
+
+th, td {
+    padding: 4px 2px !important; /* تقليل الفراغ بين الكلام والحدود */
+    font-size: 12px; /* حجم خط مناسب لا يتداخل */
+}
     </style>
 </head>
 <body>
@@ -542,24 +558,30 @@
         document.getElementById('resultView').style.display='block';
         document.getElementById('outName').innerText = data.name;
         document.getElementById('outYear').innerText = "الصف: " + data.year;
-        let h = "";
-const subjects = data.subjects;
-
-for (let name in subjects) {
-    let s = subjects[name];
-    
-    // تقسيم الدرجة المقررة (النهائية الكبرى لكل فصل)
-    let wMax = (s.wM / 2); 
-    let eMax = (s.eM / 2); 
-    
-    // تقسيم درجات الطالب (مثال: نصف الدرجة للفصل الأول والنصف للثاني)
-    let f1_w = (s.wG / 2).toFixed(0);
-    let f1_e = (s.eG / 2).toFixed(0);
-    let f2_w = (s.wG - f1_w).toFixed(0);
-    let f2_e = (s.eG - f1_e).toFixed(0);
-
-    h += `
-        <tr>
+                        h += `
+                    <tr>
+                        <td rowspan="2">${name}</td>
+                        <td class="header-bg">الأعمال</td>
+                        <td>${wMax}</td>
+                        <td>${f1_w}</td>
+                        <td>${f2_w}</td>
+                        <td rowspan="2">${s.sum}</td>
+                        <td rowspan="2">${s.max}</td>
+                        <td rowspan="2">${s.max / 2}</td>
+                        
+                        <!-- الخانة الجديدة لعمود امتحان الدور الثاني 40% -->
+                        <td rowspan="2"></td> 
+                        
+                        <!-- الخانة الخاصة بنتيجة الدور الثاني -->
+                        <td rowspan="2"></td>
+                    </tr>
+                    <tr>
+                        <td class="header-bg">امتحان نهاية الفصل</td>
+                        <td>${eMax}</td>
+                        <td>${f1_e}</td>
+                        <td>${f2_e}</td>
+                    </tr>
+                `;
             <td rowspan="2">${name}</td>
             <td class="header-bg">الأعمال</td>
             <td>${wMax}</td>
