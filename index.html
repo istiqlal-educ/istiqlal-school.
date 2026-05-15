@@ -72,14 +72,21 @@
         .btn { width: 100%; padding: 12px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; }
         .btn-primary { background: var(--primary); color: white; }
         
-        #resultView { display: none; margin-top: 5px; padding: 15px; border-radius: 12px; background: #fff; width: 100%; overflow: hidden; }
+        #resultView { display: none; margin-top: 5px; padding: 10px; border-radius: 12px; background: #fff; width: 100%; }
         
+        /* إصلاح الجدول لضمان عدم التداخل */
         .res-table { width: 100%; border-collapse: collapse; border: 1px solid var(--border); margin-bottom: 5px; table-layout: fixed; }
         .res-table th { 
             background: var(--primary); color: white; padding: 4px 1px; font-size: 9px; border: 1px solid #fff;
             line-height: 1.1; word-wrap: break-word; vertical-align: middle;
         }
-        .res-table td { padding: 8px 2px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900; color: #000; font-size: 10px; overflow: hidden; word-wrap: break-word; }
+        .res-table td { padding: 8px 1px; border: 1px solid #cbd5e1; text-align: center; font-weight: 900; color: #000; font-size: 11px; overflow: hidden; word-wrap: break-word; }
+
+        /* توزيع نسب الأعمدة لثبات الجدول */
+        .col-subject { width: 18%; }
+        .col-detail { width: 12%; }
+        .col-fixed { width: 10%; }
+        .col-marks { width: 8%; }
 
         .summary-box { margin-top: 0; border: 2px solid var(--primary); background: #f8fafc; border-radius: 0 0 10px 10px; }
         .status-pass-text { color: var(--success) !important; font-weight: 900; }
@@ -194,24 +201,24 @@
             <table class="res-table">
                 <thead>
                     <tr>
-                        <th rowspan="3" style="width: 18%;">المادة</th>
+                        <th rowspan="3" class="col-subject">المادة</th>
                         <th colspan="4">درجة الفصلين</th>
                         <th colspan="6">النتيجة النهائية للتلميذ</th>
                     </tr>
                     <tr>
-                        <th rowspan="2">التفاصيل</th>
-                        <th rowspan="2">الدرجة المقررة لكل فصل</th>
+                        <th rowspan="2" class="col-detail">التفاصيل</th>
+                        <th rowspan="2" class="col-fixed">الدرجة المقررة</th>
                         <th colspan="2">درجة التلميذ</th>
                         <th colspan="2">النهايات</th>
-                        <th rowspan="2">مجموع الفصلين</th>
-                        <th rowspan="2" style="padding: 1px; font-size: 9px; min-width: 30px; line-height: 1.1;">امتحان<br>الدور<br>الثاني<br>40%</th>
-                        <th rowspan="2">نتيجة الدور الثاني</th>
+                        <th rowspan="2" class="col-marks">المجموع</th>
+                        <th rowspan="2" style="font-size: 8px;">الدور 2</th>
+                        <th rowspan="2">النتيجة</th>
                     </tr>
                     <tr>
-                        <th>الفصل الأول</th>
-                        <th>الفصل الثاني</th>
-                        <th>كُبرى</th>
-                        <th>صُغرى</th>
+                        <th class="col-marks">ف1</th>
+                        <th class="col-marks">ف2</th>
+                        <th class="col-marks">كبرى</th>
+                        <th class="col-marks">صغرى</th>
                     </tr>
                 </thead>
                 <tbody id="resTbody"></tbody>
@@ -605,7 +612,6 @@
         document.getElementById('outYear').innerText = "الصف: " + data.year;
         let h=""; let failed=[]; let hasFail=false;
         
-        // استخدام المفاتيح المرتبة لضمان ثبات الترتيب
         const sortedKeys = schoolSubjects[data.year] ? Object.keys(schoolSubjects[data.year]) : Object.keys(data.subjects);
         
         sortedKeys.forEach(k => {
@@ -624,8 +630,8 @@
                     <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${s.max ?? '100'}</td>
                     <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${(s.max/2) ?? '50'}</td>
                     <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; color:${isFail?'red':'black'}">${s.sum ?? '0'}</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:1px; min-width:30px; color:red;">${isFail ? (s.secondExam || '-') : '-'}</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; min-width:30px">-</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:1px; color:red;">${isFail ? (s.secondExam || '-') : '-'}</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">-</td>
                 </tr>
                 <tr>
                     <td style="border:1px solid #cbd5e1; padding:2px;">امتحان الفصل</td>
@@ -747,3 +753,4 @@
 
 </body>
 </html>
+
