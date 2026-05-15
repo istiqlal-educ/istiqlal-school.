@@ -95,14 +95,62 @@
         .wish-text-inline { color: #e11d48; font-weight: 800; font-size: 11px; margin-right: 5px; vertical-align: middle; }
 
         .bulk-row { background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); position: relative; }
-        
-        /* تعديل توزيع الأعمدة لزيادة عرض خانة اسم المادة */
-        .bulk-grid { display: grid; grid-template-columns: 2.8fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap: 4px; margin-top: 10px; }
-        .bulk-header-labels { display: grid; grid-template-columns: 2.8fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap: 4px; font-size: 10px; font-weight: bold; text-align: center; color: var(--primary); }
-        .delete-btn { position: absolute; left: 10px; top: 10px; color: var(--danger); cursor: pointer; font-size: 18px; }
 
-        /* تعديل توزيع أعمدة الرصد الفردي أيضاً لزيادة عرض خانة اسم المادة */
-        .ind-grid { display: grid; grid-template-columns: 2.8fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap: 5px; margin-bottom: 5px; }
+        /* --- تحسينات خانات الرصد الفردي والجماعي الجديدة --- */
+        .bulk-grid, .ind-grid { 
+            display: grid; 
+            grid-template-columns: 2.2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; /* توسيع خانة المادة */
+            gap: 4px; 
+            margin-bottom: 5px; 
+            align-items: center;
+        }
+
+        .bulk-header-labels, #individualHeaderLabels {
+            display: grid; 
+            grid-template-columns: 2.2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+            gap: 4px; 
+            font-size: 10px; 
+            font-weight: bold; 
+            text-align: center; 
+            color: var(--primary);
+            padding: 5px 0;
+        }
+
+        /* تحسين شكل المدخلات داخل الرصد */
+        .bulk-grid input, .ind-grid input {
+            padding: 6px 2px;
+            margin-bottom: 0;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* تمييز خانات الدرجات باللون الأبيض */
+        .bulk-grid input[type="number"]:nth-child(even), 
+        .ind-grid input[type="number"]:nth-child(even) {
+            background: #ffffff;
+            border-color: #94a3b8;
+        }
+
+        /* تمييز خانات (من) بلون رمادي خفيف */
+        .bulk-grid input[type="number"]:nth-child(odd), 
+        .ind-grid input[type="number"]:nth-child(odd) {
+            background: #f1f5f9;
+            color: #64748b;
+            border-color: #e2e8f0;
+        }
+
+        /* تحسين مظهر اسم المادة */
+        .sub-name-input {
+            background: #f0fdf4 !important;
+            color: var(--success) !important;
+            text-align: right !important;
+            padding-right: 8px !important;
+            font-size: 11px !important;
+            border: 1px solid #bbf7d0 !important;
+            white-space: nowrap;
+            overflow: visible;
+        }
 
         @media print {
             .btn, .search-container, #adminPortal, .admin-tabs, .dev-footer-simple, .container::before, .container::after, #backToStatsBtn, .school-header { display: none !important; }
@@ -237,7 +285,7 @@
                 <option value="خامس">خامس</option><option value="سادس">سادس</option>
                 <option value="سابع">سابع</option><option value="ثامن">ثامن</option>
             </select>
-            <div id="individualHeaderLabels" class="ind-grid" style="font-size:11px; font-weight:bold; text-align:center; color:var(--primary); margin-bottom:5px;">
+            <div id="individualHeaderLabels">
                 <span>المادة</span><span>أعمال1</span><span>من</span><span>امتحان1</span><span>من</span><span>أعمال2</span><span>من</span><span>امتحان2</span><span>من</span>
             </div>
             <div id="subjectsContainer"></div>
@@ -399,9 +447,8 @@
                 const subData = data.subjects[s] || {wG1:0, wM1:20, eG1:0, eM1:30, wG2:0, wM2:20, eG2:0, eM2:30};
                 const div = document.createElement('div');
                 div.className = "ind-grid";
-                // جعل خانة اسم المادة تقرأ النص بالكامل بدون اقتصاص لكي يظهر واضحاً ومباشراً
                 div.innerHTML = `
-                    <input type="text" value="${s}" readonly style="color:var(--success); font-weight:bold; font-size:11px; text-overflow: clip; white-space: nowrap;">
+                    <input type="text" value="${s}" readonly class="sub-name-input">
                     <input type="number" class="wG1" value="${subData.wG1 || 0}"> <input type="number" class="wM1" value="${subData.wM1 || 20}">
                     <input type="number" class="eG1" value="${subData.eG1 || 0}"> <input type="number" class="eM1" value="${subData.eM1 || 30}">
                     <input type="number" class="wG2" value="${subData.wG2 || 0}"> <input type="number" class="wM2" value="${subData.wM2 || 20}">
@@ -431,9 +478,8 @@
                     <div class="bulk-header-labels"><span>المادة</span><span>أعمال1</span><span>من</span><span>امتحان1</span><span>من</span><span>أعمال2</span><span>من</span><span>امتحان2</span><span>من</span></div>`;
                 schoolSubjects[yr].forEach(subName => {
                     const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG1:0, wM1:20, eG1:0, eM1:30, wG2:0, wM2:20, eG2:0, eM2:30};
-                    // تم تحسين خصائص خانة اسم المادة هنا أيضاً لعرض الاسم بالكامل
                     html += `<div class="bulk-grid" data-subject="${subName}">
-                        <input type="text" value="${subName}" readonly style="font-size:10px; background:#f0fdf4; color:var(--success); font-weight:bold; text-overflow: clip; white-space: nowrap;">
+                        <input type="text" value="${subName}" readonly class="sub-name-input">
                         <input type="number" class="wG1" value="${subData.wG1 || 0}"> <input type="number" class="wM1" value="${subData.wM1 || 20}">
                         <input type="number" class="eG1" value="${subData.eG1 || 0}"> <input type="number" class="eM1" value="${subData.eM1 || 30}">
                         <input type="number" class="wG2" value="${subData.wG2 || 0}"> <input type="number" class="wM2" value="${subData.wM2 || 20}">
@@ -554,7 +600,6 @@
                 const isFail = s.sum < (s.max/2);
                 if(isFail) { hasFail=true; failed.push(k); }
                 
-                // تم إزالة كلمة "ملحق" هنا واستبدالها بخط '-' عند رسوب الطالبة في الشهادة
                 h += `
                 <tr>
                     <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${k}</td>
@@ -617,9 +662,8 @@
         if (schoolSubjects[yr]) schoolSubjects[yr].forEach(s => {
             const div = document.createElement('div'); 
             div.className = "ind-grid";
-            // تحسين العرض لخانة اسم المادة عند الرصد الجديد لمنع الاقتصاص
             div.innerHTML = `
-                <input type="text" value="${s}" readonly style="color:var(--success); font-weight:bold; font-size:11px; text-overflow: clip; white-space: nowrap;"> 
+                <input type="text" value="${s}" readonly class="sub-name-input"> 
                 <input type="number" placeholder="أعمال1" class="wG1"> <input type="number" value="20" class="wM1">
                 <input type="number" placeholder="امتحان1" class="eG1"> <input type="number" value="30" class="eM1">
                 <input type="number" placeholder="أعمال2" class="wG2"> <input type="number" value="20" class="wM2">
