@@ -76,8 +76,8 @@
         
         .res-table { width: 100%; border-collapse: collapse; border: 1px solid var(--border); margin-bottom: 5px; }
         .res-table th { 
-            background: var(--primary); color: white; padding: 4px 1px; font-size: 8px; border: 1px solid #fff;
-            line-height: 1.1; word-wrap: break-word; vertical-align: middle;
+            background: var(--primary); color: white; padding: 4px 1px; font-size: 10px; border: 1px solid #fff;
+            line-height: 1.2; word-wrap: break-word; vertical-align: middle;
         }
         .res-table td { padding: 4px 2px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900; color: #000; font-size: 11px; overflow: hidden; }
 
@@ -95,9 +95,11 @@
         .wish-text-inline { color: #e11d48; font-weight: 800; font-size: 11px; margin-right: 5px; vertical-align: middle; }
 
         .bulk-row { background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); position: relative; }
-        .bulk-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 5px; margin-top: 10px; }
-        .bulk-header-labels { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 5px; font-size: 11px; font-weight: bold; text-align: center; color: var(--primary); }
+        .bulk-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap: 4px; margin-top: 10px; }
+        .bulk-header-labels { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap: 4px; font-size: 10px; font-weight: bold; text-align: center; color: var(--primary); }
         .delete-btn { position: absolute; left: 10px; top: 10px; color: var(--danger); cursor: pointer; font-size: 18px; }
+
+        .ind-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap: 5px; margin-bottom: 5px; }
 
         @media print {
             .btn, .search-container, #adminPortal, .admin-tabs, .dev-footer-simple, .container::before, .container::after, #backToStatsBtn, .school-header { display: none !important; }
@@ -142,6 +144,29 @@
                 <h2 id="outName" style="margin: 0; font-size: 17px; color: var(--text);"></h2>
                 <div id="outYear" style="color: var(--accent); font-weight: 800; font-size: 13px; margin-top: 1px;"></div>
             </div>
+            
+            <table class="res-table" id="resultTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th rowspan="2" style="width: 20%;">المادة</th>
+                        <th colspan="2">الفصل الأول</th>
+                        <th colspan="2">الفصل الثاني</th>
+                        <th colspan="2">النهايات</th>
+                        <th rowspan="2">المجموع النهائي</th>
+                        <th rowspan="2">الدور الثاني</th>
+                    </tr>
+                    <tr>
+                        <th>أعمال</th>
+                        <th>امتحان</th>
+                        <th>أعمال</th>
+                        <th>امتحان</th>
+                        <th>كُبرى</th>
+                        <th>صُغرى</th>
+                    </tr>
+                </thead>
+                <tbody id="resTbody"></tbody>
+            </table>
+
             <div class="summary-box">
                 <div id="totalRow" style="display:flex; justify-content:space-between; padding:5px 12px; border-bottom:1px solid #e2e8f0; font-size:13px;">
                     <span>المجموع الكلي:</span><span id="outTotalSum" style="font-weight:900; color:var(--primary);"></span>
@@ -156,7 +181,7 @@
             </div>
             
             <div id="failMissions" style="display:none; background:#fee2e2; border:2px solid var(--danger); color:#991b1b; padding:8px; border-radius:10px; margin-top:8px; text-align:center; font-weight:900; font-size:12px;">
-                <div style="margin-bottom:2px; text-decoration:underline;">المواد التي لم توفق فيها:</div>
+                <div style="margin-bottom:2px; text-decoration:underline;">المواد التي لم توفق فيها ولها دور ثانٍ:</div>
                 <div id="failListItems"></div>
             </div>
 
@@ -165,35 +190,6 @@
                 <button class="btn" style="background:#e2e8f0; padding: 10px; font-size:14px;" onclick="location.reload()">بحث جديد</button>
             </div>
         </div>
-        <table class="res-table" id="resultTable" style="display: none;">
- 
-      <thead>
-    <tr>
-        <th rowspan="3" style="width: 20%;">المادة</th>
-        <th colspan="4">درجة الفصلين</th>
-        <th colspan="6">النتيجة النهائية للتلميذ</th>
-    </tr>
-    <tr>
-        <th rowspan="2">التفاصيل</th>
-        <th rowspan="2">الدرجة المقررة لكل فصل</th>
-        <th colspan="2">درجة التلميذ</th>
-        <th colspan="2">النهايات</th>
-        <th rowspan="2">مجموع الفصلين</th>
-        <th rowspan="2" style="padding: 1px; font-size: 9px; min-width: 30px; line-height: 1.1;">امتحان<br>الدور<br>الثاني<br>40%</th>
-        <th rowspan="2">نتيجة الدور الثاني</th>
-    </tr>
-    <tr>
-        <th>الفصل الأول</th>
-        <th>الفصل الثاني</th>
-        <th>كُبرى</th>
-        <th>صُغرى</th>
-    </tr>
-</thead>
-          
-               </thead> 
-                <tbody id="resTbody"></tbody>
-            </table>
-
             
         <div class="dev-footer-simple">تم تطويره بواسطة عماد الدين نجم</div>
     </div>
@@ -235,8 +231,8 @@
                 <option value="خامس">خامس</option><option value="سادس">سادس</option>
                 <option value="سابع">سابع</option><option value="ثامن">ثامن</option>
             </select>
-            <div id="individualHeaderLabels" style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:5px; font-size:11px; font-weight:bold; text-align:center; color:var(--primary); margin-bottom:5px;">
-                <span>المادة</span><span>أعمال</span><span>من</span><span>امتحان</span><span>من</span>
+            <div id="individualHeaderLabels" class="ind-grid" style="font-size:11px; font-weight:bold; text-align:center; color:var(--primary); margin-bottom:5px;">
+                <span>المادة</span><span>أعمال1</span><span>من</span><span>امتحان1</span><span>من</span><span>أعمال2</span><span>من</span><span>امتحان2</span><span>من</span>
             </div>
             <div id="subjectsContainer"></div>
             <button class="btn" style="background: var(--success); color:white;" onclick="saveToFirebase()">حفظ ورصد الطالبة</button>
@@ -363,7 +359,9 @@
             if(parts.length >= 2) {
                 const name = parts[0].trim(); const id = parts[1].trim();
                 let subs = {};
-                schoolSubjects[yr].forEach(s => { subs[s] = {wG:0, wM:40, eG:0, eM:60, sum:0, max:100}; });
+                schoolSubjects[yr].forEach(s => { 
+                    subs[s] = {wG1:0, wM1:20, eG1:0, eM1:30, wG2:0, wM2:20, eG2:0, eM2:30, sum:0, max:100}; 
+                });
                 updates['students/'+id] = { name: name, year: yr, subjects: subs, totalGot: 0, totalMax: schoolSubjects[yr].length * 100, percent: "0.0" };
                 count++;
             }
@@ -372,7 +370,7 @@
             document.getElementById('loadingOverlay').style.display='flex';
             db.ref().update(updates).then(() => {
                 document.getElementById('loadingOverlay').style.display='none';
-                alert(`تم تسجيل ${count} طالبة بنجاح`);
+                alert(`تم تسجيل ${count} طالبة بنجاح وعمل تهيئة للفصلين المتبقين.`);
                 document.getElementById('quickAddArea').value = "";
             });
         }
@@ -392,13 +390,17 @@
             const con = document.getElementById('subjectsContainer');
             con.innerHTML = "";
             schoolSubjects[data.year].forEach(s => {
-                const subData = data.subjects[s] || {wG:0, wM:40, eG:0, eM:60};
+                const subData = data.subjects[s] || {wG1:0, wM1:20, eG1:0, eM1:30, wG2:0, wM2:20, eG2:0, eM2:30};
                 const div = document.createElement('div');
-                div.innerHTML = `<div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:5px; margin-bottom:5px;">
-                    <input type="text" value="${s}" readonly style="color:var(--success); font-weight:bold;">
-                    <input type="number" class="wG" value="${subData.wG}"> <input type="number" class="wM" value="${subData.wM}">
-                    <input type="number" class="eG" value="${subData.eG}"> <input type="number" class="eM" value="${subData.eM}">
-                </div>`; con.appendChild(div);
+                div.className = "ind-grid";
+                div.innerHTML = `
+                    <input type="text" value="${s}" readonly style="color:var(--success); font-weight:bold; font-size:11px;">
+                    <input type="number" class="wG1" value="${subData.wG1 || 0}"> <input type="number" class="wM1" value="${subData.wM1 || 20}">
+                    <input type="number" class="eG1" value="${subData.eG1 || 0}"> <input type="number" class="eM1" value="${subData.eM1 || 30}">
+                    <input type="number" class="wG2" value="${subData.wG2 || 0}"> <input type="number" class="wM2" value="${subData.wM2 || 20}">
+                    <input type="number" class="eG2" value="${subData.eG2 || 0}"> <input type="number" class="eM2" value="${subData.eM2 || 30}">
+                `; 
+                con.appendChild(div);
             });
         });
     }
@@ -419,13 +421,15 @@
                 html += `<div class="bulk-row" data-id="${id}">
                     <i class="fas fa-trash delete-btn" onclick="deleteStudent('${id}')"></i>
                     <div style="font-weight:900; color:var(--primary); margin-bottom:10px;">${s.name} (${id})</div>
-                    <div class="bulk-header-labels"><span>المادة</span><span>1أعمال</span><span>من</span><span>1امتحان</span><span>من</span></span>أعمال2</span><span>من</span><span>امتحان2</span><span>من</div>`;
+                    <div class="bulk-header-labels"><span>المادة</span><span>أعمال1</span><span>من</span><span>امتحان1</span><span>من</span><span>أعمال2</span><span>من</span><span>امتحان2</span><span>من</span></div>`;
                 schoolSubjects[yr].forEach(subName => {
-                    const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG:0, wM:40, eG:0, eM:60};
+                    const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG1:0, wM1:20, eG1:0, eM1:30, wG2:0, wM2:20, eG2:0, eM2:30};
                     html += `<div class="bulk-grid" data-subject="${subName}">
                         <input type="text" value="${subName}" readonly style="font-size:10px; background:#f0fdf4; color:var(--success); font-weight:bold;">
-                        <input type="number" class="wG" value="${subData.wG}"> <input type="number" class="wM" value="${subData.wM}">
-                        <input type="number" class="eG" value="${subData.eG}"> <input type="number" class="eM" value="${subData.eM}">
+                        <input type="number" class="wG1" value="${subData.wG1 || 0}"> <input type="number" class="wM1" value="${subData.wM1 || 20}">
+                        <input type="number" class="eG1" value="${subData.eG1 || 0}"> <input type="number" class="eM1" value="${subData.eM1 || 30}">
+                        <input type="number" class="wG2" value="${subData.wG2 || 0}"> <input type="number" class="wM2" value="${subData.wM2 || 20}">
+                        <input type="number" class="eG2" value="${subData.eG2 || 0}"> <input type="number" class="eM2" value="${subData.eM2 || 30}">
                     </div>`;
                 });
                 html += `</div>`;
@@ -444,23 +448,33 @@
     function saveAllBulkData() {
         const rows = document.querySelectorAll('.bulk-row');
         let updates = {};
+        const yr = document.getElementById('bulkSelectYear').value;
         rows.forEach(row => {
             const id = row.getAttribute('data-id');
             const name = row.querySelector('div').innerText.split(' (')[0];
-            const yr = document.getElementById('bulkSelectYear').value;
             let subs = {}; let tG=0; let tM=0;
             row.querySelectorAll('.bulk-grid').forEach(grid => {
                 const subName = grid.getAttribute('data-subject');
-                const wg = parseFloat(grid.querySelector('.wG').value) || 0;
-                const wm = parseFloat(grid.querySelector('.wM').value) || 40;
-                const eg = parseFloat(grid.querySelector('.eG').value) || 0;
-                const em = parseFloat(grid.querySelector('.eM').value) || 60;
-                subs[subName] = {wG:wg, wM:wm, eG:eg, eM:em, sum:(wg+eg), max:(wm+em)};
-                tG+=(wg+eg); tM+=(wm+em);
+                const wg1 = parseFloat(grid.querySelector('.wG1').value) || 0;
+                const wm1 = parseFloat(grid.querySelector('.wM1').value) || 20;
+                const eg1 = parseFloat(grid.querySelector('.eG1').value) || 0;
+                const em1 = parseFloat(grid.querySelector('.eM1').value) || 30;
+                
+                const wg2 = parseFloat(grid.querySelector('.wG2').value) || 0;
+                const wm2 = parseFloat(grid.querySelector('.wM2').value) || 20;
+                const eg2 = parseFloat(grid.querySelector('.eG2').value) || 0;
+                const em2 = parseFloat(grid.querySelector('.eM2').value) || 30;
+
+                const currentSum = (wg1 + eg1 + wg2 + eg2);
+                const currentMax = (wm1 + em1 + wm2 + em2);
+
+                subs[subName] = {wG1:wg1, wM1:wm1, eG1:eg1, eM1:em1, wG2:wg2, wM2:wm2, eG2:eg2, eM2:em2, sum:currentSum, max:currentMax};
+                tG += currentSum; 
+                tM += currentMax;
             });
             updates['students/'+id] = {name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1)};
         });
-        db.ref().update(updates).then(() => alert("تم الحفظ بنجاح"));
+        db.ref().update(updates).then(() => alert("تم الحفظ بنجاح لجميع الطالبات"));
     }
 
     function loadClassStats() {
@@ -525,33 +539,25 @@
         document.getElementById('outYear').innerText = "الصف: " + data.year;
         let h=""; let failed=[]; let hasFail=false;
         const sortedKeys = schoolSubjects[data.year] || Object.keys(data.subjects);
-                sortedKeys.forEach(k => {
+        
+        sortedKeys.forEach(k => {
             if(data.subjects[k]) {
                 const s = data.subjects[k]; 
                 const isFail = s.sum < (s.max/2);
                 if(isFail) { hasFail=true; failed.push(k); }
                 
-                // إنشاء صفين للمادة الواحدة (أعمال + امتحان) طبقاً للنموذج الرسمي
-                                                             h += `
+                h += `
                 <tr>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:2px;">${k}</td>
-                    <td style="border:1px solid #000; padding:2px;">الأعمال</td>
-                    <td style="border:1px solid #000; padding:2px;">16</td>
-                    <td style="border:1px solid #000; padding:2px;">${s.wG || '0'}</td>
-                    <td style="border:1px solid #000; padding:2px;">0</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:2px;">80</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:2px;">40</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:2px; color:${isFail?'red':'black'}">${s.sum}</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:1px; min-width:30px;">${s.secondExam || '-'}</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #000; padding:2px; min-width:30px">-</td>
-                </tr>
-                <tr>
-                    <td style="border:1px solid #000; padding:2px;">امتحان نهاية الفصل</td>
-                    <td style="border:1px solid #000; padding:2px;">24</td>
-                    <td style="border:1px solid #000; padding:2px;">${s.eG || '0'}</td>
-                    <td style="border:1px solid #000; padding:2px;">0</td>
+                    <td style="border:1px solid #cbd5e1; padding:5px;">${k}</td>
+                    <td style="border:1px solid #cbd5e1; padding:5px;">${s.wG1 ?? '0'}</td>
+                    <td style="border:1px solid #cbd5e1; padding:5px;">${s.eG1 ?? '0'}</td>
+                    <td style="border:1px solid #cbd5e1; padding:5px;">${s.wG2 ?? '0'}</td>
+                    <td style="border:1px solid #cbd5e1; padding:5px;">${s.eG2 ?? '0'}</td>
+                    <td style="border:1px solid #cbd5e1; padding:5px;">${s.max ?? '100'}</td>
+                    <td style="border:1px solid #cbd5e1; padding:5px;">${(s.max/2) ?? '50'}</td>
+                    <td style="border:1px solid #cbd5e1; padding:5px; color:${isFail?'red':'black'}">${s.sum ?? '0'}</td>
+                    <td style="border:1px solid #cbd5e1; padding:5px; color:red;">${isFail ? 'ملحق' : '-'}</td>
                 </tr>`;
-
             }
         });
 
@@ -565,13 +571,13 @@
             gradeEl.innerText = "لها دور ثانٍ"; gradeEl.className = "status-fail-text";
             document.getElementById('totalRow').style.display="none"; document.getElementById('percentRow').style.display="none";
             document.getElementById('failMissions').style.display="block"; document.getElementById('failListItems').innerText = failed.join(' - ');
-            msg = "لكل جواد كبوة، ونحن بانتظار عودتكِ للنجاح في الدور الثاني بإذن الله. ❤️";
+            msg = "لكل جواد كبوة، ونحن بانتظار عودتكِ للنجاح والتميز في الدور الثاني بإذن الله. ❤️";
         } else {
             document.getElementById('totalRow').style.display="flex"; document.getElementById('percentRow').style.display="flex";
             document.getElementById('failMissions').style.display="none";
             document.getElementById('outTotalSum').innerText = data.totalGot + " من " + data.totalMax;
             document.getElementById('outPercent').innerText = data.percent + "%";
-            let p=parseFloat(data.percent); gradeEl.classList.add('grade-success-color');
+            let p=parseFloat(data.percent); gradeEl.className = "grade-success-color";
             if(p>=85) { gradeEl.innerText="ممتاز"; msg = "ما شاء الله! أنتِ فخر لمدرسة الاستقلال، واصلي تألقك يا مبدعة. 🌟"; }
             else if(p>=75) { gradeEl.innerText="جيد جداً"; msg = "أداء رائع ومتميز، تفصلك خطوات بسيطة عن القمة، بالتوفيق. ✨"; }
             else if(p>=65) { gradeEl.innerText="جيد"; msg = "نتيجة طيبة، ونحن نثق أن لديكِ قدرات أكبر.. بالتّوفيق! 💪"; }
@@ -594,10 +600,16 @@
         const yr = document.getElementById('inYear').value;
         const con = document.getElementById('subjectsContainer'); con.innerHTML = ""; 
         if (schoolSubjects[yr]) schoolSubjects[yr].forEach(s => {
-            const div = document.createElement('div'); div.innerHTML = `<div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:5px; margin-bottom:5px;">
-                <input type="text" value="${s}" readonly style="color:var(--success); font-weight:bold;"> <input type="number" placeholder="أعمال" class="wG"> <input type="number" value="40" class="wM">
-                <input type="number" placeholder="امتحان" class="eG"> <input type="number" value="60" class="eM">
-            </div>`; con.appendChild(div);
+            const div = document.createElement('div'); 
+            div.className = "ind-grid";
+            div.innerHTML = `
+                <input type="text" value="${s}" readonly style="color:var(--success); font-weight:bold; font-size:11px;"> 
+                <input type="number" placeholder="أعمال1" class="wG1"> <input type="number" value="20" class="wM1">
+                <input type="number" placeholder="امتحان1" class="eG1"> <input type="number" value="30" class="eM1">
+                <input type="number" placeholder="أعمال2" class="wG2"> <input type="number" value="20" class="wM2">
+                <input type="number" placeholder="امتحان2" class="eG2"> <input type="number" value="30" class="eM2">
+            `; 
+            con.appendChild(div);
         });
     }
 
@@ -607,21 +619,33 @@
         let subs = {}; let tG=0; let tM=0;
         document.querySelectorAll('#subjectsContainer > div').forEach(div => {
             const n = div.querySelector('input[type="text"]').value;
-            const wg = parseFloat(div.querySelector('.wG').value) || 0;
-            const wm = parseFloat(div.querySelector('.wM').value) || 40;
-            const eg = parseFloat(div.querySelector('.eG').value) || 0;
-            const em = parseFloat(div.querySelector('.eM').value) || 60;
-            subs[n] = {wG:wg, wM:wm, eG:eg, eM:em, sum:(wg+eg), max:(wm+em)}; tG+=(wg+eg); tM+=(wm+em);
+            const wg1 = parseFloat(div.querySelector('.wG1').value) || 0;
+            const wm1 = parseFloat(div.querySelector('.wM1').value) || 20;
+            const eg1 = parseFloat(div.querySelector('.eG1').value) || 0;
+            const em1 = parseFloat(div.querySelector('.eM1').value) || 30;
+            
+            const wg2 = parseFloat(div.querySelector('.wG2').value) || 0;
+            const wm2 = parseFloat(div.querySelector('.wM2').value) || 20;
+            const eg2 = parseFloat(div.querySelector('.eG2').value) || 0;
+            const em2 = parseFloat(div.querySelector('.eM2').value) || 30;
+
+            const currentSum = (wg1 + eg1 + wg2 + eg2);
+            const currentMax = (wm1 + em1 + wm2 + em2);
+
+            subs[n] = {wG1:wg1, wM1:wm1, eG1:eg1, eM1:em1, wG2:wg2, wM2:wm2, eG2:eg2, eM2:em2, sum:currentSum, max:currentMax}; 
+            tG += currentSum; 
+            tM += currentMax;
         });
         db.ref('students/'+id).set({name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1)})
-        .then(()=>alert("تم الحفظ")).catch(err => alert("خطأ: " + err.message));
+        .then(()=>alert("تم رصد وحفظ بيانات الطالبة بنجاح")).catch(err => alert("خطأ: " + err.message));
     }
 </script>
-    <style>
+
+<style>
     .whatsapp-float {
         position: fixed;
         bottom: 20px;
-        left: 20px; /* جهة اليسار لكي لا يغطي أي أزرار أساسية */
+        left: 20px;
         background-color: #25d366;
         color: #FFF;
         border-radius: 50px;
@@ -636,17 +660,9 @@
         gap: 10px;
         transition: transform 0.3s ease;
     }
-    .whatsapp-float:hover {
-        transform: scale(1.05);
-        color: #fff;
-    }
-    .whatsapp-float i {
-        font-size: 20px;
-    }
-    /* إخفاء الزر عند الطباعة */
-    @media print {
-        .whatsapp-float { display: none !important; }
-    }
+    .whatsapp-float:hover { transform: scale(1.05); color: #fff; }
+    .whatsapp-float i { font-size: 20px; }
+    @media print { .whatsapp-float { display: none !important; } }
 </style>
 
 <a href="https://wa.me/218920317335" class="whatsapp-float" target="_blank">
@@ -655,4 +671,4 @@
 </a>
 
 </body>
-                    </html>
+</html>
