@@ -27,7 +27,7 @@
 
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
         body { margin: 0; background: var(--bg); color: var(--text); padding: 5px; min-height: 100vh; overflow-x: hidden; }
-        .container { max-width: 1000px; margin: 2px auto; position: relative; width: 98%; }
+        .container { max-width: 1000px; margin: 2px auto; position: relative; }
         
         #loadingOverlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -46,7 +46,7 @@
         .main-card { 
             background: var(--card); border-radius: 20px; padding: 12px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border);
-            position: relative; z-index: 1; width: 100%; overflow: hidden;
+            position: relative; z-index: 1; width: 100%;
         }
         
         .modal-overlay {
@@ -72,14 +72,14 @@
         .btn { width: 100%; padding: 12px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; }
         .btn-primary { background: var(--primary); color: white; }
         
-        #resultView { display: none; margin-top: 5px; padding: 5px; border-radius: 12px; background: #fff; width: 100%; }
+        #resultView { display: none; margin-top: 5px; padding: 5px; border-radius: 12px; background: #fff; }
         
         .res-table { width: 100%; border-collapse: collapse; border: 1px solid var(--border); margin-bottom: 5px; table-layout: fixed; }
         .res-table th { 
-            background: var(--primary); color: white; padding: 4px 1px; font-size: 9px; border: 1px solid #fff;
+            background: var(--primary); color: white; padding: 4px 1px; font-size: 8px; border: 1px solid #fff;
             line-height: 1.1; word-wrap: break-word; vertical-align: middle;
         }
-        .res-table td { padding: 8px 2px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900; color: #000; font-size: 10px; overflow: hidden; word-wrap: break-word; }
+        .res-table td { padding: 8px 2px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900; color: #000; font-size: 10px; overflow: hidden; }
 
         .summary-box { margin-top: 0; border: 2px solid var(--primary); background: #f8fafc; border-radius: 0 0 10px 10px; }
         .status-pass-text { color: var(--success) !important; font-weight: 900; }
@@ -123,19 +123,6 @@
             font-weight: 700;
         }
 
-        .bulk-grid input[type="number"]:nth-child(even), 
-        .ind-grid input[type="number"]:nth-child(even) {
-            background: #ffffff;
-            border-color: #94a3b8;
-        }
-
-        .bulk-grid input[type="number"]:nth-child(odd), 
-        .ind-grid input[type="number"]:nth-child(odd) {
-            background: #f1f5f9;
-            color: #64748b;
-            border-color: #e2e8f0;
-        }
-
         .sub-name-input {
             background: #f0fdf4 !important;
             color: var(--success) !important;
@@ -143,15 +130,13 @@
             padding-right: 8px !important;
             font-size: 11px !important;
             border: 1px solid #bbf7d0 !important;
-            white-space: nowrap;
-            overflow: visible;
         }
 
         @media print {
             .btn, .search-container, #adminPortal, .admin-tabs, .dev-footer-simple, .container::before, .container::after, #backToStatsBtn, .school-header { display: none !important; }
             #resultView { display: block !important; width: 100%; border: none; padding: 0; }
-            body { padding: 0; background: white; }
-            .main-card { box-shadow: none; border: none; padding: 0; }
+            body { background: white; padding: 0; }
+            .main-card { box-shadow: none; border: none; }
         }
     </style>
 </head>
@@ -196,17 +181,16 @@
             <table class="res-table">
                 <thead>
                     <tr>
-                        <th rowspan="3" style="width: 20%;">المادة</th>
+                        <th rowspan="3" style="width: 22%;">المادة</th>
                         <th colspan="4">درجة الفصلين</th>
-                        <th colspan="6">النتيجة النهائية للتلميذ</th>
+                        <th colspan="5">النتيجة النهائية للتلميذ</th>
                     </tr>
                     <tr>
                         <th rowspan="2">التفاصيل</th>
-                        <th rowspan="2">الدرجة المقررة لكل فصل</th>
+                        <th rowspan="2">الدرجة المقررة</th>
                         <th colspan="2">درجة التلميذ</th>
                         <th colspan="2">النهايات</th>
                         <th rowspan="2">مجموع الفصلين</th>
-                        <th rowspan="2" style="padding: 1px; font-size: 9px; min-width: 30px; line-height: 1.1;">امتحان<br>الدور<br>الثاني<br>40%</th>
                         <th rowspan="2">نتيجة الدور الثاني</th>
                     </tr>
                     <tr>
@@ -272,7 +256,10 @@
             <div style="background:#f1f5f9; padding:15px; border-radius:12px; margin-bottom:15px; border:1px dashed var(--primary);">
                 <label style="font-weight:900; display:block; margin-bottom:5px;">البحث عن طالبة للتعديل:</label>
                 <input type="number" id="editID" placeholder="الرقم الوطني للتعديل...">
-                <button onclick="fetchForEdit()" class="btn" style="background:var(--primary); color:white;">جلب البيانات</button>
+                <div style="display:flex; gap:10px;">
+                   <button onclick="fetchForEdit()" class="btn" style="background:var(--primary); color:white; flex:2;">جلب البيانات</button>
+                   <button onclick="deleteStudent()" id="delBtn" class="btn" style="background:var(--danger); color:white; flex:1; display:none;"><i class="fas fa-trash"></i> حذف</button>
+                </div>
             </div>
             <hr style="margin:20px 0; opacity:0.2;">
             <input type="number" id="newStudentID" placeholder="الرقم الوطني للطالبة الجديدة...">
@@ -286,10 +273,7 @@
                 <span>المادة</span><span>أعمال1</span><span>من</span><span>امتحان1</span><span>من</span><span>أعمال2</span><span>من</span><span>امتحان2</span><span>من</span>
             </div>
             <div id="subjectsContainer"></div>
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button class="btn" style="background: var(--success); color:white; flex: 2;" onclick="saveToFirebase()">حفظ ورصد الطالبة</button>
-                <button id="deleteBtn" class="btn" style="background: var(--danger); color:white; flex: 1; display: none;" onclick="deleteStudent()">حذف الطالبة</button>
-            </div>
+            <button class="btn" style="background: var(--success); color:white;" onclick="saveToFirebase()">حفظ ورصد الطالبة</button>
         </div>
 
         <div id="bulkTab" class="admin-section">
@@ -464,7 +448,7 @@
             document.getElementById('newStudentID').value = id; 
             document.getElementById('inName').value = data.name;
             document.getElementById('inYear').value = data.year;
-            document.getElementById('deleteBtn').style.display = 'block';
+            document.getElementById('delBtn').style.display = 'block';
             const con = document.getElementById('subjectsContainer');
             con.innerHTML = "";
             Object.keys(schoolSubjects[data.year]).forEach(s => {
@@ -474,10 +458,10 @@
                 div.className = "ind-grid";
                 div.innerHTML = `
                     <input type="text" value="${s}" readonly class="sub-name-input">
-                    <input type="number" class="wG1" value="${subData.wG1 || ''}"> <input type="number" class="wM1" value="${subData.wM1 || info.w}" readonly style="background:#eee">
-                    <input type="number" class="eG1" value="${subData.eG1 || ''}"> <input type="number" class="eM1" value="${subData.eM1 || info.e}" readonly style="background:#eee">
-                    <input type="number" class="wG2" value="${subData.wG2 || ''}"> <input type="number" class="wM2" value="${subData.wM2 || info.w}" readonly style="background:#eee">
-                    <input type="number" class="eG2" value="${subData.eG2 || ''}"> <input type="number" class="eM2" value="${subData.eM2 || info.e}" readonly style="background:#eee">
+                    <input type="number" class="wG1" value="${subData.wG1 || 0}"> <input type="number" class="wM1" value="${subData.wM1 || info.w}" readonly style="background:#eee">
+                    <input type="number" class="eG1" value="${subData.eG1 || 0}"> <input type="number" class="eM1" value="${subData.eM1 || info.e}" readonly style="background:#eee">
+                    <input type="number" class="wG2" value="${subData.wG2 || 0}"> <input type="number" class="wM2" value="${subData.wM2 || info.w}" readonly style="background:#eee">
+                    <input type="number" class="eG2" value="${subData.eG2 || 0}"> <input type="number" class="eM2" value="${subData.eM2 || info.e}" readonly style="background:#eee">
                 `; 
                 con.appendChild(div);
             });
@@ -488,11 +472,9 @@
     function deleteStudent() {
         const id = document.getElementById('newStudentID').value;
         if(!id) return;
-        if(confirm("هل أنتِ متأكدة من حذف هذه الطالبة تماماً من المنظومة؟")) {
-            document.getElementById('loadingOverlay').style.display='flex';
+        if(confirm("هل أنت متأكد من حذف هذه الطالبة تماماً؟")) {
             db.ref('students/'+id).remove().then(() => {
-                document.getElementById('loadingOverlay').style.display='none';
-                alert("تم حذف الطالبة بنجاح");
+                alert("تم الحذف بنجاح");
                 location.reload();
             });
         }
@@ -519,10 +501,10 @@
                     const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG1:0, wM1:info.w, eG1:0, eM1:info.e, wG2:0, wM2:info.w, eG2:0, eM2:info.e};
                     html += `<div class="bulk-grid" data-subject="${subName}">
                         <input type="text" value="${subName}" readonly class="sub-name-input">
-                        <input type="number" class="wG1" value="${subData.wG1 || ''}"> <input type="number" class="wM1" value="${subData.wM1 || info.w}" readonly>
-                        <input type="number" class="eG1" value="${subData.eG1 || ''}"> <input type="number" class="eM1" value="${subData.eM1 || info.e}" readonly>
-                        <input type="number" class="wG2" value="${subData.wG2 || ''}"> <input type="number" class="wM2" value="${subData.wM2 || info.w}" readonly>
-                        <input type="number" class="eG2" value="${subData.eG2 || ''}"> <input type="number" class="eM2" value="${subData.eM2 || info.e}" readonly>
+                        <input type="number" class="wG1" value="${subData.wG1 || 0}"> <input type="number" class="wM1" value="${subData.wM1 || info.w}" readonly>
+                        <input type="number" class="eG1" value="${subData.eG1 || 0}"> <input type="number" class="eM1" value="${subData.eM1 || info.e}" readonly>
+                        <input type="number" class="wG2" value="${subData.wG2 || 0}"> <input type="number" class="wM2" value="${subData.wM2 || info.w}" readonly>
+                        <input type="number" class="eG2" value="${subData.eG2 || 0}"> <input type="number" class="eM2" value="${subData.eM2 || info.e}" readonly>
                     </div>`;
                 });
                 html += `</div>`;
@@ -605,11 +587,9 @@
     function loadResult() {
         const sid=document.getElementById('searchID').value;
         if(!sid) return;
-        document.getElementById('loadingOverlay').style.display='flex';
         db.ref('students/'+sid).once('value', snap=>{ 
-            document.getElementById('loadingOverlay').style.display='none';
             if(snap.exists()) showData(snap.val()); 
-            else { alert("عذراً، الرقم غير مسجل."); }
+            else { alert("عذراً، الرقم غير مسجل."); location.reload(); }
         });
     }
 
@@ -620,34 +600,34 @@
         document.getElementById('outName').innerText = data.name;
         document.getElementById('outYear').innerText = "الصف: " + data.year;
         let h=""; let failed=[]; let hasFail=false;
-        const subjectsInfo = schoolSubjects[data.year];
-        const sortedKeys = Object.keys(subjectsInfo);
+        const sortedKeys = schoolSubjects[data.year] ? Object.keys(schoolSubjects[data.year]) : Object.keys(data.subjects);
         
         sortedKeys.forEach(k => {
             if(data.subjects[k]) {
                 const s = data.subjects[k]; 
-                const info = subjectsInfo[k];
-                const isFail = s.sum < (s.max/2);
+                const wm1 = s.wM1 ?? (schoolSubjects[data.year][k] ? schoolSubjects[data.year][k].w : 20);
+                const em1 = s.eM1 ?? (schoolSubjects[data.year][k] ? schoolSubjects[data.year][k].e : 30);
+                const max = s.max ?? (wm1 + em1) * 2;
+                const isFail = s.sum < (max/2);
                 if(isFail) { hasFail=true; failed.push(k); }
                 
                 h += `
                 <tr>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1;">${k}</td>
-                    <td style="border:1px solid #cbd5e1;">الأعمال</td>
-                    <td style="border:1px solid #cbd5e1;">${info.w}</td>
-                    <td style="border:1px solid #cbd5e1;">${s.wG1 ?? '0'}</td>
-                    <td style="border:1px solid #cbd5e1;">${s.wG2 ?? '0'}</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1;">${s.max}</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1;">${(s.max/2)}</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; color:${isFail?'red':'black'}">${s.sum}</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; color:red;">${isFail ? (s.secondExam || '-') : '-'}</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1;">-</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${k}</td>
+                    <td style="border:1px solid #cbd5e1; padding:2px;">أعمال</td>
+                    <td style="border:1px solid #cbd5e1; padding:2px;">${wm1}</td>
+                    <td style="border:1px solid #cbd5e1; padding:2px;">${s.wG1 ?? '0'}</td>
+                    <td style="border:1px solid #cbd5e1; padding:2px;">${s.wG2 ?? '0'}</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${max}</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${max/2}</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; color:${isFail?'red':'black'}">${s.sum ?? '0'}</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; min-width:30px">-</td>
                 </tr>
                 <tr>
-                    <td style="border:1px solid #cbd5e1;">امتحان الفصل</td>
-                    <td style="border:1px solid #cbd5e1;">${info.e}</td>
-                    <td style="border:1px solid #cbd5e1;">${s.eG1 ?? '0'}</td>
-                    <td style="border:1px solid #cbd5e1;">${s.eG2 ?? '0'}</td>
+                    <td style="border:1px solid #cbd5e1; padding:2px;">امتحان</td>
+                    <td style="border:1px solid #cbd5e1; padding:2px;">${em1}</td>
+                    <td style="border:1px solid #cbd5e1; padding:2px;">${s.eG1 ?? '0'}</td>
+                    <td style="border:1px solid #cbd5e1; padding:2px;">${s.eG2 ?? '0'}</td>
                 </tr>`;
             }
         });
@@ -678,7 +658,7 @@
     }
 
     function triggerCelebration() {
-        var duration = 2 * 1000; var end = Date.now() + duration;
+        var duration = 4 * 1000; var end = Date.now() + duration;
         (function frame() {
           confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#1e3a8a', '#b45309', '#059669', '#FFD700'] });
           confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#1e3a8a', '#b45309', '#059669', '#FFD700'] });
@@ -696,10 +676,10 @@
                 div.className = "ind-grid";
                 div.innerHTML = `
                     <input type="text" value="${s}" readonly class="sub-name-input"> 
-                    <input type="number" placeholder="أعمال1" class="wG1" value=""> <input type="number" value="${info.w}" class="wM1" readonly style="background:#eee">
-                    <input type="number" placeholder="امتحان1" class="eG1" value=""> <input type="number" value="${info.e}" class="eM1" readonly style="background:#eee">
-                    <input type="number" placeholder="أعمال2" class="wG2" value=""> <input type="number" value="${info.w}" class="wM2" readonly style="background:#eee">
-                    <input type="number" placeholder="امتحان2" class="eG2" value=""> <input type="number" value="${info.e}" class="eM2" readonly style="background:#eee">
+                    <input type="number" placeholder="أعمال1" class="wG1" value="0"> <input type="number" value="${info.w}" class="wM1" readonly style="background:#eee">
+                    <input type="number" placeholder="امتحان1" class="eG1" value="0"> <input type="number" value="${info.e}" class="eM1" readonly style="background:#eee">
+                    <input type="number" placeholder="أعمال2" class="wG2" value="0"> <input type="number" value="${info.w}" class="wM2" readonly style="background:#eee">
+                    <input type="number" placeholder="امتحان2" class="eG2" value="0"> <input type="number" value="${info.e}" class="eM2" readonly style="background:#eee">
                 `; 
                 con.appendChild(div);
             });
