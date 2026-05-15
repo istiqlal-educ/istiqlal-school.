@@ -72,14 +72,14 @@
         .btn { width: 100%; padding: 12px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; }
         .btn-primary { background: var(--primary); color: white; }
         
-        #resultView { display: none; margin-top: 5px; padding: 5px; border-radius: 12px; background: #fff; }
+        #resultView { display: none; margin-top: 5px; padding: 15px; border-radius: 12px; background: #fff; }
         
         .res-table { width: 100%; border-collapse: collapse; border: 1px solid var(--border); margin-bottom: 5px; table-layout: fixed; }
         .res-table th { 
-            background: var(--primary); color: white; padding: 4px 1px; font-size: 8px; border: 1px solid #fff;
+            background: var(--primary); color: white; padding: 4px 1px; font-size: 9px; border: 1px solid #fff;
             line-height: 1.1; word-wrap: break-word; vertical-align: middle;
         }
-        .res-table td { padding: 8px 2px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900; color: #000; font-size: 10px; overflow: hidden; }
+        .res-table td { padding: 10px 5px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900; color: #000; font-size: 11px; overflow: hidden; }
 
         .summary-box { margin-top: 0; border: 2px solid var(--primary); background: #f8fafc; border-radius: 0 0 10px 10px; }
         .status-pass-text { color: var(--success) !important; font-weight: 900; }
@@ -123,6 +123,19 @@
             font-weight: 700;
         }
 
+        .bulk-grid input[type="number"]:nth-child(even), 
+        .ind-grid input[type="number"]:nth-child(even) {
+            background: #ffffff;
+            border-color: #94a3b8;
+        }
+
+        .bulk-grid input[type="number"]:nth-child(odd), 
+        .ind-grid input[type="number"]:nth-child(odd) {
+            background: #f1f5f9;
+            color: #64748b;
+            border-color: #e2e8f0;
+        }
+
         .sub-name-input {
             background: #f0fdf4 !important;
             color: var(--success) !important;
@@ -130,13 +143,13 @@
             padding-right: 8px !important;
             font-size: 11px !important;
             border: 1px solid #bbf7d0 !important;
+            white-space: nowrap;
+            overflow: visible;
         }
 
         @media print {
             .btn, .search-container, #adminPortal, .admin-tabs, .dev-footer-simple, .container::before, .container::after, #backToStatsBtn, .school-header { display: none !important; }
             #resultView { display: block !important; width: 100%; border: none; padding: 0; }
-            body { background: white; padding: 0; }
-            .main-card { box-shadow: none; border: none; }
         }
     </style>
 </head>
@@ -181,16 +194,17 @@
             <table class="res-table">
                 <thead>
                     <tr>
-                        <th rowspan="3" style="width: 22%;">المادة</th>
+                        <th rowspan="3" style="width: 20%;">المادة</th>
                         <th colspan="4">درجة الفصلين</th>
-                        <th colspan="5">النتيجة النهائية للتلميذ</th>
+                        <th colspan="6">النتيجة النهائية للتلميذ</th>
                     </tr>
                     <tr>
                         <th rowspan="2">التفاصيل</th>
-                        <th rowspan="2">الدرجة المقررة</th>
+                        <th rowspan="2">الدرجة المقررة لكل فصل</th>
                         <th colspan="2">درجة التلميذ</th>
                         <th colspan="2">النهايات</th>
                         <th rowspan="2">مجموع الفصلين</th>
+                        <th rowspan="2" style="padding: 1px; font-size: 9px; min-width: 30px; line-height: 1.1;">امتحان<br>الدور<br>الثاني<br>40%</th>
                         <th rowspan="2">نتيجة الدور الثاني</th>
                     </tr>
                     <tr>
@@ -256,9 +270,9 @@
             <div style="background:#f1f5f9; padding:15px; border-radius:12px; margin-bottom:15px; border:1px dashed var(--primary);">
                 <label style="font-weight:900; display:block; margin-bottom:5px;">البحث عن طالبة للتعديل:</label>
                 <input type="number" id="editID" placeholder="الرقم الوطني للتعديل...">
-                <div style="display:flex; gap:10px;">
-                   <button onclick="fetchForEdit()" class="btn" style="background:var(--primary); color:white; flex:2;">جلب البيانات</button>
-                   <button onclick="deleteStudent()" id="delBtn" class="btn" style="background:var(--danger); color:white; flex:1; display:none;"><i class="fas fa-trash"></i> حذف</button>
+                <div style="display:flex; gap:8px;">
+                    <button onclick="fetchForEdit()" class="btn" style="background:var(--primary); color:white; flex:2;">جلب البيانات</button>
+                    <button id="deleteBtn" onclick="deleteStudent()" class="btn" style="background:var(--danger); color:white; flex:1; display:none;"><i class="fas fa-trash"></i> حذف</button>
                 </div>
             </div>
             <hr style="margin:20px 0; opacity:0.2;">
@@ -417,7 +431,7 @@
                 let totalMax = 0;
                 Object.keys(schoolSubjects[yr]).forEach(s => { 
                     const info = schoolSubjects[yr][s];
-                    const m = (info.w + info.e) * 2;
+                    const m = (info.w + info.e) * 2; 
                     subs[s] = {wG1:0, wM1:info.w, eG1:0, eM1:info.e, wG2:0, wM2:info.w, eG2:0, eM2:info.e, sum:0, max:m}; 
                     totalMax += m;
                 });
@@ -448,20 +462,21 @@
             document.getElementById('newStudentID').value = id; 
             document.getElementById('inName').value = data.name;
             document.getElementById('inYear').value = data.year;
-            document.getElementById('delBtn').style.display = 'block';
+            document.getElementById('deleteBtn').style.display = 'block';
             const con = document.getElementById('subjectsContainer');
             con.innerHTML = "";
-            Object.keys(schoolSubjects[data.year]).forEach(s => {
-                const info = schoolSubjects[data.year][s];
-                const subData = data.subjects[s] || {wG1:0, wM1:info.w, eG1:0, eM1:info.e, wG2:0, wM2:info.w, eG2:0, eM2:info.e};
+            const subjectsList = schoolSubjects[data.year];
+            Object.keys(subjectsList).forEach(s => {
+                const info = subjectsList[s];
+                const subData = (data.subjects && data.subjects[s]) ? data.subjects[s] : {wG1:0, wM1:info.w, eG1:0, eM1:info.e, wG2:0, wM2:info.w, eG2:0, eM2:info.e};
                 const div = document.createElement('div');
                 div.className = "ind-grid";
                 div.innerHTML = `
                     <input type="text" value="${s}" readonly class="sub-name-input">
-                    <input type="number" class="wG1" value="${subData.wG1 || 0}"> <input type="number" class="wM1" value="${subData.wM1 || info.w}" readonly style="background:#eee">
-                    <input type="number" class="eG1" value="${subData.eG1 || 0}"> <input type="number" class="eM1" value="${subData.eM1 || info.e}" readonly style="background:#eee">
-                    <input type="number" class="wG2" value="${subData.wG2 || 0}"> <input type="number" class="wM2" value="${subData.wM2 || info.w}" readonly style="background:#eee">
-                    <input type="number" class="eG2" value="${subData.eG2 || 0}"> <input type="number" class="eM2" value="${subData.eM2 || info.e}" readonly style="background:#eee">
+                    <input type="number" class="wG1" value="${subData.wG1 ?? 0}"> <input type="number" class="wM1" value="${subData.wM1 ?? info.w}" readonly style="background:#eee">
+                    <input type="number" class="eG1" value="${subData.eG1 ?? 0}"> <input type="number" class="eM1" value="${subData.eM1 ?? info.e}" readonly style="background:#eee">
+                    <input type="number" class="wG2" value="${subData.wG2 ?? 0}"> <input type="number" class="wM2" value="${subData.wM2 ?? info.w}" readonly style="background:#eee">
+                    <input type="number" class="eG2" value="${subData.eG2 ?? 0}"> <input type="number" class="eM2" value="${subData.eM2 ?? info.e}" readonly style="background:#eee">
                 `; 
                 con.appendChild(div);
             });
@@ -472,8 +487,10 @@
     function deleteStudent() {
         const id = document.getElementById('newStudentID').value;
         if(!id) return;
-        if(confirm("هل أنت متأكد من حذف هذه الطالبة تماماً؟")) {
+        if(confirm("هل أنت متأكد من حذف هذه الطالبة نهائياً؟")) {
+            document.getElementById('loadingOverlay').style.display='flex';
             db.ref('students/'+id).remove().then(() => {
+                document.getElementById('loadingOverlay').style.display='none';
                 alert("تم الحذف بنجاح");
                 location.reload();
             });
@@ -501,10 +518,10 @@
                     const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG1:0, wM1:info.w, eG1:0, eM1:info.e, wG2:0, wM2:info.w, eG2:0, eM2:info.e};
                     html += `<div class="bulk-grid" data-subject="${subName}">
                         <input type="text" value="${subName}" readonly class="sub-name-input">
-                        <input type="number" class="wG1" value="${subData.wG1 || 0}"> <input type="number" class="wM1" value="${subData.wM1 || info.w}" readonly>
-                        <input type="number" class="eG1" value="${subData.eG1 || 0}"> <input type="number" class="eM1" value="${subData.eM1 || info.e}" readonly>
-                        <input type="number" class="wG2" value="${subData.wG2 || 0}"> <input type="number" class="wM2" value="${subData.wM2 || info.w}" readonly>
-                        <input type="number" class="eG2" value="${subData.eG2 || 0}"> <input type="number" class="eM2" value="${subData.eM2 || info.e}" readonly>
+                        <input type="number" class="wG1" value="${subData.wG1 ?? 0}"> <input type="number" class="wM1" value="${subData.wM1 ?? info.w}" readonly>
+                        <input type="number" class="eG1" value="${subData.eG1 ?? 0}"> <input type="number" class="eM1" value="${subData.eM1 ?? info.e}" readonly>
+                        <input type="number" class="wG2" value="${subData.wG2 ?? 0}"> <input type="number" class="wM2" value="${subData.wM2 ?? info.w}" readonly>
+                        <input type="number" class="eG2" value="${subData.eG2 ?? 0}"> <input type="number" class="eM2" value="${subData.eM2 ?? info.e}" readonly>
                     </div>`;
                 });
                 html += `</div>`;
@@ -526,13 +543,20 @@
                 const subName = grid.getAttribute('data-subject');
                 const info = schoolSubjects[yr][subName];
                 const wg1 = parseFloat(grid.querySelector('.wG1').value) || 0;
+                const wm1 = info.w;
                 const eg1 = parseFloat(grid.querySelector('.eG1').value) || 0;
+                const em1 = info.e;
                 const wg2 = parseFloat(grid.querySelector('.wG2').value) || 0;
+                const wm2 = info.w;
                 const eg2 = parseFloat(grid.querySelector('.eG2').value) || 0;
+                const em2 = info.e;
+
                 const currentSum = (wg1 + eg1 + wg2 + eg2);
-                const currentMax = (info.w + info.e) * 2;
-                subs[subName] = {wG1:wg1, wM1:info.w, eG1:eg1, eM1:info.e, wG2:wg2, wM2:info.w, eG2:eg2, eM2:info.e, sum:currentSum, max:currentMax};
-                tG += currentSum; tM += currentMax;
+                const currentMax = (wm1 + em1 + wm2 + em2);
+
+                subs[subName] = {wG1:wg1, wM1:wm1, eG1:eg1, eM1:em1, wG2:wg2, wM2:wm2, eG2:eg2, eM2:em2, sum:currentSum, max:currentMax};
+                tG += currentSum; 
+                tM += currentMax;
             });
             updates['students/'+id] = {name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1)};
         });
@@ -600,36 +624,34 @@
         document.getElementById('outName').innerText = data.name;
         document.getElementById('outYear').innerText = "الصف: " + data.year;
         let h=""; let failed=[]; let hasFail=false;
-        const sortedKeys = schoolSubjects[data.year] ? Object.keys(schoolSubjects[data.year]) : Object.keys(data.subjects);
         
-        sortedKeys.forEach(k => {
-            if(data.subjects[k]) {
-                const s = data.subjects[k]; 
-                const wm1 = s.wM1 ?? (schoolSubjects[data.year][k] ? schoolSubjects[data.year][k].w : 20);
-                const em1 = s.eM1 ?? (schoolSubjects[data.year][k] ? schoolSubjects[data.year][k].e : 30);
-                const max = s.max ?? (wm1 + em1) * 2;
-                const isFail = s.sum < (max/2);
-                if(isFail) { hasFail=true; failed.push(k); }
-                
-                h += `
-                <tr>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${k}</td>
-                    <td style="border:1px solid #cbd5e1; padding:2px;">أعمال</td>
-                    <td style="border:1px solid #cbd5e1; padding:2px;">${wm1}</td>
-                    <td style="border:1px solid #cbd5e1; padding:2px;">${s.wG1 ?? '0'}</td>
-                    <td style="border:1px solid #cbd5e1; padding:2px;">${s.wG2 ?? '0'}</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${max}</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${max/2}</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; color:${isFail?'red':'black'}">${s.sum ?? '0'}</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; min-width:30px">-</td>
-                </tr>
-                <tr>
-                    <td style="border:1px solid #cbd5e1; padding:2px;">امتحان</td>
-                    <td style="border:1px solid #cbd5e1; padding:2px;">${em1}</td>
-                    <td style="border:1px solid #cbd5e1; padding:2px;">${s.eG1 ?? '0'}</td>
-                    <td style="border:1px solid #cbd5e1; padding:2px;">${s.eG2 ?? '0'}</td>
-                </tr>`;
-            }
+        const yearStructure = schoolSubjects[data.year];
+        const keys = yearStructure ? Object.keys(yearStructure) : Object.keys(data.subjects);
+        
+        keys.forEach(k => {
+            const s = (data.subjects && data.subjects[k]) ? data.subjects[k] : {wG1:0, wM1:0, eG1:0, eM1:0, wG2:0, wM2:0, eG2:0, eM2:0, sum:0, max:100};
+            const isFail = s.sum < (s.max/2);
+            if(isFail) { hasFail=true; failed.push(k); }
+            
+            h += `
+            <tr>
+                <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${k}</td>
+                <td style="border:1px solid #cbd5e1; padding:2px;">الأعمال</td>
+                <td style="border:1px solid #cbd5e1; padding:2px;">${s.wM1 ?? 0}</td>
+                <td style="border:1px solid #cbd5e1; padding:2px;">${s.wG1 ?? 0}</td>
+                <td style="border:1px solid #cbd5e1; padding:2px;">${s.wG2 ?? 0}</td>
+                <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${s.max ?? 100}</td>
+                <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${(s.max/2) ?? 50}</td>
+                <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; color:${isFail?'red':'black'}">${s.sum ?? 0}</td>
+                <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:1px; min-width:30px; color:red;">${isFail ? (s.secondExam || '-') : '-'}</td>
+                <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; min-width:30px">-</td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #cbd5e1; padding:2px;">امتحان الفصل</td>
+                <td style="border:1px solid #cbd5e1; padding:2px;">${s.eM1 ?? 0}</td>
+                <td style="border:1px solid #cbd5e1; padding:2px;">${s.eG1 ?? 0}</td>
+                <td style="border:1px solid #cbd5e1; padding:2px;">${s.eG2 ?? 0}</td>
+            </tr>`;
         });
 
         document.getElementById('resTbody').innerHTML=h;
@@ -645,9 +667,9 @@
         } else {
             document.getElementById('totalRow').style.display="flex"; document.getElementById('percentRow').style.display="flex";
             document.getElementById('failMissions').style.display="none";
-            document.getElementById('outTotalSum').innerText = data.totalGot + " من " + data.totalMax;
-            document.getElementById('outPercent').innerText = data.percent + "%";
-            let p=parseFloat(data.percent); gradeEl.className = "grade-success-color";
+            document.getElementById('outTotalSum').innerText = (data.totalGot || 0) + " من " + (data.totalMax || 0);
+            document.getElementById('outPercent').innerText = (data.percent || "0.0") + "%";
+            let p=parseFloat(data.percent || 0); gradeEl.className = "grade-success-color";
             if(p>=85) { gradeEl.innerText="ممتاز"; msg = "ما شاء الله! أنتِ فخر لمدرسة الاستقلال، واصلي تألقك يا مبدعة. 🌟"; }
             else if(p>=75) { gradeEl.innerText="جيد جداً"; msg = "أداء رائع ومتميز، تفصلك خطوات بسيطة عن القمة، بالتوفيق. ✨"; }
             else if(p>=65) { gradeEl.innerText="جيد"; msg = "نتيجة طيبة، ونحن نثق أن لديكِ قدرات أكبر.. بالتّوفيق! 💪"; }
@@ -694,18 +716,49 @@
             const n = div.querySelector('input[type="text"]').value;
             const info = schoolSubjects[yr][n];
             const wg1 = parseFloat(div.querySelector('.wG1').value) || 0;
+            const wm1 = info.w;
             const eg1 = parseFloat(div.querySelector('.eG1').value) || 0;
+            const em1 = info.e;
             const wg2 = parseFloat(div.querySelector('.wG2').value) || 0;
+            const wm2 = info.w;
             const eg2 = parseFloat(div.querySelector('.eG2').value) || 0;
+            const em2 = info.e;
+
             const currentSum = (wg1 + eg1 + wg2 + eg2);
-            const currentMax = (info.w + info.e) * 2;
-            subs[n] = {wG1:wg1, wM1:info.w, eG1:eg1, eM1:info.e, wG2:wg2, wM2:info.w, eG2:eg2, eM2:info.e, sum:currentSum, max:currentMax}; 
-            tG += currentSum; tM += currentMax;
+            const currentMax = (wm1 + em1 + wm2 + em2);
+
+            subs[n] = {wG1:wg1, wM1:wm1, eG1:eg1, eM1:em1, wG2:wg2, wM2:wm2, eG2:eg2, eM2:em2, sum:currentSum, max:currentMax}; 
+            tG += currentSum; 
+            tM += currentMax;
         });
         db.ref('students/'+id).set({name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1)})
         .then(()=>alert("تم رصد وحفظ بيانات الطالبة بنجاح")).catch(err => alert("خطأ: " + err.message));
     }
 </script>
+
+<style>
+    .whatsapp-float {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background-color: #25d366;
+        color: #FFF;
+        border-radius: 50px;
+        padding: 10px 20px;
+        font-weight: 700;
+        font-size: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 9999;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: transform 0.3s ease;
+    }
+    .whatsapp-float:hover { transform: scale(1.05); color: #fff; }
+    .whatsapp-float i { font-size: 20px; }
+    @media print { .whatsapp-float { display: none !important; } }
+</style>
 
 <a href="https://wa.me/218920317335" class="whatsapp-float" id="whatsappBtn" target="_blank">
     <i class="fab fa-whatsapp"></i>
