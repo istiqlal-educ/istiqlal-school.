@@ -76,20 +76,10 @@
         
         .res-table { width: 100%; border-collapse: collapse; border: 1px solid var(--border); margin-bottom: 5px; }
         .res-table th { 
-            background: var(--primary); color: white; padding: 6px 2px; font-size: 10px; border: 1px solid #fff;
-            line-height: 1.2; word-wrap: break-word; vertical-align: middle;
+            background: var(--primary); color: white; padding: 4px 1px; font-size: 9px; border: 1px solid #fff;
+            line-height: 1.1; word-wrap: break-word; vertical-align: middle;
         }
-        .res-table td { padding: 10px 5px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900; color: #000; font-size: 11px; }
-        
-        /* تحسين لمنع اختفاء أجزاء الحروف وإظهار أسماء المواد كاملة */
-        .res-table td.subject-name-cell {
-            white-space: nowrap;
-            overflow: visible;
-            text-overflow: unset;
-            padding-right: 8px;
-            padding-left: 8px;
-            font-size: 12px;
-        }
+        .res-table td { padding: 10px 5px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900; color: #000; font-size: 11px; overflow: hidden; }
 
         .summary-box { margin-top: 0; border: 2px solid var(--primary); background: #f8fafc; border-radius: 0 0 10px 10px; }
         .status-pass-text { color: var(--success) !important; font-weight: 900; }
@@ -105,16 +95,18 @@
         .wish-text-inline { color: #e11d48; font-weight: 800; font-size: 11px; margin-right: 5px; vertical-align: middle; }
 
         .bulk-row { background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); position: relative; }
-        .bulk-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap: 4px; margin-top: 10px; }
-        .bulk-header-labels { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap: 4px; font-size: 10px; font-weight: bold; text-align: center; color: var(--primary); }
+        
+        /* تعديل توزيع الأعمدة لزيادة عرض خانة اسم المادة */
+        .bulk-grid { display: grid; grid-template-columns: 2.8fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap: 4px; margin-top: 10px; }
+        .bulk-header-labels { display: grid; grid-template-columns: 2.8fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap: 4px; font-size: 10px; font-weight: bold; text-align: center; color: var(--primary); }
         .delete-btn { position: absolute; left: 10px; top: 10px; color: var(--danger); cursor: pointer; font-size: 18px; }
 
-        .ind-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap: 5px; margin-bottom: 5px; }
+        /* تعديل توزيع أعمدة الرصد الفردي أيضاً لزيادة عرض خانة اسم المادة */
+        .ind-grid { display: grid; grid-template-columns: 2.8fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap: 5px; margin-bottom: 5px; }
 
         @media print {
             .btn, .search-container, #adminPortal, .admin-tabs, .dev-footer-simple, .container::before, .container::after, #backToStatsBtn, .school-header { display: none !important; }
             #resultView { display: block !important; width: 100%; border: none; padding: 0; }
-            .res-table td.subject-name-cell { white-space: nowrap !important; }
         }
     </style>
 </head>
@@ -159,7 +151,7 @@
             <table class="res-table">
                 <thead>
                     <tr>
-                        <th rowspan="3" style="width: 25%;">المادة</th>
+                        <th rowspan="3" style="width: 20%;">المادة</th>
                         <th colspan="4">درجة الفصلين</th>
                         <th colspan="6">النتيجة النهائية للتلميذ</th>
                     </tr>
@@ -169,7 +161,7 @@
                         <th colspan="2">درجة التلميذ</th>
                         <th colspan="2">النهايات</th>
                         <th rowspan="2">مجموع الفصلين</th>
-                        <th rowspan="2" style="padding: 1px; font-size: 9px; min-width: 35px; line-height: 1.1;">امتحان<br>الدور<br>الثاني<br>40%</th>
+                        <th rowspan="2" style="padding: 1px; font-size: 9px; min-width: 30px; line-height: 1.1;">امتحان<br>الدور<br>الثاني<br>40%</th>
                         <th rowspan="2">نتيجة الدور الثاني</th>
                     </tr>
                     <tr>
@@ -407,8 +399,9 @@
                 const subData = data.subjects[s] || {wG1:0, wM1:20, eG1:0, eM1:30, wG2:0, wM2:20, eG2:0, eM2:30};
                 const div = document.createElement('div');
                 div.className = "ind-grid";
+                // جعل خانة اسم المادة تقرأ النص بالكامل بدون اقتصاص لكي يظهر واضحاً ومباشراً
                 div.innerHTML = `
-                    <input type="text" value="${s}" readonly style="color:var(--success); font-weight:bold; font-size:11px;">
+                    <input type="text" value="${s}" readonly style="color:var(--success); font-weight:bold; font-size:11px; text-overflow: clip; white-space: nowrap;">
                     <input type="number" class="wG1" value="${subData.wG1 || 0}"> <input type="number" class="wM1" value="${subData.wM1 || 20}">
                     <input type="number" class="eG1" value="${subData.eG1 || 0}"> <input type="number" class="eM1" value="${subData.eM1 || 30}">
                     <input type="number" class="wG2" value="${subData.wG2 || 0}"> <input type="number" class="wM2" value="${subData.wM2 || 20}">
@@ -438,8 +431,9 @@
                     <div class="bulk-header-labels"><span>المادة</span><span>أعمال1</span><span>من</span><span>امتحان1</span><span>من</span><span>أعمال2</span><span>من</span><span>امتحان2</span><span>من</span></div>`;
                 schoolSubjects[yr].forEach(subName => {
                     const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG1:0, wM1:20, eG1:0, eM1:30, wG2:0, wM2:20, eG2:0, eM2:30};
+                    // تم تحسين خصائص خانة اسم المادة هنا أيضاً لعرض الاسم بالكامل
                     html += `<div class="bulk-grid" data-subject="${subName}">
-                        <input type="text" value="${subName}" readonly style="font-size:10px; background:#f0fdf4; color:var(--success); font-weight:bold;">
+                        <input type="text" value="${subName}" readonly style="font-size:10px; background:#f0fdf4; color:var(--success); font-weight:bold; text-overflow: clip; white-space: nowrap;">
                         <input type="number" class="wG1" value="${subData.wG1 || 0}"> <input type="number" class="wM1" value="${subData.wM1 || 20}">
                         <input type="number" class="eG1" value="${subData.eG1 || 0}"> <input type="number" class="eM1" value="${subData.eM1 || 30}">
                         <input type="number" class="wG2" value="${subData.wG2 || 0}"> <input type="number" class="wM2" value="${subData.wM2 || 20}">
@@ -560,9 +554,10 @@
                 const isFail = s.sum < (s.max/2);
                 if(isFail) { hasFail=true; failed.push(k); }
                 
+                // تم إزالة كلمة "ملحق" هنا واستبدالها بخط '-' عند رسوب الطالبة في الشهادة
                 h += `
                 <tr>
-                    <td rowspan="2" class="subject-name-cell" style="vertical-align:middle; border:1px solid #cbd5e1;">${k}</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${k}</td>
                     <td style="border:1px solid #cbd5e1; padding:2px;">الأعمال</td>
                     <td style="border:1px solid #cbd5e1; padding:2px;">20</td>
                     <td style="border:1px solid #cbd5e1; padding:2px;">${s.wG1 ?? '0'}</td>
@@ -570,7 +565,7 @@
                     <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${s.max ?? '100'}</td>
                     <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${(s.max/2) ?? '50'}</td>
                     <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; color:${isFail?'red':'black'}">${s.sum ?? '0'}</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:1px; min-width:35px; color:red;">${isFail ? (s.secondExam || '-') : '-'}</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:1px; min-width:30px; color:red;">${isFail ? (s.secondExam || '-') : '-'}</td>
                     <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; min-width:30px">-</td>
                 </tr>
                 <tr>
@@ -622,8 +617,9 @@
         if (schoolSubjects[yr]) schoolSubjects[yr].forEach(s => {
             const div = document.createElement('div'); 
             div.className = "ind-grid";
+            // تحسين العرض لخانة اسم المادة عند الرصد الجديد لمنع الاقتصاص
             div.innerHTML = `
-                <input type="text" value="${s}" readonly style="color:var(--success); font-weight:bold; font-size:11px;"> 
+                <input type="text" value="${s}" readonly style="color:var(--success); font-weight:bold; font-size:11px; text-overflow: clip; white-space: nowrap;"> 
                 <input type="number" placeholder="أعمال1" class="wG1"> <input type="number" value="20" class="wM1">
                 <input type="number" placeholder="امتحان1" class="eG1"> <input type="number" value="30" class="eM1">
                 <input type="number" placeholder="أعمال2" class="wG2"> <input type="number" value="20" class="wM2">
