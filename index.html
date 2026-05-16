@@ -216,10 +216,10 @@
         .res-table th { 
             background: var(--primary);
             color: white;
-            padding: 5px 2px;
-            font-size: 11px;
-            border: 1px solid var(--border);
-            line-height: 1.2;
+            padding: 2px 1px;
+            font-size: 9px;
+            border: 1px solid #fff;
+            line-height: 1.1;
             vertical-align: middle;
             text-align: center;
         }
@@ -230,32 +230,34 @@
             text-align: center;
             font-weight: 900;
             color: #000;
-            font-size: 12px;
+            font-size: 11px;
         }
 
-        .res-table-period3 th, .res-table-period3 td {
-            border: 1px solid var(--border) !important;
+        /* تنسيقات الجداول لتتناسب طولياً وبشكل موحد لكافة الصفوف */
+        .res-table-period3 th, .res-table-period3 td,
+        .res-table-normal th, .res-table-normal td {
+            border: 1px solid black !important;
             padding: 4px 2px !important;
             line-height: 1.2;
             vertical-align: middle;
             text-align: center;
         }
 
-        .res-table-period3 th {
+        .res-table-period3 th, .res-table-normal th {
             font-weight: bold;
-            color: white;
-            font-size: 10px;
-            background-color: var(--primary);
+            color: black !important;
+            font-size: 11px;
+            background-color: #f5f5f5 !important;
         }
 
-        .res-table-period3 td {
+        .res-table-period3 td, .res-table-normal td {
             color: black;
             font-size: 11px;
         }
 
         .summary-box {
             margin-top: 0;
-            border: 2px solid var(--primary);
+            border: 2px solid black;
             background: #f8fafc;
             border-radius: 0 0 10px 10px;
         }
@@ -382,6 +384,9 @@
         @media print {
             .btn, .search-container, #adminPortal, .admin-tabs, .dev-footer-simple, .container::before, .container::after, #backToStatsBtn, .school-header { display: none !important; }
             #resultView { display: block !important; width: 100%; border: none; padding: 0; }
+            body { background: white; padding: 0; }
+            .main-card { box-shadow: none; border: none; padding: 0; }
+            .res-table-period3 th, .res-table-normal th { background-color: #eaeaea !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
 </head>
@@ -632,8 +637,7 @@
                     document.getElementById('loadingOverlay').style.display='none';
                     document.getElementById('searchSection').style.display='none';
                     document.getElementById('adminPortal').style.display='block';
-                    const waBtn = document.getElementById('whatsappBtn');
-                    if (waBtn) waBtn.style.display = 'none';
+                    document.getElementById('whatsappBtn').style.display = 'none';
                 })
                 .catch(err => {
                     document.getElementById('loadingOverlay').style.display='none';
@@ -647,8 +651,7 @@
     }
 
     function exitAdminPortal() {
-        const waBtn = document.getElementById('whatsappBtn');
-        if (waBtn) waBtn.style.display = 'flex';
+        document.getElementById('whatsappBtn').style.display = 'flex';
         location.reload();
     }
 
@@ -739,13 +742,13 @@
                     div.innerHTML = `
                         <input type="text" value="${s}" readonly class="sub-name-input">
                         <input type="number" class="wG1" value="${subData.wG1 || 0}">
-                        <input type="number" class="wM1" value="${defaultW}" readonly>
+                        <input type="number" value="${defaultW}" readonly>
                         <input type="number" class="eG1" value="${subData.eG1 || 0}">
-                        <input type="number" class="eM1" value="${defaultE}" readonly>
+                        <input type="number" value="${defaultE}" readonly>
                         <input type="number" class="wG2" value="${subData.wG2 || 0}">
-                        <input type="number" class="wM2" value="${defaultW}" readonly>
+                        <input type="number" value="${defaultW}" readonly>
                         <input type="number" class="eG2" value="${subData.eG2 || 0}">
-                        <input type="number" class="eM2" value="${defaultE}" readonly>
+                        <input type="number" value="${defaultE}" readonly>
                     `; 
                 }
                 con.appendChild(div);
@@ -787,7 +790,7 @@
                 let wVal = 20; let eVal = 30;
                 if(yr === "سادس" && officialWeights60[s]) {
                     wVal = officialWeights60[s].w; eVal = officialWeights60[s].e;
-                } else if((yr === "سيرجع" || yr === "ثامن") && officialWeights78[s]) {
+                } else if((yr === "سابع" || yr === "ثامن") && officialWeights78[s]) {
                     wVal = officialWeights78[s].w; eVal = officialWeights78[s].e;
                 }
                 div.innerHTML = `
@@ -977,7 +980,14 @@
                         const conf = officialWeights55[k] || { min: 48 };
                         if((s.subjects[k].sum || 0) < conf.min) { isFail = true; break; }
                     } else {
-                        if((s.subjects[k].sum || 0) < ((s.subjects[k].max || 50) / 2)) { isFail = true; break; }
+                        let maxWeight = s.subjects[k].max;
+                        if(!maxWeight) {
+                            let dW = 20; let dE = 30;
+                            if(yr === "سادس" && officialWeights60[k]) { dW = officialWeights60[k].w; dE = officialWeights60[k].e; }
+                            else if((yr === "سابع" || yr === "ثامن") && officialWeights78[k]) { dW = officialWeights78[k].w; dE = officialWeights78[k].e; }
+                            maxWeight = (dW + dE) * 2;
+                        }
+                        if((s.subjects[k].sum || 0) < (maxWeight / 2)) { isFail = true; break; }
                     }
                 }
                 if(isFail) failed++; else passed++;
@@ -1038,21 +1048,21 @@
             <table class="res-table res-table-period3">
                 <thead>
                     <tr>
-                        <th style="width:25%; font-weight:bold;" rowspan="2">المواد الدراسية المقررة</th>
-                        <th colspan="2">الفترة الأولى (30%)</th>
-                        <th colspan="2">الفترة الثانية (30%)</th>
-                        <th colspan="2">الفترة الثالثة (40%)</th>
-                        <th colspan="3">النتيجة النهائية (100%)</th>
+                        <th style="width:20%; font-weight:bold;" rowspan="2">المواد</th>
+                        <th colspan="2">الفترة الأولى <br> 30%</th>
+                        <th colspan="2">الفترة الثانية <br> 30%</th>
+                        <th colspan="2">الفترة الثالثة <br> 40%</th>
+                        <th colspan="3">النتيجة النهائية 100%</th>
                     </tr>
                     <tr>
-                        <th>الدرجة الكبرى</th>
+                        <th>الدرجة الكُبرى</th>
                         <th>درجة التلميذ</th>
-                        <th>الدرجة الكبرى</th>
+                        <th>الدرجة الكُبرى</th>
                         <th>درجة التلميذ</th>
-                        <th>الدرجة الكبرى</th>
+                        <th>الدرجة الكُبرى</th>
                         <th>درجة التلميذ</th>
-                        <th>الدرجة الكبرى</th>
-                        <th>الدرجة الصغرى</th>
+                        <th>الدرجة الكُبرى</th>
+                        <th>الدرجة الصُغرى</th>
                         <th>درجة التلميذ</th>
                     </tr>
                 </thead>
@@ -1067,7 +1077,7 @@
 
                     h += `
                     <tr>
-                        <td style="text-align:right; padding-right:10px; font-weight:bold;">${k}</td>
+                        <td style="text-align:right; padding-right:6px; font-weight:bold;">${k}</td>
                         <td>${conf.p1}</td>
                         <td>${s.p1 ?? '0'}</td>
                         <td>${conf.p2}</td>
@@ -1075,8 +1085,8 @@
                         <td>${conf.p3}</td>
                         <td>${s.p3 ?? '0'}</td>
                         <td>${conf.max}</td>
-                        <td style="color:var(--accent);">${conf.min}</td>
-                        <td style="color:${isFail?'red':'black'}; font-weight:bold; font-size:13px;">${s.sum ?? '0'}</td>
+                        <td style="color:var(--accent); font-weight:bold;">${conf.min}</td>
+                        <td style="color:${isFail?'red':'black'}; font-weight:bold; font-size:12px; background:#f9fafb;">${s.sum ?? '0'}</td>
                     </tr>`;
                 }
             });
@@ -1085,26 +1095,26 @@
             wrapper.innerHTML = h;
 
         } else {
+            // كود العرض المطور للصف السادس، السابع، والثامن بنظام طولي متكامل
             h = `
-            <table class="res-table">
+            <table class="res-table res-table-normal">
                 <thead>
                     <tr>
-                        <th rowspan="3" style="width: 20%;">المادة</th>
+                        <th rowspan="3" style="width: 20%;">المواد</th>
                         <th colspan="4">درجة الفصلين</th>
-                        <th colspan="6">النتيجة النهائية للتلميذ</th>
+                        <th colspan="5">النتيجة النهائية للطالبة</th>
                     </tr>
                     <tr>
                         <th rowspan="2">التفاصيل</th>
                         <th rowspan="2">الدرجة المقررة لكل فصل</th>
-                        <th colspan="2">درجة التلميذ</th>
+                        <th colspan="2">درجة الطالبة</th>
                         <th colspan="2">النهايات</th>
-                        <th rowspan="2">مجموع الفصلين</th>
-                        <th rowspan="2" style="padding: 1px; font-size: 9px; min-width: 30px; line-height: 1.1;">امتحان<br>الدور<br>الثاني<br>40%</th>
+                        <th rowspan="2">المجموع</th>
                         <th rowspan="2">نتيجة الدور الثاني</th>
                     </tr>
                     <tr>
-                        <th>الفصل الأول</th>
-                        <th>الفصل الثاني</th>
+                        <th>فصل 1</th>
+                        <th>فصل 2</th>
                         <th>كُبرى</th>
                         <th>صُغرى</th>
                     </tr>
@@ -1114,7 +1124,8 @@
             sortedKeys.forEach(k => {
                 if(data.subjects[k]) {
                     const s = data.subjects[k]; 
-                    let currentWM1 = s.wM1 ?? 20; let currentEM1 = s.eM1 ?? 30;
+                    let currentWM1 = s.wM1 ?? 20; 
+                    let currentEM1 = s.eM1 ?? 30;
                     
                     if(data.year === "سادس" && officialWeights60[k]) {
                         currentWM1 = officialWeights60[k].w; currentEM1 = officialWeights60[k].e;
@@ -1124,27 +1135,26 @@
                     
                     const calculatedMax = (currentWM1 + currentEM1) * 2;
                     const calculatedMin = calculatedMax / 2;
-                    const isFail = s.sum < calculatedMin;
+                    const isFail = (s.sum || 0) < calculatedMin;
                     if(isFail) { hasFail=true; failed.push(k); }
                     
                     h += `
                     <tr>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${k}</td>
-                        <td style="border:1px solid #cbd5e1; padding:2px;">الأعمال</td>
-                        <td style="border:1px solid #cbd5e1; padding:2px;">${currentWM1}</td>
-                        <td style="border:1px solid #cbd5e1; padding:2px;">${s.wG1 ?? '0'}</td>
-                        <td style="border:1px solid #cbd5e1; padding:2px;">${s.wG2 ?? '0'}</td>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${calculatedMax}</td>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${calculatedMin}</td>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; color:${isFail?'red':'black'}">${s.sum ?? '0'}</td>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:1px; min-width:30px; color:red;">-</td>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; min-width:30px">-</td>
+                        <td rowspan="2" style="vertical-align:middle; font-weight:bold; text-align:right; padding-right:6px;">${k}</td>
+                        <td>الأعمال</td>
+                        <td>${currentWM1}</td>
+                        <td>${s.wG1 ?? '0'}</td>
+                        <td>${s.wG2 ?? '0'}</td>
+                        <td rowspan="2" style="vertical-align:middle; font-weight:bold;">${calculatedMax}</td>
+                        <td rowspan="2" style="vertical-align:middle; color:var(--accent); font-weight:bold;">${calculatedMin}</td>
+                        <td rowspan="2" style="vertical-align:middle; font-weight:bold; font-size:12px; color:${isFail?'red':'black'}; background:#f9fafb;">${s.sum ?? '0'}</td>
+                        <td rowspan="2" style="vertical-align:middle; color:red; font-weight:bold;">${isFail ? 'له دور ثان' : '-'}</td>
                     </tr>
                     <tr>
-                        <td style="border:1px solid #cbd5e1; padding:2px;">امتحان نهاية الفصل</td>
-                        <td style="border:1px solid #cbd5e1; padding:2px;">${currentEM1}</td>
-                        <td style="border:1px solid #cbd5e1; padding:2px;">${s.eG1 ?? '0'}</td>
-                        <td style="border:1px solid #cbd5e1; padding:2px;">${s.eG2 ?? '0'}</td>
+                        <td>الامتحان</td>
+                        <td>${currentEM1}</td>
+                        <td>${s.eG1 ?? '0'}</td>
+                        <td>${s.eG2 ?? '0'}</td>
                     </tr>`;
                 }
             });
