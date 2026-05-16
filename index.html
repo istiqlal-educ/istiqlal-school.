@@ -574,8 +574,8 @@
 
     const schoolSubjects = {
         "خامس": ["التربية الإسلامية", "الحاسوب", "الرياضيات", "العلوم", "الكتابة", "اللغة الإنجليزية", "الاجتماعيات", "اللغة العربية"],
-        "سادس": ["التربية الإسلامية", "اللغة العربية", "الكتابة", "اللغة الإنجليزية", "الحاسوب", "الالرياضيات", "العلوم", "الاجتماعيات"],
-        "سابع": ["التاريخ", "التربية الإسلامية", "الجغرافيا", "الحاسوب", "الرياضيات", "العلوم", "الكتابة", "اللغة الإنجليزية", "اللغة العربية"],
+        "سادس": ["التربية الإسلامية", "اللغة العربية", "الكتابة", "اللغة الإنجليزية", "الحاسوب", "الرياضيات", "العلوم", "الاجتماعيات"],
+        "سابع": ["التاريخ", "التربية الإسلامية", "الجغرافيا", "الحاسوب", "الالرياضيات", "العلوم", "الكتابة", "اللغة الإنجليزية", "اللغة العربية"],
         "ثامن": ["التاريخ", "التربية الإسلامية", "الجغرافيا", "الحاسوب", "الرياضيات", "العلوم", "الكتابة", "اللغة الإنجليزية", "اللغة العربية"]
     };
 
@@ -718,13 +718,13 @@
                 div.innerHTML = `
                     <input type="text" value="${s}" readonly class="sub-name-input">
                     <input type="number" class="wG1" value="${subData.wG1 || 0}">
-                    <input type="number" class="wM1" value="${subData.wM1 || defaultW}" readonly>
+                    <input type="number" class="wM1" value="${defaultW}" readonly>
                     <input type="number" class="eG1" value="${subData.eG1 || 0}">
-                    <input type="number" class="eM1" value="${subData.eM1 || defaultE}" readonly>
+                    <input type="number" class="eM1" value="${defaultE}" readonly>
                     <input type="number" class="wG2" value="${subData.wG2 || 0}">
-                    <input type="number" class="wM2" value="${subData.wM2 || defaultW}" readonly>
+                    <input type="number" class="wM2" value="${defaultW}" readonly>
                     <input type="number" class="eG2" value="${subData.eG2 || 0}">
-                    <input type="number" class="eM2" value="${subData.eM2 || defaultE}" readonly>
+                    <input type="number" class="eM2" value="${defaultE}" readonly>
                 `; 
                 con.appendChild(div);
             });
@@ -756,7 +756,7 @@
                     if(yr === "سادس" && officialWeights60[subName]) {
                         dW = officialWeights60[subName].w;
                         dE = officialWeights60[subName].e;
-                    } else if((yr === "...ثابع" || yr === "ثامن") && officialWeights78[subName]) {
+                    } else if((yr === "سابع" || yr === "ثامن") && officialWeights78[subName]) {
                         dW = officialWeights78[subName].w;
                         dE = officialWeights78[subName].e;
                     }
@@ -770,13 +770,13 @@
                     html += `<div class="bulk-grid" data-subject="${subName}">
                         <input type="text" value="${subName}" readonly tabindex="-1" class="sub-name-input">
                         <input type="number" class="wG1" value="${wg1_val}"> 
-                        <input type="number" class="wM1" value="${subData.wM1 || dW}" readonly tabindex="-1">
+                        <input type="number" class="wM1" value="${dW}" readonly tabindex="-1">
                         <input type="number" class="eG1" value="${eg1_val}"> 
-                        <input type="number" class="eM1" value="${subData.eM1 || dE}" readonly tabindex="-1">
+                        <input type="number" class="eM1" value="${dE}" readonly tabindex="-1">
                         <input type="number" class="wG2" value="${wg2_val}"> 
-                        <input type="number" class="wM2" value="${subData.wM2 || dW}" readonly tabindex="-1">
+                        <input type="number" class="wM2" value="${dW}" readonly tabindex="-1">
                         <input type="number" class="eG2" value="${eg2_val}"> 
-                        <input type="number" class="eM2" value="${subData.eM2 || dE}" readonly tabindex="-1">
+                        <input type="number" class="eM2" value="${dE}" readonly tabindex="-1">
                     </div>`;
                 });
                 html += `</div>`;
@@ -813,14 +813,14 @@
                     defaultE = officialWeights78[subName].e;
                 }
                 
-                const wm1 = parseFloat(grid.querySelector('.wM1').value) || defaultW;
+                const wm1 = defaultW;
                 const eg1 = parseFloat(grid.querySelector('.eG1').value) || 0;
-                const em1 = parseFloat(grid.querySelector('.eM1').value) || defaultE;
+                const em1 = defaultE;
                 
                 const wg2 = parseFloat(grid.querySelector('.wG2').value) || 0;
-                const wm2 = parseFloat(grid.querySelector('.wM2').value) || defaultW;
+                const wm2 = defaultW;
                 const eg2 = parseFloat(grid.querySelector('.eG2').value) || 0;
-                const em2 = parseFloat(grid.querySelector('.eM2').value) || defaultE;
+                const em2 = defaultE;
 
                 const currentSum = (wg1 + eg1 + wg2 + eg2);
                 const currentMax = (wm1 + em1 + wm2 + em2);
@@ -1020,14 +1020,14 @@
                 eDef = officialWeights78[n].e;
             }
 
-            const wm1 = parseFloat(div.querySelector('.wM1').value) || wDef;
+            const wm1 = wDef;
             const eg1 = parseFloat(div.querySelector('.eG1').value) || 0;
-            const em1 = parseFloat(div.querySelector('.eM1').value) || eDef;
+            const em1 = eDef;
             
             const wg2 = parseFloat(div.querySelector('.wG2').value) || 0;
-            const wm2 = parseFloat(div.querySelector('.wM2').value) || wDef;
+            const wm2 = wDef;
             const eg2 = parseFloat(div.querySelector('.eG2').value) || 0;
-            const em2 = parseFloat(div.querySelector('.eM2').value) || eDef;
+            const em2 = eDef;
 
             const currentSum = (wg1 + eg1 + wg2 + eg2);
             const currentMax = (wm1 + em1 + wm2 + em2);
