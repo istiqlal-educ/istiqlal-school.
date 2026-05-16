@@ -70,7 +70,7 @@
 
         @keyframes spin {
             0 { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            100 { transform: rotate(360deg); }
         }
 
         .container::before, .container::after {
@@ -233,7 +233,6 @@
             font-size: 12px;
         }
 
-        /* تعديل وتحسين جدول الصف الخامس المخصص ليتوافق تماماً مع إطار الصفحة */
         .res-table-period3 th, .res-table-period3 td {
             border: 1px solid var(--border) !important;
             padding: 4px 2px !important;
@@ -633,7 +632,8 @@
                     document.getElementById('loadingOverlay').style.display='none';
                     document.getElementById('searchSection').style.display='none';
                     document.getElementById('adminPortal').style.display='block';
-                    document.getElementById('whatsappBtn').style.display = 'none';
+                    const waBtn = document.getElementById('whatsappBtn');
+                    if (waBtn) waBtn.style.display = 'none';
                 })
                 .catch(err => {
                     document.getElementById('loadingOverlay').style.display='none';
@@ -647,7 +647,8 @@
     }
 
     function exitAdminPortal() {
-        document.getElementById('whatsappBtn').style.display = 'flex';
+        const waBtn = document.getElementById('whatsappBtn');
+        if (waBtn) waBtn.style.display = 'flex';
         location.reload();
     }
 
@@ -666,7 +667,7 @@
                 
                 schoolSubjects[yr].forEach(s => { 
                     if(yr === "خامس") {
-                        const conf = officialWeights55[s] || { p1: 36, p2: 36, p3: 48, max: 120, min: 48 },
+                        const conf = officialWeights55[s] || { p1: 36, p2: 36, p3: 48, max: 120, min: 48 };
                         subs[s] = { p1:0, p1M:conf.p1, p2:0, p2M:conf.p2, p3:0, p3M:conf.p3, sum:0, max:conf.max, min:conf.min };
                         totalClassMax += conf.max;
                     } else {
@@ -786,7 +787,7 @@
                 let wVal = 20; let eVal = 30;
                 if(yr === "سادس" && officialWeights60[s]) {
                     wVal = officialWeights60[s].w; eVal = officialWeights60[s].e;
-                } else if((yr === "سابع" || yr === "ثامن") && officialWeights78[s]) {
+                } else if((yr === "سيرجع" || yr === "ثامن") && officialWeights78[s]) {
                     wVal = officialWeights78[s].w; eVal = officialWeights78[s].e;
                 }
                 div.innerHTML = `
