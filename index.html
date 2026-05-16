@@ -96,10 +96,9 @@
 
         .bulk-row { background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); position: relative; }
 
-        /* --- تحسينات خانات الرصد الفردي والجماعي الجديدة --- */
         .bulk-grid, .ind-grid { 
             display: grid; 
-            grid-template-columns: 2.2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; /* توسيع خانة المادة */
+            grid-template-columns: 2.2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; 
             gap: 4px; 
             margin-bottom: 5px; 
             align-items: center;
@@ -116,7 +115,6 @@
             padding: 5px 0;
         }
 
-        /* تحسين شكل المدخلات داخل الرصد */
         .bulk-grid input, .ind-grid input {
             padding: 6px 2px;
             margin-bottom: 0;
@@ -125,14 +123,12 @@
             font-weight: 700;
         }
 
-        /* تمييز خانات الدرجات باللون الأبيض */
         .bulk-grid input[type="number"]:nth-child(even), 
         .ind-grid input[type="number"]:nth-child(even) {
             background: #ffffff;
             border-color: #94a3b8;
         }
 
-        /* تمييز خانات (من) بلون رمادي خفيف */
         .bulk-grid input[type="number"]:nth-child(odd), 
         .ind-grid input[type="number"]:nth-child(odd) {
             background: #f1f5f9;
@@ -140,7 +136,6 @@
             border-color: #e2e8f0;
         }
 
-        /* تحسين مظهر اسم المادة */
         .sub-name-input {
             background: #f0fdf4 !important;
             color: var(--success) !important;
@@ -361,7 +356,6 @@
         "ثامن": ["التاريخ", "التربية الإسلامية", "الجغرافيا", "الحاسوب", "الرياضيات", "العلوم", "الكتابة", "اللغة الإنجليزية", "اللغة العربية"]
     };
 
-    // مصفوفة خاصة بالدرجات المقررة الرسمية للصفين السابع والثامن لربطها ديناميكياً
     const officialWeights78 = {
         "التربية الإسلامية": { w: 16, e: 24 },
         "اللغة العربية": { w: 32, e: 48 },
@@ -429,7 +423,6 @@
                 let totalClassMax = 0;
                 
                 schoolSubjects[yr].forEach(s => { 
-                    // إذا كان الصف سابع أو ثامن، يتم أخذ الدرجات الرسمية المقررة من مصفوفة التوزيع
                     let defW = 20; let defE = 30;
                     if((yr === "سابع" || yr === "ثامن") && officialWeights78[s]) {
                         defW = officialWeights78[s].w;
@@ -472,7 +465,7 @@
                     defaultW = officialWeights78[s].w;
                     defaultE = officialWeights78[s].e;
                 }
-                const subData = data.subjects[s] || {wG1:0, wM1:defaultW, eG1:0, eM1:defaultE, wG2:0, wM2:defaultW, eG2:0, eM2:defaultE};
+                const subData = data.subjects[s] || {wG1:0, wM1:defaultW, eG1:0, eM1:defaultE, wG2:0, wM2:defaultW, eG2:defaultE};
                 const div = document.createElement('div');
                 div.className = "ind-grid";
                 div.innerHTML = `
@@ -637,17 +630,23 @@
         sortedKeys.forEach(k => {
             if(data.subjects[k]) {
                 const s = data.subjects[k]; 
-                const isFail = s.sum < (s.max/2);
-                if(isFail) { hasFail=true; failed.push(k); }
                 
-                // هنا الإجبار الذكي للتوزيع لكي يظهر الجديد في الشهادة مباشرة حتى للطالبات القدامى
+                // 1. تحديد درجات الفصل الواحد الافتراضية
                 let currentWM1 = s.wM1 ?? 20;
                 let currentEM1 = s.eM1 ?? 30;
                 
+                // 2. تطبيق التوزيع الجديد فوراً للصف السابع والثامن
                 if((data.year === "سابع" || data.year === "ثامن") && officialWeights78[k]) {
                     currentWM1 = officialWeights78[k].w;
                     currentEM1 = officialWeights78[k].e;
                 }
+                
+                // 3. حساب النهاية الكبرى والصغرى بناءً على القيم الجديدة ديناميكياً
+                const calculatedMax = (currentWM1 + currentEM1) * 2;
+                const calculatedMin = calculatedMax / 2;
+                
+                const isFail = s.sum < calculatedMin;
+                if(isFail) { hasFail=true; failed.push(k); }
                 
                 h += `
                 <tr>
@@ -656,8 +655,8 @@
                     <td style="border:1px solid #cbd5e1; padding:2px;">${currentWM1}</td>
                     <td style="border:1px solid #cbd5e1; padding:2px;">${s.wG1 ?? '0'}</td>
                     <td style="border:1px solid #cbd5e1; padding:2px;">${s.wG2 ?? '0'}</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${s.max ?? '100'}</td>
-                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${(s.max/2) ?? '50'}</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${calculatedMax}</td>
+                    <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${calculatedMin}</td>
                     <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; color:${isFail?'red':'black'}">${s.sum ?? '0'}</td>
                     <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:1px; min-width:30px; color:red;">${isFail ? (s.secondExam || '-') : '-'}</td>
                     <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; min-width:30px">-</td>
