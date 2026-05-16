@@ -216,21 +216,66 @@
         .res-table th { 
             background: var(--primary);
             color: white;
-            padding: 4px 1px;
-            font-size: 10px;
+            padding: 2px 1px;
+            font-size: 9px;
             border: 1px solid #fff;
-            line-height: 1.2;
+            line-height: 1.1;
             vertical-align: middle;
             text-align: center;
         }
 
         .res-table td {
-            padding: 8px 4px;
+            padding: 6px 3px;
             border: 1px solid #e2e8f0;
             text-align: center;
             font-weight: 900;
             color: #000;
-            font-size: 12px;
+            font-size: 11px;
+        }
+
+        /* تنسيقات الجدول المخصص للصف الخامس من واقع الصورة الورقية */
+        .res-table-period3 th, .res-table-period3 td {
+            border: 1px solid black !important;
+            padding: 1px !important;
+            line-height: 1.1;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .res-table-period3 th {
+            font-weight: bold;
+            color: black;
+            font-size: 9px;
+        }
+
+        .res-table-period3 td {
+            color: black;
+            font-size: 10px;
+        }
+
+        /* هيدر الفترة مع تقسيماته الفرعية */
+        .period-header-wrapper {
+            display: grid;
+            grid-template-rows: 1fr auto;
+            border: none;
+            padding: 0;
+        }
+
+        .period-title {
+            padding: 2px;
+            border-bottom: 1px solid white;
+        }
+
+        .period-sub-headers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border: none;
+        }
+
+        .sub-header-item {
+            padding: 2px;
+            border-right: 1px solid white;
+            font-size: 8px;
         }
 
         .summary-box {
@@ -544,26 +589,26 @@
     const auth = firebase.auth();
 
     const schoolSubjects = {
-        "خامس": ["التربية الإسلامية", "اللغة العربية", "الكتابة", "اللغة الإنجليزية", "الحاسوب", "الالرياضيات", "العلوم", "الاجتماعيات"],
-        "سادس": ["التربية الإسلامية", "اللغة العربية", "الكتابة", "اللغة الإنجليزية", "الحاسوب", "الرياضيات", "العلوم", "الاجتماعيات"],
-        "سابع": ["التاريخ", "التربية الإسلامية", "الجغرافيا", "الحاسوب", "الالرياضيات", "العلوم", "الكتابة", "اللغة الإنجليزية", "اللغة العربية"],
-        "ثامن": ["التاريخ", "التربية الإسلامية", "الجغرافيا", "الحاسوب", "الرياضيات", "العلوم", "الكتابة", "اللغة الإنجليزية", "اللغة العربية"]
+        "خامس": ["التربية الإسلامية", "اللغة العربية", "الكتابة", "اللغة الإنجليزية", "الحاسوب", "الرياضيات", " العلوم", "الاجتماعيات"],
+        "سادس": ["التربية الإسلامية", "اللغة العربية", "الكتابة", "اللغة الإنجليزية", "الحاسوب", "الالرياضيات", " العلوم", "الاجتماعيات"],
+        "سابع": ["التاريخ", "التربية الإسلامية", "الجغرافيا", "الحاسوب", "الالرياضيات", " العلوم", "الكتابة", "اللغة الإنجليزية", "اللغة العربية"],
+        "ثامن": ["التاريخ", "التربية الإسلامية", "الجغرافيا", "الحاسوب", "الرياضيات", " العلوم", "الكتابة", "اللغة الإنجليزية", "اللغة العربية"]
     };
 
-    // أوزان ومحددات الصف الخامس (نظام 3 فترات: 30%، 30%، 40%) من واقع مستند الشهادة الرسمي
+    // أوزان ومحددات الصف الخامس (نظام 3 فترات التقييمي) من واقع مستند الشهادة الرسمي
     const officialWeights55 = {
         "التربية الإسلامية": { p1: 36, p2: 36, p3: 48, max: 120, min: 48 },
         "اللغة العربية": { p1: 48, p2: 48, p3: 64, max: 160, min: 64 },
         "الكتابة": { p1: 24, p2: 24, p3: 32, max: 80, min: 32 },
         "اللغة الإنجليزية": { p1: 36, p2: 36, p3: 48, max: 120, min: 48 },
         "الحاسوب": { p1: 12, p2: 12, p3: 16, max: 40, min: 16 },
-        "الالرياضيات": { p1: 60, p2: 60, p3: 80, max: 200, min: 80 },
-        "الرياضيات": { p1: 60, p2: 60, p3: 80, max: 200, min: 80 }, // احتياط لحالات الكتابة الإملائية المزدوجة
-        "العلوم": { p1: 36, p2: 36, p3: 48, max: 120, min: 48 },
+        "الرياضيات": { p1: 60, p2: 60, p3: 80, max: 200, min: 80 },
+        "الالرياضيات": { p1: 60, p2: 60, p3: 80, max: 200, min: 80 }, // احتياط للتهجئة
+        " العلوم": { p1: 36, p2: 36, p3: 48, max: 120, min: 48 },
         "الاجتماعيات": { p1: 24, p2: 24, p3: 32, max: 80, min: 32 }
     };
 
-    // التوزيع المعتمد للصف السادس (40 اعمال و60 امتحان مأمنة بالكامل للرياضيات وباقي المواد تفصيلياً)
+    // التوزيع المعتمد للصف السادس (40 اعمال و60 امتحان بالرياضيات والمواد الأخرى بدقة)
     const officialWeights60 = {
         "التربية الإسلامية": { w: 24, e: 36 },
         "اللغة العربية": { w: 32, e: 48 },
@@ -572,7 +617,7 @@
         "الحاسوب": { w: 16, e: 24 },
         "الرياضيات": { w: 40, e: 60 },
         "الالرياضيات": { w: 40, e: 60 },
-        "العلوم": { w: 24, e: 36 },
+        " العلوم": { w: 24, e: 36 },
         "الاجتماعيات": { w: 16, e: 24 }
     };
 
@@ -585,7 +630,7 @@
         "الحاسوب": { w: 16, e: 24 },
         "الرياضيات": { w: 40, e: 60 },
         "الالرياضيات": { w: 40, e: 60 },
-        "العلوم": { w: 32, e: 48 },
+        " العلوم": { w: 32, e: 48 },
         "التاريخ": { w: 16, e: 24 },
         "الجغرافيا": { w: 16, e: 24 }
     };
@@ -1019,19 +1064,41 @@
         const sortedKeys = schoolSubjects[data.year] || Object.keys(data.subjects);
 
         if(data.year === "خامس") {
-            // صياغة وعرض الجدول الخاص بالخامس (مطابق لنموذج الشهادة المكون من 3 فترات)
+            // صياغة وعرض الجدول الخاص بالخامس (تصميم مطابق للشهادة الورقية بالكامل)
             h = `
-            <table class="res-table">
+            <table class="res-table res-table-period3">
                 <thead>
                     <tr>
-                        <th style="width:25%;">المواد الدراسية المقررة</th>
-                        <th>الفترة الأولى 30%</th>
-                        <th>الفترة الثانية 30%</th>
-                        <th>الفترة الثالثة 40%</th>
-                        <th>الدرجة الكبرى</th>
-                        <th>الدرجة الصغرى</th>
-                        <th>درجة التلميذ 100%</th>
-                        <th>نتيجة الدور الثاني</th>
+                        <th style="width:25%;" rowspan="2">المواد الدراسية المقررة</th>
+                        <th>
+                            <div class="period-title">الفترة الأولى</div>
+                            <div class="period-sub-headers">
+                                <div class="sub-header-item">درجة التلميذ</div>
+                                <div class="sub-header-item" style="border:none;">الدرجة الكبرى</div>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="period-title">الفترة الثانية</div>
+                            <div class="period-sub-headers">
+                                <div class="sub-header-item">درجة التلميذ</div>
+                                <div class="sub-header-item" style="border:none;">الدرجة الكبرى</div>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="period-title">الفترة الثالثة</div>
+                            <div class="period-sub-headers">
+                                <div class="sub-header-item">درجة التلميذ</div>
+                                <div class="sub-header-item" style="border:none;">الدرجة الكبرى</div>
+                            </div>
+                        </th>
+                        <th colspan="2">النتيجة النهائية للتلميذ 100%</th>
+                    </tr>
+                    <tr>
+                        <th style="background:#e2e8f0; color:black; font-size:8px;">%30</th>
+                        <th style="background:#e2e8f0; color:black; font-size:8px;">%30</th>
+                        <th style="background:#e2e8f0; color:black; font-size:8px;">%40</th>
+                        <th style="background:var(--primary);">الدرجة الصغرى</th>
+                        <th style="background:var(--primary);">درجة التلميذ</th>
                     </tr>
                 </thead>
                 <tbody>`;
@@ -1045,14 +1112,27 @@
 
                     h += `
                     <tr>
-                        <td style="text-align:right; padding-right:8px;">${k}</td>
-                        <td>${s.p1 ?? '0'}<br><small style="color:#64748b; font-size:9px;">من ${conf.p1}</small></td>
-                        <td>${s.p2 ?? '0'}<br><small style="color:#64748b; font-size:9px;">من ${conf.p2}</small></td>
-                        <td>${s.p3 ?? '0'}<br><small style="color:#64748b; font-size:9px;">من ${conf.p3}</small></td>
-                        <td style="color:var(--primary);">${conf.max}</td>
+                        <td style="text-align:right; padding-right:8px; font-weight:bold;">${k}</td>
+                        <td style="padding:0;">
+                            <div style="display:grid; grid-template-columns:1fr 1fr; border:none;">
+                                <div style="border-right:1px solid black; padding:6px 0;">${s.p1 ?? '0'}</div>
+                                <div>${conf.p1}</div>
+                            </div>
+                        </td>
+                        <td style="padding:0;">
+                            <div style="display:grid; grid-template-columns:1fr 1fr; border:none;">
+                                <div style="border-right:1px solid black; padding:6px 0;">${s.p2 ?? '0'}</div>
+                                <div>${conf.p2}</div>
+                            </div>
+                        </td>
+                        <td style="padding:0;">
+                            <div style="display:grid; grid-template-columns:1fr 1fr; border:none;">
+                                <div style="border-right:1px solid black; padding:6px 0;">${s.p3 ?? '0'}</div>
+                                <div>${conf.p3}</div>
+                            </div>
+                        </td>
                         <td style="color:var(--accent);">${conf.min}</td>
-                        <td style="color:${isFail?'red':'black'}">${s.sum ?? '0'}</td>
-                        <td>-</td>
+                        <td style="color:${isFail?'red':'black'}; font-weight:bold; font-size:12px;">${s.sum ?? '0'}</td>
                     </tr>`;
                 }
             });
@@ -1060,7 +1140,7 @@
             wrapper.innerHTML = h;
 
         } else {
-            // صياغة وعرض الجدول الخاص بالصفوف سادس وسابع وثامن (نظام الفصلين)
+            // صياغة وعرض الجدول الخاص بالصفوف سادس وسابع وثامن (نظام الفصلين) كما كان
             h = `
             <table class="res-table">
                 <thead>
