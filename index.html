@@ -397,7 +397,6 @@
                     document.getElementById('loadingOverlay').style.display='none';
                     document.getElementById('searchSection').style.display='none';
                     document.getElementById('adminPortal').style.display='block';
-                    // إخفاء زر الواتساب عند دخول بوابة المطور
                     document.getElementById('whatsappBtn').style.display = 'none';
                 })
                 .catch(err => {
@@ -412,7 +411,6 @@
     }
 
     function exitAdminPortal() {
-        // إظهار زر الواتساب مجدداً عند الخروج
         document.getElementById('whatsappBtn').style.display = 'flex';
         location.reload();
     }
@@ -473,10 +471,9 @@
                     defaultW = officialWeights78[s].w;
                     defaultE = officialWeights78[s].e;
                 }
-                const subData = data.subjects[s] || {wG1:0, wM1:defaultW, eG1:0, eM1:defaultE, wG2:0, wM2:defaultW, eG2:defaultE};
+                const subData = (data.subjects && data.subjects[s]) ? data.subjects[s] : {wG1:0, wM1:defaultW, eG1:0, eM1:defaultE, wG2:0, wM2:defaultW, eG2:0, eM2:defaultE};
                 const div = document.createElement('div');
                 div.className = "ind-grid";
-                // إضافة خاصية readonly لمنع التعديل على خانات (مِن) المثبتة
                 div.innerHTML = `
                     <input type="text" value="${s}" readonly class="sub-name-input">
                     <input type="number" class="wG1" value="${subData.wG1 || 0}"> <input type="number" class="wM1" value="${subData.wM1 || defaultW}" readonly>
@@ -505,7 +502,7 @@
                 html += `<div class="bulk-row" data-id="${id}">
                     <i class="fas fa-trash delete-btn" onclick="deleteStudent('${id}')"></i>
                     <div style="font-weight:900; color:var(--primary); margin-bottom:10px;">${s.name} (${id})</div>
-                    <div class="bulk-header-labels"><span>المادة</span><span>أعمال1</span><span>من</span><span>امتحان1</span><span>من</span><span>أعمال2</span><span>من</span><span>امتحان2</span><span>من</span></div>`;
+                    <div class="bulk-header-labels" tabindex="-1"><span>المادة</span><span>أعمال1</span><span>من</span><span>امتحان1</span><span>من</span><span>أعمال2</span><span>من</span><span>امتحان2</span><span>من</span></div>`;
                 schoolSubjects[yr].forEach(subName => {
                     let dW = 20; let dE = 30;
                     if((yr === "سابع" || yr === "ثامن") && officialWeights78[subName]) {
@@ -513,13 +510,22 @@
                         dE = officialWeights78[subName].e;
                     }
                     const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG1:0, wM1:dW, eG1:0, eM1:dE, wG2:0, wM2:dW, eG2:0, eM2:dE};
-                    // إضافة خاصية readonly لمنع التعديل على خانات (مِن) المثبتة في الرصد الجماعي
+                    
+                    const wg1_val = subData.wG1 ? subData.wG1 : "";
+                    const eg1_val = subData.eG1 ? subData.eG1 : "";
+                    const wg2_val = subData.wG2 ? subData.wG2 : "";
+                    const eg2_val = subData.eG2 ? subData.eG2 : "";
+
                     html += `<div class="bulk-grid" data-subject="${subName}">
-                        <input type="text" value="${subName}" readonly class="sub-name-input">
-                        <input type="number" class="wG1" value="${subData.wG1 || 0}"> <input type="number" class="wM1" value="${subData.wM1 || dW}" readonly>
-                        <input type="number" class="eG1" value="${subData.eG1 || 0}"> <input type="number" class="eM1" value="${subData.eM1 || dE}" readonly>
-                        <input type="number" class="wG2" value="${subData.wG2 || 0}"> <input type="number" class="wM2" value="${subData.wM2 || dW}" readonly>
-                        <input type="number" class="eG2" value="${subData.eG2 || 0}"> <input type="number" class="eM2" value="${subData.eM2 || dE}" readonly>
+                        <input type="text" value="${subName}" readonly tabindex="-1" class="sub-name-input">
+                        <input type="number" class="wG1" value="${wg1_val}" placeholder="0"> 
+                        <input type="number" class="wM1" value="${subData.wM1 || dW}" readonly tabindex="-1">
+                        <input type="number" class="eG1" value="${eg1_val}" placeholder="0"> 
+                        <input type="number" class="eM1" value="${subData.eM1 || dE}" readonly tabindex="-1">
+                        <input type="number" class="wG2" value="${wg2_val}" placeholder="0"> 
+                        <input type="number" class="wM2" value="${subData.wM2 || dW}" readonly tabindex="-1">
+                        <input type="number" class="eG2" value="${eg2_val}" placeholder="0"> 
+                        <input type="number" class="eM2" value="${subData.eM2 || dE}" readonly tabindex="-1">
                     </div>`;
                 });
                 html += `</div>`;
@@ -722,7 +728,6 @@
             }
             const div = document.createElement('div'); 
             div.className = "ind-grid";
-            // إضافة خاصية readonly هنا أيضاً عند تهيئة خانات طالبة جديدة
             div.innerHTML = `
                 <input type="text" value="${s}" readonly class="sub-name-input"> 
                 <input type="number" placeholder="أعمال1" class="wG1"> <input type="number" value="${wVal}" class="wM1" readonly>
