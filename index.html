@@ -8,6 +8,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <style>
         :root {
             --primary: #1e3a8a;
@@ -64,8 +69,8 @@
         }
 
         @keyframes spin {
-            0 { transform: rotate(0deg); }
-            100 { transform: rotate(360deg); }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .container::before, .container::after {
@@ -201,15 +206,18 @@
             background: #fff;
         }
 
+        /* حاوية الجدول لمنع خروجه وتفعيل السحب الأفقي عند اللزوم */
         #tableWrapper {
             width: 100%;
-            overflow-x: hidden; 
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             margin-bottom: 5px;
         }
         
+        /* تحسينات الجدول العام (السادس والسابع والثامن) لينضبط تماماً داخل مساحة الشاشة دون بروز */
         .res-table {
             width: 100% !important;
-            table-layout: fixed; 
+            table-layout: fixed; /* يجبر الأعمدة على الانكماش والالتزام بحدود المساحة المتوفرة */
             border-collapse: collapse;
             border: 1px solid var(--border);
             margin-bottom: 5px;
@@ -218,8 +226,8 @@
         .res-table th { 
             background: var(--primary);
             color: white;
-            padding: 3px 1px;
-            font-size: 8px !important; 
+            padding: 4px 1px;
+            font-size: 8px; /* حجم خط متناسق ومضغوط للموبايل */
             border: 1px solid #fff;
             line-height: 1.1;
             vertical-align: middle;
@@ -233,10 +241,11 @@
             text-align: center;
             font-weight: 900;
             color: #000;
-            font-size: 9px !important; 
+            font-size: 9px; /* حجم ملائم للدرجات داخل الإطار */
             word-wrap: break-word;
         }
 
+        /* تنسيقات الجدول المخصص للصف الخامس المعدلة للانضباط بالطول وداخل الإطار تماماً */
         .res-table-period3 {
             width: 100% !important;
             table-layout: fixed; 
@@ -261,6 +270,31 @@
         .res-table-period3 td {
             color: black;
             font-size: 9px !important; 
+        }
+
+        /* هيدر الفترة مع تقسيماته الفرعية */
+        .period-header-wrapper {
+            display: grid;
+            grid-template-rows: 1fr auto;
+            border: none;
+            padding: 0;
+        }
+
+        .period-title {
+            padding: 2px;
+            border-bottom: 1px solid white;
+        }
+
+        .period-sub-headers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border: none;
+        }
+
+        .sub-header-item {
+            padding: 2px;
+            border-right: 1px solid white;
+            font-size: 8px;
         }
 
         .summary-box {
@@ -348,6 +382,7 @@
             padding: 5px 0;
         }
 
+        /* تنسيقات ديناميكية لتقسيم الأعمدة بحسب النظام */
         .grid-style-normal {
             grid-template-columns: 2.2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
         }
@@ -389,6 +424,7 @@
             z-index: 10;
         }
 
+        /* أسطر فارغة تجميلية بأسفل الجدول للتطابق الورقي */
         .res-table-period3 .empty-row td {
             height: 32px;
         }
@@ -397,28 +433,6 @@
             .btn, .search-container, #adminPortal, .admin-tabs, .dev-footer-simple, .container::before, .container::after, #backToStatsBtn, .school-header { display: none !important; }
             #resultView { display: block !important; width: 100%; border: none; padding: 0; }
         }
-        
-        .whatsapp-float {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background-color: #25d366;
-            color: #FFF;
-            border-radius: 50px;
-            padding: 10px 20px;
-            font-weight: 700;
-            font-size: 14px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            z-index: 9999;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: transform 0.3s ease;
-        }
-        .whatsapp-float:hover { transform: scale(1.05); color: #fff; }
-        .whatsapp-float i { font-size: 20px; }
-        @media print { .whatsapp-float { display: none !important; } }
     </style>
 </head>
 <body>
@@ -583,16 +597,6 @@
         <button onclick="exitAdminPortal()" class="btn" style="background:none; margin-top:20px;">خروج</button>
     </div>
 </div>
-
-<a href="https://wa.me/218920317335" class="whatsapp-float" id="whatsappBtn" target="_blank">
-    <i class="fab fa-whatsapp"></i>
-    <span>للاستفسار والتواصل</span>
-</a>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <script>
     const firebaseConfig = {
@@ -1139,24 +1143,24 @@
             <table class="res-table">
                 <thead>
                     <tr>
-                        <th rowspan="3" style="width: 18%;">المادة</th>
+                        <th rowspan="3" style="width: 20%;">المادة</th>
                         <th colspan="4">درجة الفصلين</th>
                         <th colspan="6">النتيجة النهائية للتلميذ</th>
                     </tr>
                     <tr>
-                        <th rowspan="2" style="width: 10%;">التفاصيل</th>
-                        <th rowspan="2" style="width: 8%;">الدرجة المقررة</th>
+                        <th rowspan="2">التفاصيل</th>
+                        <th rowspan="2">الدرجة المقررة لكل فصل</th>
                         <th colspan="2">درجة التلميذ</th>
                         <th colspan="2">النهايات</th>
-                        <th rowspan="2" style="width: 8%;">مجموع الفصلين</th>
-                        <th rowspan="2" style="padding: 1px; font-size: 7.5px; min-width: 22px; line-height: 1.1;">امتحان<br>الدور<br>الثاني</th>
-                        <th rowspan="2" style="width: 8%;">نتيجة الدور2</th>
+                        <th rowspan="2">مجموع الفصلين</th>
+                        <th rowspan="2" style="padding: 1px; font-size: 9px; min-width: 30px; line-height: 1.1;">امتحان<br>الدور<br>الثاني<br>40%</th>
+                        <th rowspan="2">نتيجة الدور الثاني</th>
                     </tr>
                     <tr>
-                        <th style="width: 9%;">ف1</th>
-                        <th style="width: 9%;">ف2</th>
-                        <th style="width: 7%;">كبرى</th>
-                        <th style="width: 7%;">صغرى</th>
+                        <th>الفصل الأول</th>
+                        <th>الفصل الثاني</th>
+                        <th>كُبرى</th>
+                        <th>صُغرى</th>
                     </tr>
                 </thead>
                 <tbody>`;
@@ -1179,22 +1183,22 @@
                     
                     h += `
                     <tr>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; font-weight:bold; text-align:right; padding-right:4px;">${k}</td>
-                        <td style="border:1px solid #cbd5e1; padding:1px; font-size:8px;">الأعمال</td>
-                        <td style="border:1px solid #cbd5e1; padding:1px;">${currentWM1}</td>
-                        <td style="border:1px solid #cbd5e1; padding:1px;">${s.wG1 ?? '0'}</td>
-                        <td style="border:1px solid #cbd5e1; padding:1px;">${s.wG2 ?? '0'}</td>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:1px;">${calculatedMax}</td>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:1px; color:var(--accent);">${calculatedMin}</td>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:1px; font-size:11px; color:${isFail?'red':'black'}">${s.sum ?? '0'}</td>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:1px; color:red;">-</td>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:1px;">-</td>
+                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${k}</td>
+                        <td style="border:1px solid #cbd5e1; padding:2px;">الأعمال</td>
+                        <td style="border:1px solid #cbd5e1; padding:2px;">${currentWM1}</td>
+                        <td style="border:1px solid #cbd5e1; padding:2px;">${s.wG1 ?? '0'}</td>
+                        <td style="border:1px solid #cbd5e1; padding:2px;">${s.wG2 ?? '0'}</td>
+                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${calculatedMax}</td>
+                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${calculatedMin}</td>
+                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; color:${isFail?'red':'black'}">${s.sum ?? '0'}</td>
+                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:1px; min-width:30px; color:red;">-</td>
+                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; min-width:30px">-</td>
                     </tr>
                     <tr>
-                        <td style="border:1px solid #cbd5e1; padding:1px; font-size:8px;">الامتحان</td>
-                        <td style="border:1px solid #cbd5e1; padding:1px;">${currentEM1}</td>
-                        <td style="border:1px solid #cbd5e1; padding:1px;">${s.eG1 ?? '0'}</td>
-                        <td style="border:1px solid #cbd5e1; padding:1px;">${s.eG2 ?? '0'}</td>
+                        <td style="border:1px solid #cbd5e1; padding:2px;">امتحان نهاية الفصل</td>
+                        <td style="border:1px solid #cbd5e1; padding:2px;">${currentEM1}</td>
+                        <td style="border:1px solid #cbd5e1; padding:2px;">${s.eG1 ?? '0'}</td>
+                        <td style="border:1px solid #cbd5e1; padding:2px;">${s.eG2 ?? '0'}</td>
                     </tr>`;
                 }
             });
@@ -1235,6 +1239,35 @@
         }());
     }
 </script>
+
+<style>
+    .whatsapp-float {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background-color: #25d366;
+        color: #FFF;
+        border-radius: 50px;
+        padding: 10px 20px;
+        font-weight: 700;
+        font-size: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 9999;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: transform 0.3s ease;
+    }
+    .whatsapp-float:hover { transform: scale(1.05); color: #fff; }
+    .whatsapp-float i { font-size: 20px; }
+    @media print { .whatsapp-float { display: none !important; } }
+</style>
+
+<a href="https://wa.me/218920317335" class="whatsapp-float" id="whatsappBtn" target="_blank">
+    <i class="fab fa-whatsapp"></i>
+    <span>للاستفسار والتواصل</span>
+</a>
 
 </body>
 </html>
