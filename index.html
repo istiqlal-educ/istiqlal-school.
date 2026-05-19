@@ -214,8 +214,9 @@
             margin-bottom: 5px;
         }
         
-        .res-table {
+                        .res-table {
             width: 100%;
+            table-layout: fixed; /* يجبر الجدول على البقاء داخل الإطار */
             border-collapse: collapse;
             border: 1px solid var(--border);
             margin-bottom: 5px;
@@ -227,18 +228,22 @@
             padding: 2px 1px;
             font-size: 9px;
             border: 1px solid #fff;
-            line-height: 1.1;
+            line-height: 1.2;
             vertical-align: middle;
             text-align: center;
+            word-wrap: break-word; /* يمنع النص من تمديد العمود */
+            overflow-wrap: break-word;
         }
 
         .res-table td {
-            padding: 6px 3px;
+            padding: 4px 1px; /* قللنا الحشوة الجانبية لتوفير مساحة */
             border: 1px solid #e2e8f0;
             text-align: center;
             font-weight: 900;
             color: #000;
-            font-size: 11px;
+            font-size: 10px; /* تصغير بسيط للخط ليناسب الشاشات الصغيرة */
+            word-wrap: break-word; /* يمنع الأرقام والنصوص من الخروج */
+            overflow-wrap: break-word;
         }
 
         /* تنسيقات الجدول المخصص للصف الخامس المعدلة للانضباط بالطول وداخل الإطار تماماً */
