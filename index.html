@@ -1,4 +1,4 @@
-٥<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -214,9 +214,10 @@
             margin-bottom: 5px;
         }
         
-                        .res-table {
+        .res-table {
             width: 100%;
-            table-layout: fixed; /* يجبر الجدول على البقاء داخل الإطار */
+            min-width: 750px; /* يجبر الجدول يفرش بالعرض ويمنع انضغاط الأعمدة */
+            table-layout: auto !important; /* يلغي التثبيت المسبب للتداخل */
             border-collapse: collapse;
             border: 1px solid var(--border);
             margin-bottom: 5px;
@@ -225,52 +226,51 @@
         .res-table th { 
             background: var(--primary);
             color: white;
-            padding: 2px 1px;
-            font-size: 9px;
+            padding: 8px 4px;
+            font-size: 11px;
             border: 1px solid #fff;
-            line-height: 1.2;
+            line-height: 1.3;
             vertical-align: middle;
             text-align: center;
-            word-wrap: break-word; /* يمنع النص من تمديد العمود */
-            overflow-wrap: break-word;
+            white-space: nowrap; /* يمنع الكلمات من الانقلاب بشكل رأسي */
         }
 
         .res-table td {
-            padding: 4px 1px; /* قللنا الحشوة الجانبية لتوفير مساحة */
+            padding: 8px 4px;
             border: 1px solid #e2e8f0;
             text-align: center;
             font-weight: 900;
             color: #000;
-            font-size: 10px; /* تصغير بسيط للخط ليناسب الشاشات الصغيرة */
-            word-wrap: break-word; /* يمنع الأرقام والنصوص من الخروج */
-            overflow-wrap: break-word;
+            font-size: 12px;
+            white-space: nowrap; /* يضمن ظهور الأرقام والمواد على سطر أفقي نظيف */
         }
 
-        /* تنسيقات الجدول المخصص للصف الخامس المعدلة للانضباط بالطول وداخل الإطار تماماً */
+        /* تنسيقات الجدول المخصص للصف الخامس المعدلة للانضغاط والوضوح */
         .res-table-period3 {
             width: 100% !important;
-            table-layout: fixed; /* يجبر الأعمدة الكثيرة على الانكماش داخل مساحة الكنتينر */
+            min-width: 750px !important;
+            table-layout: auto !important;
         }
 
         .res-table-period3 th, .res-table-period3 td {
             border: 1px solid black !important;
-            padding: 3px 1px !important;
-            line-height: 1.1;
+            padding: 6px 4px !important;
+            line-height: 1.2;
             vertical-align: middle;
             text-align: center;
-            word-wrap: break-word; /* يمنع النصوص من تمديد الجدول للخارج */
+            white-space: nowrap; 
         }
 
         .res-table-period3 th {
             font-weight: bold;
             color: black;
-            font-size: 8px !important; /* حجم متناسق للخط ليمنع البروز الجانبي */
+            font-size: 11px !important; /* حجم متناسق للخط ليمنع البروز الجانبي */
             background-color: #f5f5f5;
         }
 
         .res-table-period3 td {
             color: black;
-            font-size: 9px !important; /* حجم الدرجات ليتناسب عمودياً مع الشاشات والموبايل */
+            font-size: 12px !important; /* حجم الدرجات ليتناسب مع الشاشات والموبايل */
         }
 
         /* هيدر الفترة مع تقسيماته الفرعية */
@@ -1272,4 +1272,3 @@
 
 </body>
 </html>
- 
