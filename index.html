@@ -1,5 +1,4 @@
-
-<!DOCTYPE html>
+٥<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -35,7 +34,7 @@
             margin: 0;
             background: var(--bg);
             color: var(--text);
-            padding: 2px;
+            padding: 5px;
             min-height: 100vh;
             overflow-x: hidden;
         }
@@ -92,7 +91,7 @@
         .main-card { 
             background: var(--card);
             border-radius: 20px;
-            padding: 10px; 
+            padding: 12px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             border: 1px solid var(--border);
             position: relative;
@@ -201,54 +200,51 @@
         
         #resultView {
             display: none;
-            margin-top: 2px;
-            padding: 5px 10px;
+            margin-top: 5px;
+            padding: 15px;
             border-radius: 12px;
             background: #fff;
         }
 
+        /* حاوية الجدول لمنع خروجه وتفعيل السحب الأفقي عند اللزوم */
         #tableWrapper {
             width: 100%;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
         }
         
-        /* ضبط الجداول المخصصة للمرحلة الإعدادية والسادس لتكون ملمومة ومرفوعة لأعلى */
         .res-table {
             width: 100%;
             border-collapse: collapse;
             border: 1px solid var(--border);
-            margin-bottom: 2px;
-            table-layout: fixed;
+            margin-bottom: 5px;
         }
 
         .res-table th { 
             background: var(--primary);
             color: white;
-            padding: 3px 2px;
-            font-size: 8px;
+            padding: 2px 1px;
+            font-size: 9px;
             border: 1px solid #fff;
             line-height: 1.1;
             vertical-align: middle;
             text-align: center;
-            word-wrap: break-word;
         }
 
         .res-table td {
-            padding: 3px 2px;
+            padding: 6px 3px;
             border: 1px solid #e2e8f0;
             text-align: center;
             font-weight: 900;
             color: #000;
-            font-size: 10px;
-            word-wrap: break-word;
+            font-size: 11px;
         }
 
-        /* تنسيقات الجدول المخصص للصف الخامس */
+        /* تنسيقات الجدول المخصص للصف الخامس المعدلة للانضباط بالطول وداخل الإطار تماماً */
         .res-table-period3 {
             width: 100% !important;
-            table-layout: fixed; 
+            table-layout: fixed; /* يجبر الأعمدة الكثيرة على الانكماش داخل مساحة الكنتينر */
         }
 
         .res-table-period3 th, .res-table-period3 td {
@@ -257,26 +253,51 @@
             line-height: 1.1;
             vertical-align: middle;
             text-align: center;
-            word-wrap: break-word; 
+            word-wrap: break-word; /* يمنع النصوص من تمديد الجدول للخارج */
         }
 
         .res-table-period3 th {
             font-weight: bold;
             color: black;
-            font-size: 8px !important; 
+            font-size: 8px !important; /* حجم متناسق للخط ليمنع البروز الجانبي */
             background-color: #f5f5f5;
         }
 
         .res-table-period3 td {
             color: black;
-            font-size: 9px !important; 
+            font-size: 9px !important; /* حجم الدرجات ليتناسب عمودياً مع الشاشات والموبايل */
+        }
+
+        /* هيدر الفترة مع تقسيماته الفرعية */
+        .period-header-wrapper {
+            display: grid;
+            grid-template-rows: 1fr auto;
+            border: none;
+            padding: 0;
+        }
+
+        .period-title {
+            padding: 2px;
+            border-bottom: 1px solid white;
+        }
+
+        .period-sub-headers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border: none;
+        }
+
+        .sub-header-item {
+            padding: 2px;
+            border-right: 1px solid white;
+            font-size: 8px;
         }
 
         .summary-box {
-            margin-top: 2px;
+            margin-top: 0;
             border: 2px solid var(--primary);
             background: #f8fafc;
-            border-radius: 10px;
+            border-radius: 0 0 10px 10px;
         }
 
         .status-pass-text { color: var(--success) !important; font-weight: 900; }
@@ -315,11 +336,11 @@
 
         .dev-footer-simple {
             text-align: center;
-            margin-top: 10px;
-            padding: 5px;
+            margin-top: 15px;
+            padding: 8px;
             color: #000;
             font-weight: 700;
-            font-size: 12px;
+            font-size: 13px;
             border-top: 1px solid #e2e8f0;
         }
 
@@ -357,6 +378,7 @@
             padding: 5px 0;
         }
 
+        /* تنسيقات ديناميكية لتقسيم الأعمدة بحسب النظام */
         .grid-style-normal {
             grid-template-columns: 2.2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
         }
@@ -398,14 +420,14 @@
             z-index: 10;
         }
 
+        /* أسطر فارغة تجميلية بأسفل الجدول للتطابق الورقي */
         .res-table-period3 .empty-row td {
-            height: 24px;
+            height: 32px;
         }
 
         @media print {
             .btn, .search-container, #adminPortal, .admin-tabs, .dev-footer-simple, .container::before, .container::after, #backToStatsBtn, .school-header { display: none !important; }
-            #resultView { display: block !important; width: 100%; border: none; padding: 0; margin-top: 0; }
-            body { padding: 0; background: #fff; }
+            #resultView { display: block !important; width: 100%; border: none; padding: 0; }
         }
     </style>
 </head>
@@ -419,17 +441,17 @@
 <div class="container" id="searchSection">
     <div class="main-card">
         <div id="welcomeArea">
-            <div class="school-header" style="text-align:center; margin-bottom:5px;">
+            <div class="school-header" style="text-align:center; margin-bottom:10px;">
                 <div style="cursor:pointer;" ondblclick="enterAdmin()">
-                    <img src="1000255629.jpg" style="width: 85px; height: auto; border-radius: 12px; margin-bottom: 2px;" alt="شعار المدرسة">
+                    <img src="1000255629.jpg" style="width: 100px; height: auto; border-radius: 12px; margin-bottom: 2px;" alt="شعار المدرسة">
                 </div>
-                <h1 style="margin: 0; font-size: 18px; font-weight: 900; color: var(--primary);">مدرسة الاستقلال للتعليم الأساسي</h1>
-                <p style="color: #64748b; font-weight: 700; font-size: 11px; margin: 0;">نتائج الامتحانات 2026</p>
+                <h1 style="margin: 0; font-size: 20px; font-weight: 900; color: var(--primary);">مدرسة الاستقلال للتعليم الأساسي</h1>
+                <p style="color: #64748b; font-weight: 700; font-size: 12px; margin: 0;">نتائج الامتحانات 2026</p>
             </div>
 
             <div class="search-container" id="searchBox" style="max-width:450px; margin:0 auto;">
-                <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 4px;">
-                    <label style="font-weight:800; margin-bottom:0; font-size: 12px;">الرقم الوطني للطالبة:</label>
+                <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 5px;">
+                    <label style="font-weight:800; margin-bottom:0; font-size: 13px;">الرقم الوطني للطالبة:</label>
                     <span class="wish-text-inline">بالتوفيق لجميع طالباتنا</span>
                 </div>
                 <input type="number" id="searchID" placeholder="أدخل الرقم هنا...">
@@ -438,45 +460,44 @@
         </div>
 
         <div id="resultView">
-            <button id="backToStatsBtn" class="btn" style="background:var(--accent); color:white; margin-bottom:6px; padding: 6px; font-size:12px; display:none;" onclick="returnToStats()">
+            <button id="backToStatsBtn" class="btn" style="background:var(--accent); color:white; margin-bottom:8px; padding: 8px; font-size:13px; display:none;" onclick="returnToStats()">
                 <i class="fas fa-arrow-right"></i> العودة للإحصائيات
             </button>
 
-            <div style="text-align: center; margin-bottom: 4px; border-bottom: 2px solid #eee; padding-bottom: 3px;">
-                <h2 id="outName" style="margin: 0; font-size: 16px; color: var(--text);"></h2>
-                <div id="outYear" style="color: var(--accent); font-weight: 800; font-size: 12px; margin-top: 1px;"></div>
+            <div style="text-align: center; margin-bottom: 5px; border-bottom: 2px solid #eee; padding-bottom: 5px;">
+                <h2 id="outName" style="margin: 0; font-size: 17px; color: var(--text);"></h2>
+                <div id="outYear" style="color: var(--accent); font-weight: 800; font-size: 13px; margin-top: 1px;"></div>
             </div>
             
             <div id="tableWrapper"></div>
 
             <div class="summary-box">
-                <div id="totalRow" style="display:flex; justify-content:space-between; padding:4px 10px; border-bottom:1px solid #e2e8f0; font-size:12px;">
+                <div id="totalRow" style="display:flex; justify-content:space-between; padding:5px 12px; border-bottom:1px solid #e2e8f0; font-size:13px;">
                     <span>المجموع الكلي:</span><span id="outTotalSum" style="font-weight:900; color:var(--primary);"></span>
                 </div>
-                <div id="percentRow" style="display:flex; justify-content:space-between; padding:4px 10px; border-bottom:1px solid #e2e8f0; font-size:12px;">
+                <div id="percentRow" style="display:flex; justify-content:space-between; padding:5px 12px; border-bottom:1px solid #e2e8f0; font-size:13px;">
                     <span>النسبة المئوية:</span><span id="outPercent" style="font-weight:900; color:var(--primary);"></span>
                 </div>
-                <div style="display:flex; justify-content:space-between; padding:4px 10px; font-size:12px;">
+                <div style="display:flex; justify-content:space-between; padding:5px 12px; font-size:13px;">
                     <span>التقدير العام:</span><span id="outGrade" style="font-weight:900;"></span>
                 </div>
-                <div id="adminMessageArea" style="text-align:center; padding:6px; font-weight:700; color:var(--primary); font-size:12px; font-style:italic; border-top:1px solid #eee;"></div>
+                <div id="adminMessageArea" style="text-align:center; padding:10px; font-weight:700; color:var(--primary); font-size:14px; font-style:italic; border-top:1px solid #eee;"></div>
             </div>
             
-            <div id="failMissions" style="display:none; background:#fee2e2; border:2px solid var(--danger); color:#991b1b; padding:6px; border-radius:10px; margin-top:6px; text-align:center; font-weight:900; font-size:11px;">
+            <div id="failMissions" style="display:none; background:#fee2e2; border:2px solid var(--danger); color:#991b1b; padding:8px; border-radius:10px; margin-top:8px; text-align:center; font-weight:900; font-size:12px;">
                 <div style="margin-bottom:2px; text-decoration:underline;">المواد التي لم توفق فيها ولها دور ثانٍ:</div>
                 <div id="failListItems"></div>
             </div>
 
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:8px;">
-                <button class="btn" style="background:#475569; color:white; padding: 8px; font-size:13px;" onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>
-                <button class="btn" style="background:#e2e8f0; padding: 8px; font-size:13px;" onclick="location.reload()">بحث جديد</button>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:10px;">
+                <button class="btn" style="background:#475569; color:white; padding: 10px; font-size:14px;" onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>
+                <button class="btn" style="background:#e2e8f0; padding: 10px; font-size:14px;" onclick="location.reload()">بحث جديد</button>
             </div>
         </div>
         <div class="dev-footer-simple">تم تطويره بواسطة عماد الدين نجم</div>
     </div>
 </div>
 
-<!-- (باقي بوابات الأدمن والمودال والسكربتات تظل بدون تعديل في المنطق لضمان استقرار قواعد البيانات والعمليات) -->
 <div id="adminModal" class="modal-overlay">
     <div class="modal-content">
         <h3><i class="fas fa-lock"></i> بوابة المطور</h3>
@@ -1118,24 +1139,24 @@
             <table class="res-table">
                 <thead>
                     <tr>
-                        <th rowspan="3" style="width: 22%;">المادة</th>
+                        <th rowspan="3" style="width: 20%;">المادة</th>
                         <th colspan="4">درجة الفصلين</th>
                         <th colspan="6">النتيجة النهائية للتلميذ</th>
                     </tr>
                     <tr>
-                        <th rowspan="2" style="font-size:7px;">التفاصيل</th>
-                        <th rowspan="2" style="font-size:7px;">الدرجة المقررة لكل فصل</th>
+                        <th rowspan="2">التفاصيل</th>
+                        <th rowspan="2">الدرجة المقررة لكل فصل</th>
                         <th colspan="2">درجة التلميذ</th>
                         <th colspan="2">النهايات</th>
                         <th rowspan="2">مجموع الفصلين</th>
-                        <th rowspan="2" style="padding: 1px; font-size: 8px; min-width: 25px; line-height: 1.1;">امتحان<br>الدور<br>الثاني</th>
-                        <th rowspan="2" style="font-size:8px;">نتيجة الدور الثاني</th>
+                        <th rowspan="2" style="padding: 1px; font-size: 9px; min-width: 30px; line-height: 1.1;">امتحان<br>الدور<br>الثاني<br>40%</th>
+                        <th rowspan="2">نتيجة الدور الثاني</th>
                     </tr>
                     <tr>
-                        <th style="font-size:7px;">الفصل الأول</th>
-                        <th style="font-size:7px;">الفصل الثاني</th>
-                        <th style="font-size:7px;">كُبرى</th>
-                        <th style="font-size:7px;">صُغرى</th>
+                        <th>الفصل الأول</th>
+                        <th>الفصل الثاني</th>
+                        <th>كُبرى</th>
+                        <th>صُغرى</th>
                     </tr>
                 </thead>
                 <tbody>`;
@@ -1158,22 +1179,22 @@
                     
                     h += `
                     <tr>
-                        <td rowspan="2" style="vertical-align:middle; text-align:right; padding-right:4px; font-weight:bold;">${k}</td>
-                        <td>الأعمال</td>
-                        <td>${currentWM1}</td>
-                        <td>${s.wG1 ?? '0'}</td>
-                        <td>${s.wG2 ?? '0'}</td>
-                        <td rowspan="2" style="vertical-align:middle;">${calculatedMax}</td>
-                        <td rowspan="2" style="vertical-align:middle; color:var(--accent);">${calculatedMin}</td>
-                        <td rowspan="2" style="vertical-align:middle; color:${isFail?'red':'black'}; font-size:12px;">${s.sum ?? '0'}</td>
-                        <td rowspan="2" style="vertical-align:middle; color:red;">-</td>
-                        <td rowspan="2" style="vertical-align:middle;">-</td>
+                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${k}</td>
+                        <td style="border:1px solid #cbd5e1; padding:2px;">الأعمال</td>
+                        <td style="border:1px solid #cbd5e1; padding:2px;">${currentWM1}</td>
+                        <td style="border:1px solid #cbd5e1; padding:2px;">${s.wG1 ?? '0'}</td>
+                        <td style="border:1px solid #cbd5e1; padding:2px;">${s.wG2 ?? '0'}</td>
+                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${calculatedMax}</td>
+                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${calculatedMin}</td>
+                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; color:${isFail?'red':'black'}">${s.sum ?? '0'}</td>
+                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:1px; min-width:30px; color:red;">-</td>
+                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; min-width:30px">-</td>
                     </tr>
                     <tr>
-                        <td>نهاية الفصل</td>
-                        <td>${currentEM1}</td>
-                        <td>${s.eG1 ?? '0'}</td>
-                        <td>${s.eG2 ?? '0'}</td>
+                        <td style="border:1px solid #cbd5e1; padding:2px;">امتحان نهاية الفصل</td>
+                        <td style="border:1px solid #cbd5e1; padding:2px;">${currentEM1}</td>
+                        <td style="border:1px solid #cbd5e1; padding:2px;">${s.eG1 ?? '0'}</td>
+                        <td style="border:1px solid #cbd5e1; padding:2px;">${s.eG2 ?? '0'}</td>
                     </tr>`;
                 }
             });
@@ -1245,4 +1266,5 @@
 </a>
 
 </body>
-</html>
+    </html>
+   
