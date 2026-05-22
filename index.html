@@ -666,28 +666,28 @@
         document.getElementById('devPassInput').value = '';
     }
 
-    function checkDevPass() {
+        function checkDevPass() {
         const pass = document.getElementById('devPassInput').value;
         if(!pass) return;
         closeAdminModal();
         document.getElementById('loadingOverlay').style.display='flex';
-        db.ref('settings/dev_pass').once('value', snap => {
-            if(String(pass).trim() === String(snap.val()).trim()) {
-                auth.signInWithEmailAndPassword("istiqlaladmin@gmail.com", "emadnajm74742000")
-                .then(() => {
-                    document.getElementById('loadingOverlay').style.display='none';
-                    document.getElementById('searchSection').style.display='none';
-                    document.getElementById('adminPortal').style.display='block';
-                    document.getElementById('whatsappBtn').style.display = 'none';
-                })
-                .catch(err => {
-                    document.getElementById('loadingOverlay').style.display='none';
-                    alert("حدث خطأ: " + err.message);
-                });
-            } else {
-                document.getElementById('loadingOverlay').style.display='none';
-                alert("رمز المطور غير صحيح!");
-            }
+
+        // الإيميل فقط مكتوب هنا، وهذا آمن تماماً ولا يشكل أي خطر
+        const adminEmail = "istiqlaladmin@gmail.com"; 
+        
+        // الكود يأخذ الإيميل، ويأخذ الرمز اللي كتباته الأستاذة، ويبعثهم لفايربيس للتحقق
+        auth.signInWithEmailAndPassword(adminEmail, pass)
+        .then(() => {
+            // لو الرمز صح، حيفتح النظام
+            document.getElementById('loadingOverlay').style.display='none';
+            document.getElementById('searchSection').style.display='none';
+            document.getElementById('adminPortal').style.display='block';
+            document.getElementById('whatsappBtn').style.display = 'none';
+        })
+        .catch(err => {
+            // لو الرمز غلط
+            document.getElementById('loadingOverlay').style.display='none';
+            alert("رمز الدخول غير صحيح!");
         });
     }
 
