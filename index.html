@@ -1,4 +1,4 @@
-٥<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -206,7 +206,6 @@
             background: #fff;
         }
 
-        /* حاوية الجدول لمنع خروجه وتفعيل السحب الأفقي عند اللزوم */
         #tableWrapper {
             width: 100%;
             overflow-x: auto;
@@ -241,10 +240,9 @@
             font-size: 11px;
         }
 
-        /* تنسيقات الجدول المخصص للصف الخامس المعدلة للانضباط بالطول وداخل الإطار تماماً */
         .res-table-period3 {
             width: 100% !important;
-            table-layout: fixed; /* يجبر الأعمدة الكثيرة على الانكماش داخل مساحة الكنتينر */
+            table-layout: fixed;
         }
 
         .res-table-period3 th, .res-table-period3 td {
@@ -253,22 +251,21 @@
             line-height: 1.1;
             vertical-align: middle;
             text-align: center;
-            word-wrap: break-word; /* يمنع النصوص من تمديد الجدول للخارج */
+            word-wrap: break-word;
         }
 
         .res-table-period3 th {
             font-weight: bold;
             color: black;
-            font-size: 8px !important; /* حجم متناسق للخط ليمنع البروز الجانبي */
+            font-size: 8px !important;
             background-color: #f5f5f5;
         }
 
         .res-table-period3 td {
             color: black;
-            font-size: 9px !important; /* حجم الدرجات ليتناسب عمودياً مع الشاشات والموبايل */
+            font-size: 9px !important;
         }
 
-        /* هيدر الفترة مع تقسيماته الفرعية */
         .period-header-wrapper {
             display: grid;
             grid-template-rows: 1fr auto;
@@ -378,7 +375,6 @@
             padding: 5px 0;
         }
 
-        /* تنسيقات ديناميكية لتقسيم الأعمدة بحسب النظام */
         .grid-style-normal {
             grid-template-columns: 2.2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
         }
@@ -420,7 +416,6 @@
             z-index: 10;
         }
 
-        /* أسطر فارغة تجميلية بأسفل الجدول للتطابق الورقي */
         .res-table-period3 .empty-row td {
             height: 32px;
         }
@@ -536,6 +531,12 @@
                 <option value="سابع">سابع</option>
                 <option value="ثامن">ثامن</option>
             </select>
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; background: #fff1f2; padding: 8px; border-radius: 10px; border: 1px solid #fecdd3; max-width: 300px; margin: 0 auto 10px auto;">
+                <label for="inIsHidden" style="font-weight: 900; color: var(--danger); margin: 0; font-size: 14px;">حجب نتيجة هذه الطالبة:</label>
+                <input type="checkbox" id="inIsHidden" style="width: auto; margin: 0; transform: scale(1.2); cursor: pointer;">
+            </div>
+
             <div id="individualHeaderLabels"></div>
             <div id="subjectsContainer"></div>
             <button class="btn" style="background: var(--success); color:white;" onclick="saveToFirebase()">حفظ ورصد الطالبة</button>
@@ -666,26 +667,22 @@
         document.getElementById('devPassInput').value = '';
     }
 
-        function checkDevPass() {
+    function checkDevPass() {
         const pass = document.getElementById('devPassInput').value;
         if(!pass) return;
         closeAdminModal();
         document.getElementById('loadingOverlay').style.display='flex';
 
-        // الإيميل فقط مكتوب هنا، وهذا آمن تماماً ولا يشكل أي خطر
         const adminEmail = "istiqlaladmin@gmail.com"; 
         
-        // الكود يأخذ الإيميل، ويأخذ الرمز اللي كتباته الأستاذة، ويبعثهم لفايربيس للتحقق
         auth.signInWithEmailAndPassword(adminEmail, pass)
         .then(() => {
-            // لو الرمز صح، حيفتح النظام
             document.getElementById('loadingOverlay').style.display='none';
             document.getElementById('searchSection').style.display='none';
             document.getElementById('adminPortal').style.display='block';
             document.getElementById('whatsappBtn').style.display = 'none';
         })
         .catch(err => {
-            // لو الرمز غلط
             document.getElementById('loadingOverlay').style.display='none';
             alert("رمز الدخول غير صحيح!");
         });
@@ -726,7 +723,7 @@
                         totalClassMax += itemMax;
                     }
                 });
-                updates['students/'+id] = { name: name, year: yr, subjects: subs, totalGot: 0, totalMax: totalClassMax, percent: "0.0" };
+                updates['students/'+id] = { name: name, year: yr, subjects: subs, totalGot: 0, totalMax: totalClassMax, percent: "0.0", isResultHidden: false };
                 count++;
             }
         });
@@ -751,6 +748,9 @@
             document.getElementById('newStudentID').value = id; 
             document.getElementById('inName').value = data.name;
             document.getElementById('inYear').value = data.year;
+            
+            // جلب حالة الحجب الفردية وعرضها بالـ Checkbox
+            document.getElementById('inIsHidden').checked = data.isResultHidden || false;
             
             setupHeaderAndContainerLayout(data.year);
             const con = document.getElementById('subjectsContainer');
@@ -863,9 +863,17 @@
             let html = "";
             studentsList.forEach(item => {
                 const s = item.data; const id = item.key;
+                const checkedAttr = s.isResultHidden ? 'checked' : '';
+                
+                // تعديل الهيدر لإضافة زر تبديل حالة الحجب في الرصد الجماعي بجانب اسم الطالبة
                 html += `<div class="bulk-row" data-id="${id}">
                     <i class="fas fa-trash delete-btn" onclick="deleteStudent('${id}')"></i>
-                    <div style="font-weight:900; color:var(--primary); margin-bottom:10px;">${s.name} (${id})</div>`;
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-left: 30px;">
+                        <div style="font-weight:900; color:var(--primary);">${s.name} (${id})</div>
+                        <label style="color: var(--danger); font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 5px; background: #fff1f2; padding: 4px 10px; border-radius: 8px; border: 1px solid #fecdd3; cursor: pointer;">
+                            <input type="checkbox" class="bulk-hide-checkbox" ${checkedAttr} style="width:auto; margin:0; cursor: pointer; transform: scale(1.1);"> حجب النتيجة
+                        </label>
+                    </div>`;
                 
                 if(yr === "خامس") {
                     html += `<div class="bulk-header-labels grid-style-period3" tabindex="-1">
@@ -951,8 +959,15 @@
                 tG += currentSum; tM += currentMax;
             }
         });
-        db.ref('students/'+id).set({name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1)})
-        .then(()=>alert("تم رصد وحفظ بيانات الطالبة بنجاح")).catch(err => alert("خطأ: " + err.message));
+        
+        // جلب قيمة الحجب وإرسالها لفايربيس بالرصد الفردي
+        const isResultHidden = document.getElementById('inIsHidden').checked;
+        
+        db.ref('students/'+id).set({name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1), isResultHidden: isResultHidden})
+        .then(()=>{
+            alert("تم رصد وحفظ بيانات الطالبة بنجاح");
+            document.getElementById('inIsHidden').checked = false;
+        }).catch(err => alert("خطأ: " + err.message));
     }
 
     function saveAllBulkData() {
@@ -994,7 +1009,10 @@
                     tG += currentSum; tM += currentMax;
                 }
             });
-            updates['students/'+id] = {name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1)};
+            
+            // جلب قيمة الحجب بالرصد الجماعي لكل طالبة لعدم الكتابة عليها بالخطأ
+            const isHidden = row.querySelector('.bulk-hide-checkbox').checked;
+            updates['students/'+id] = {name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1), isResultHidden: isHidden};
         });
         db.ref().update(updates).then(() => alert("تم الحفظ بنجاح لجميع الطالبات"));
     }
@@ -1026,7 +1044,7 @@
                 }
                 if(isFail) failed++; else passed++;
                 rows += `<tr onclick="viewFromStats('${s.id}')" style="cursor:pointer; border-bottom:1px solid #eee;">
-                    <td style="padding:10px; font-weight:700; color:var(--primary);">${s.name}</td>
+                    <td style="padding:10px; font-weight:700; color:var(--primary);">${s.name} ${s.isResultHidden ? '⛔ (محجوبة)' : ''}</td>
                     <td style="padding:10px; text-align:center;"><span class="${isFail?'status-fail-text':'status-pass-text'}">${isFail?'لها دور ثانٍ':'ناجحة'}</span></td>
                 </tr>`;
             });
@@ -1074,6 +1092,19 @@
         document.getElementById('outYear').innerText = "الصف: " + data.year;
         
         let wrapper = document.getElementById('tableWrapper');
+        
+        // شرط التحقق من الحجب قبل طباعة أي درجات واجهة الطالبة
+        if (data.isResultHidden === true) {
+            wrapper.innerHTML = "";
+            document.getElementById('totalRow').style.display = "none";
+            document.getElementById('percentRow').style.display = "none";
+            document.getElementById('failMissions').style.display = "none";
+            document.getElementById('outGrade').innerText = "محجوبة إدارياً";
+            document.getElementById('outGrade').className = "status-fail-text";
+            document.getElementById('adminMessageArea').innerText = "عذراً، تم حجب النتيجة. يرجى مراجعة إدارة مدرسة الاستقلال لتسوية الوضع الإداري.";
+            return; // إيقاف تنفيذ باقي الدالة لضمان السرية والأمان للأرقام والبيانات
+        }
+        
         let h = ""; let failed = []; let hasFail = false;
         const sortedKeys = schoolSubjects[data.year] || Object.keys(data.subjects);
 
@@ -1266,5 +1297,4 @@
 </a>
 
 </body>
-    </html>
-   
+</html>
