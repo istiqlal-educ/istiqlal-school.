@@ -449,7 +449,7 @@
                     <label style="font-weight:800; margin-bottom:0; font-size: 13px;">الرقم الوطني للطالبة:</label>
                     <span class="wish-text-inline">بالتوفيق لجميع طالباتنا</span>
                 </div>
-                <input type="number" id="searchID" placeholder="أدخل الرقم هنا...">
+                <input type="number" id="searchID" placeholder="أدخل الرقم هنا..." onfocus="this.select()">
                 <button class="btn btn-primary" onclick="loadResult()"><i class="fas fa-search"></i> استخراج النتيجة</button>
             </div>
         </div>
@@ -518,11 +518,11 @@
         <div id="individualTab" class="admin-section active">
             <div style="background:#f1f5f9; padding:15px; border-radius:12px; margin-bottom:15px; border:1px dashed var(--primary);">
                 <label style="font-weight:900; display:block; margin-bottom:5px;">البحث عن طالبة للتعديل:</label>
-                <input type="number" id="editID" placeholder="الرقم الوطني للتعديل...">
+                <input type="number" id="editID" placeholder="الرقم الوطني للتعديل..." onfocus="this.select()">
                 <button onclick="fetchForEdit()" class="btn" style="background:var(--primary); color:white;">جلب البيانات</button>
             </div>
             <hr style="margin:20px 0; opacity:0.2;">
-            <input type="number" id="newStudentID" placeholder="الرقم الوطني للطالبة الجديدة...">
+            <input type="number" id="newStudentID" placeholder="الرقم الوطني للطالبة الجديدة..." onfocus="this.select()">
             <input type="text" id="inName" placeholder="الاسم الرباعي">
             <select id="inYear" onchange="autoFillSubjects()">
                 <option value="">-- الصف --</option>
@@ -582,7 +582,7 @@
                 <div class="stats-grid">
                     <div class="stat-box"><span class="stat-title">الإجمالي</span><span id="countTotal" class="stat-value">0</span></div>
                     <div class="stat-box"><span class="stat-title">ناجحة</span><span id="countPass" class="stat-value" style="color:var(--success)">0</span></div>
-                    <div class="stat-box"><span class="stat-title">راسبة</span><span id="countFail" class="stat-value" style="color:var(--danger)">0</span></div>
+                    <div class="stat-box"><span class="stat-title">الراسبة</span><span id="countFail" class="stat-value" style="color:var(--danger)">0</span></div>
                     <div class="stat-box"><span class="stat-title">النسبة</span><span id="passPercent" class="stat-value">0%</span></div>
                 </div>
                 <table style="width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden;">
@@ -749,7 +749,6 @@
             document.getElementById('inName').value = data.name;
             document.getElementById('inYear').value = data.year;
             
-            // جلب حالة الحجب الفردية وعرضها بالـ Checkbox
             document.getElementById('inIsHidden').checked = data.isResultHidden || false;
             
             setupHeaderAndContainerLayout(data.year);
@@ -764,11 +763,11 @@
                     const subData = (data.subjects && data.subjects[s]) ? data.subjects[s] : {p1:0, p2:0, p3:0};
                     div.innerHTML = `
                         <input type="text" value="${s}" readonly class="sub-name-input">
-                        <input type="number" class="p1" value="${subData.p1 || 0}">
+                        <input type="number" class="p1" value="${subData.p1 || 0}" onfocus="this.select()">
                         <input type="number" value="${conf.p1}" readonly>
-                        <input type="number" class="p2" value="${subData.p2 || 0}">
+                        <input type="number" class="p2" value="${subData.p2 || 0}" onfocus="this.select()">
                         <input type="number" value="${conf.p2}" readonly>
-                        <input type="number" class="p3" value="${subData.p3 || 0}">
+                        <input type="number" class="p3" value="${subData.p3 || 0}" onfocus="this.select()">
                         <input type="number" value="${conf.p3}" readonly>
                     `;
                 } else {
@@ -782,13 +781,13 @@
                     const subData = (data.subjects && data.subjects[s]) ? data.subjects[s] : {wG1:0, wM1:defaultW, eG1:0, eM1:defaultE, wG2:0, wM2:defaultW, eG2:0, eM2:defaultE};
                     div.innerHTML = `
                         <input type="text" value="${s}" readonly class="sub-name-input">
-                        <input type="number" class="wG1" value="${subData.wG1 || 0}">
+                        <input type="number" class="wG1" value="${subData.wG1 || 0}" onfocus="this.select()">
                         <input type="number" class="wM1" value="${defaultW}" readonly>
-                        <input type="number" class="eG1" value="${subData.eG1 || 0}">
+                        <input type="number" class="eG1" value="${subData.eG1 || 0}" onfocus="this.select()">
                         <input type="number" class="eM1" value="${defaultE}" readonly>
-                        <input type="number" class="wG2" value="${subData.wG2 || 0}">
+                        <input type="number" class="wG2" value="${subData.wG2 || 0}" onfocus="this.select()">
                         <input type="number" class="wM2" value="${defaultW}" readonly>
-                        <input type="number" class="eG2" value="${subData.eG2 || 0}">
+                        <input type="number" class="eG2" value="${subData.eG2 || 0}" onfocus="this.select()">
                         <input type="number" class="eM2" value="${defaultE}" readonly>
                     `; 
                 }
@@ -819,11 +818,11 @@
                 const conf = officialWeights55[s] || { p1: 36, p2: 36, p3: 48 };
                 div.innerHTML = `
                     <input type="text" value="${s}" readonly class="sub-name-input"> 
-                    <input type="number" class="p1">
+                    <input type="number" class="p1" onfocus="this.select()">
                     <input type="number" value="${conf.p1}" readonly>
-                    <input type="number" class="p2">
+                    <input type="number" class="p2" onfocus="this.select()">
                     <input type="number" value="${conf.p2}" readonly>
-                    <input type="number" class="p3">
+                    <input type="number" class="p3" onfocus="this.select()">
                     <input type="number" value="${conf.p3}" readonly>
                 `;
             } else {
@@ -836,13 +835,13 @@
                 }
                 div.innerHTML = `
                     <input type="text" value="${s}" readonly class="sub-name-input"> 
-                    <input type="number" class="wG1">
+                    <input type="number" class="wG1" onfocus="this.select()">
                     <input type="number" value="${wVal}" class="wM1" readonly>
-                    <input type="number" class="eG1">
+                    <input type="number" class="eG1" onfocus="this.select()">
                     <input type="number" value="${eVal}" class="eM1" readonly>
-                    <input type="number" class="wG2">
+                    <input type="number" class="wG2" onfocus="this.select()">
                     <input type="number" value="${wVal}" class="wM2" readonly>
-                    <input type="number" class="eG2">
+                    <input type="number" class="eG2" onfocus="this.select()">
                     <input type="number" value="${eVal}" class="eM2" readonly>
                 `;
             }
@@ -865,7 +864,6 @@
                 const s = item.data; const id = item.key;
                 const checkedAttr = s.isResultHidden ? 'checked' : '';
                 
-                // تعديل الهيدر لإضافة زر تبديل حالة الحجب في الرصد الجماعي بجانب اسم الطالبة
                 html += `<div class="bulk-row" data-id="${id}">
                     <i class="fas fa-trash delete-btn" onclick="deleteStudent('${id}')"></i>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-left: 30px;">
@@ -884,11 +882,11 @@
                         const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {p1:"", p2:"", p3:""};
                         html += `<div class="bulk-grid grid-style-period3" data-subject="${subName}">
                             <input type="text" value="${subName}" readonly tabindex="-1" class="sub-name-input">
-                            <input type="number" class="p1" value="${subData.p1 ?? ""}"> 
+                            <input type="number" class="p1" value="${subData.p1 ?? ""}" onfocus="this.select()"> 
                             <input type="number" value="${conf.p1}" readonly tabindex="-1">
-                            <input type="number" class="p2" value="${subData.p2 ?? ""}"> 
+                            <input type="number" class="p2" value="${subData.p2 ?? ""}" onfocus="this.select()"> 
                             <input type="number" value="${conf.p2}" readonly tabindex="-1">
-                            <input type="number" class="p3" value="${subData.p3 ?? ""}"> 
+                            <input type="number" class="p3" value="${subData.p3 ?? ""}" onfocus="this.select()"> 
                             <input type="number" value="${conf.p3}" readonly tabindex="-1">
                         </div>`;
                     });
@@ -906,13 +904,13 @@
                         const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG1:"", eG1:"", wG2:"", eG2:""};
                         html += `<div class="bulk-grid grid-style-normal" data-subject="${subName}">
                             <input type="text" value="${subName}" readonly tabindex="-1" class="sub-name-input">
-                            <input type="number" class="wG1" value="${subData.wG1 ?? ""}"> 
+                            <input type="number" class="wG1" value="${subData.wG1 ?? ""}" onfocus="this.select()"> 
                             <input type="number" value="${dW}" readonly tabindex="-1">
-                            <input type="number" class="eG1" value="${subData.eG1 ?? ""}"> 
+                            <input type="number" class="eG1" value="${subData.eG1 ?? ""}" onfocus="this.select()"> 
                             <input type="number" value="${dE}" readonly tabindex="-1">
-                            <input type="number" class="wG2" value="${subData.wG2 ?? ""}"> 
+                            <input type="number" class="wG2" value="${subData.wG2 ?? ""}" onfocus="this.select()"> 
                             <input type="number" value="${dW}" readonly tabindex="-1">
-                            <input type="number" class="eG2" value="${subData.eG2 ?? ""}"> 
+                            <input type="number" class="eG2" value="${subData.eG2 ?? ""}" onfocus="this.select()"> 
                             <input type="number" value="${dE}" readonly tabindex="-1">
                         </div>`;
                     });
@@ -960,7 +958,6 @@
             }
         });
         
-        // جلب قيمة الحجب وإرسالها لفايربيس بالرصد الفردي
         const isResultHidden = document.getElementById('inIsHidden').checked;
         
         db.ref('students/'+id).set({name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1), isResultHidden: isResultHidden})
@@ -1010,7 +1007,6 @@
                 }
             });
             
-            // جلب قيمة الحجب بالرصد الجماعي لكل طالبة لعدم الكتابة عليها بالخطأ
             const isHidden = row.querySelector('.bulk-hide-checkbox').checked;
             updates['students/'+id] = {name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1), isResultHidden: isHidden};
         });
@@ -1093,7 +1089,6 @@
         
         let wrapper = document.getElementById('tableWrapper');
         
-        // شرط التحقق من الحجب قبل طباعة أي درجات واجهة الطالبة
         if (data.isResultHidden === true) {
             wrapper.innerHTML = "";
             document.getElementById('totalRow').style.display = "none";
@@ -1102,7 +1097,7 @@
             document.getElementById('outGrade').innerText = "محجوبة إدارياً";
             document.getElementById('outGrade').className = "status-fail-text";
             document.getElementById('adminMessageArea').innerText = "عذراً، تم حجب النتيجة. يرجى مراجعة إدارة مدرسة الاستقلال لتسوية الوضع الإداري.";
-            return; // إيقاف تنفيذ باقي الدالة لضمان السرية والأمان للأرقام والبيانات
+            return;
         }
         
         let h = ""; let failed = []; let hasFail = false;
