@@ -723,7 +723,7 @@
                         totalClassMax += itemMax;
                     }
                 });
-                updates['students/'+id] = { name: name, year: yr, subjects: subs, totalGot: 0, totalMax: totalClassMax, percent: "0.0", isResultHidden: false };
+                updates['students/'+id] = { name: name, year: yr, subjects: subs, totalGot: 0, totalMax: totalClassMax, percent: "0.00", isResultHidden: false };
                 count++;
             }
         });
@@ -960,7 +960,7 @@
         
         const isResultHidden = document.getElementById('inIsHidden').checked;
         
-        db.ref('students/'+id).set({name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1), isResultHidden: isResultHidden})
+        db.ref('students/'+id).set({name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(2), isResultHidden: isResultHidden})
         .then(()=>{
             alert("تم رصد وحفظ بيانات الطالبة بنجاح");
             document.getElementById('inIsHidden').checked = false;
@@ -1008,7 +1008,7 @@
             });
             
             const isHidden = row.querySelector('.bulk-hide-checkbox').checked;
-            updates['students/'+id] = {name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(1), isResultHidden: isHidden};
+            updates['students/'+id] = {name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(2), isResultHidden: isHidden};
         });
         db.ref().update(updates).then(() => alert("تم الحفظ بنجاح لجميع الطالبات"));
     }
