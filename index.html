@@ -484,8 +484,9 @@
                 <div id="failListItems"></div>
             </div>
 
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:10px;">
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; margin-top:10px;">
                 <button class="btn" style="background:#475569; color:white; padding: 10px; font-size:14px;" onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>
+                <button class="btn" style="background:#8b5cf6; color:white; padding: 10px; font-size:14px;" onclick="shareResult()"><i class="fas fa-share-alt"></i> مشاركة</button>
                 <button class="btn" style="background:#e2e8f0; padding: 10px; font-size:14px;" onclick="location.reload()">بحث جديد</button>
             </div>
         </div>
@@ -649,6 +650,27 @@
         "التاريخ": { w: 16, e: 24 },
         "الجغرافيا": { w: 16, e: 24 }
     };
+
+    // دالة مشاركة النتيجة
+    function shareResult() {
+        const name = document.getElementById('outName').innerText;
+        const year = document.getElementById('outYear').innerText;
+        const grade = document.getElementById('outGrade').innerText;
+        const total = document.getElementById('outPercent').innerText;
+
+        const shareText = `مدرسة الاستقلال للتعليم الأساسي\nنتيجة الطالبة: ${name}\n${year}\nالتقدير العام: ${grade}\nالنسبة المئوية: ${total}\nيمكنكم عرض النتيجة من خلال رابط المدرسة.`;
+
+        if (navigator.share) {
+            navigator.share({
+                title: 'نتيجة الطالبة - مدرسة الاستقلال',
+                text: shareText,
+                url: window.location.href
+            }).catch(err => console.log('Error sharing:', err));
+        } else {
+            // fallback if not supported
+            alert("ميزة المشاركة المباشرة غير مدعومة في متصفحك، يمكنك نسخ الرابط من المتصفح.");
+        }
+    }
 
     function showTab(tabId, btn) {
         document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
