@@ -12,6 +12,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         :root {
@@ -1265,21 +1266,36 @@
         }());
     }
 
-    // دالة مشاركة النتيجة المحدثة
-    function shareResult() {
-        const name = document.getElementById('outName').innerText;
-        const total = document.getElementById('outTotalSum').innerText;
-        const percent = document.getElementById('outPercent').innerText;
-        const msg = `🎓 *نتيجة الطالبة:* ${name}\n🏫 *مدرسة الاستقلال للتعليم الأساسي*\n📊 *المجموع:* ${total}\n📈 *النسبة:* ${percent}\n\nتم استخراج النتيجة عبر المنظومة الإلكترونية.`;
+    // دالة مشاركة النتيجة كصورة
+    async function shareResult() {
+        const element = document.getElementById('resultView');
+        // إخفاء الأزرار أثناء التصوير
+        const buttons = element.querySelectorAll('.btn');
+        buttons.forEach(b => b.style.display = 'none');
 
-        if (navigator.share) {
-            navigator.share({
-                title: 'نتيجة طالبة - مدرسة الاستقلال',
-                text: msg
-            }).catch(err => console.log('Error sharing:', err));
-        } else {
-            // Fallback to WhatsApp if browser doesn't support native share
-            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+        try {
+            const canvas = await html2canvas(element, { scale: 2, backgroundColor: '#ffffff' });
+            canvas.toBlob(async (blob) => {
+                const file = new File([blob], "result.png", { type: "image/png" });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'نتيجة الطالبة',
+                        text: 'شهادة نتائج مدرسة الاستقلال'
+                    });
+                } else {
+                    const link = document.createElement('a');
+                    link.download = 'result.png';
+                    link.href = canvas.toDataURL();
+                    link.click();
+                }
+            });
+        } catch (err) {
+            console.error(err);
+            alert("حدث خطأ أثناء إنشاء الصورة.");
+        } finally {
+            // إظهار الأزرار مجدداً
+            buttons.forEach(b => b.style.display = 'flex');
         }
     }
 </script>
