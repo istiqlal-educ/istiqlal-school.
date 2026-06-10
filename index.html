@@ -12,7 +12,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         :root {
@@ -422,7 +421,7 @@
         }
 
         @media print {
-            .btn, .search-container, #adminPortal, .admin-tabs, .dev-footer-simple, .container::before, .container::after, #backToStatsBtn, .school-header, .share-btn { display: none !important; }
+            .btn, .search-container, #adminPortal, .admin-tabs, .dev-footer-simple, .container::before, .container::after, #backToStatsBtn, .school-header { display: none !important; }
             #resultView { display: block !important; width: 100%; border: none; padding: 0; }
         }
     </style>
@@ -485,10 +484,9 @@
                 <div id="failListItems"></div>
             </div>
 
-            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; margin-top:10px;">
-                <button class="btn share-btn" style="background:#25d366; color:white; padding: 10px; font-size:13px;" onclick="shareResult()"><i class="fas fa-share-alt"></i> مشاركة</button>
-                <button class="btn" style="background:#475569; color:white; padding: 10px; font-size:13px;" onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>
-                <button class="btn" style="background:#e2e8f0; padding: 10px; font-size:13px;" onclick="location.reload()">بحث</button>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:10px;">
+                <button class="btn" style="background:#475569; color:white; padding: 10px; font-size:14px;" onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>
+                <button class="btn" style="background:#e2e8f0; padding: 10px; font-size:14px;" onclick="location.reload()">بحث جديد</button>
             </div>
         </div>
         <div class="dev-footer-simple">تم تطويره بواسطة: عماد الدين نجم<br>إدارة المدرسة: نادية بن صريتي</div>
@@ -1244,6 +1242,7 @@
             document.getElementById('failMissions').style.display="none";
             document.getElementById('outTotalSum').innerText = data.totalGot + " من " + data.totalMax;
             
+            // الحسبة الفورية الذكية لإجبار الكسور الحقيقية على الظهور تلقائياً لكل الطالبات
             let realPercent = ((data.totalGot / data.totalMax) * 100).toFixed(2);
             document.getElementById('outPercent').innerText = realPercent + "%";
             
@@ -1264,39 +1263,6 @@
           confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#1e3a8a', '#b45309', '#059669', '#FFD700'] });
           if (Date.now() < end) requestAnimationFrame(frame);
         }());
-    }
-
-    // دالة مشاركة النتيجة كصورة
-    async function shareResult() {
-        const element = document.getElementById('resultView');
-        // إخفاء الأزرار أثناء التصوير
-        const buttons = element.querySelectorAll('.btn');
-        buttons.forEach(b => b.style.display = 'none');
-
-        try {
-            const canvas = await html2canvas(element, { scale: 2, backgroundColor: '#ffffff' });
-            canvas.toBlob(async (blob) => {
-                const file = new File([blob], "result.png", { type: "image/png" });
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        files: [file],
-                        title: 'نتيجة الطالبة',
-                        text: 'شهادة نتائج مدرسة الاستقلال'
-                    });
-                } else {
-                    const link = document.createElement('a');
-                    link.download = 'result.png';
-                    link.href = canvas.toDataURL();
-                    link.click();
-                }
-            });
-        } catch (err) {
-            console.error(err);
-            alert("حدث خطأ أثناء إنشاء الصورة.");
-        } finally {
-            // إظهار الأزرار مجدداً
-            buttons.forEach(b => b.style.display = 'flex');
-        }
     }
 </script>
 
