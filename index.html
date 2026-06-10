@@ -485,7 +485,7 @@
             </div>
 
             <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; margin-top:10px;">
-                <button class="btn share-btn" style="background:#25d366; color:white; padding: 10px; font-size:13px;" onclick="shareResult()"><i class="fab fa-whatsapp"></i> مشاركة</button>
+                <button class="btn share-btn" style="background:#25d366; color:white; padding: 10px; font-size:13px;" onclick="shareResult()"><i class="fas fa-share-alt"></i> مشاركة</button>
                 <button class="btn" style="background:#475569; color:white; padding: 10px; font-size:13px;" onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>
                 <button class="btn" style="background:#e2e8f0; padding: 10px; font-size:13px;" onclick="location.reload()">بحث</button>
             </div>
@@ -1265,13 +1265,22 @@
         }());
     }
 
-    // دالة مشاركة النتيجة عبر واتساب
+    // دالة مشاركة النتيجة المحدثة
     function shareResult() {
         const name = document.getElementById('outName').innerText;
         const total = document.getElementById('outTotalSum').innerText;
         const percent = document.getElementById('outPercent').innerText;
         const msg = `🎓 *نتيجة الطالبة:* ${name}\n🏫 *مدرسة الاستقلال للتعليم الأساسي*\n📊 *المجموع:* ${total}\n📈 *النسبة:* ${percent}\n\nتم استخراج النتيجة عبر المنظومة الإلكترونية.`;
-        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+
+        if (navigator.share) {
+            navigator.share({
+                title: 'نتيجة طالبة - مدرسة الاستقلال',
+                text: msg
+            }).catch(err => console.log('Error sharing:', err));
+        } else {
+            // Fallback to WhatsApp if browser doesn't support native share
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+        }
     }
 </script>
 
