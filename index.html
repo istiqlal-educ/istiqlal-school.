@@ -207,22 +207,10 @@
             background: #fff;
         }
         
-        /* تصميم العلامة المائية للشهادة */
         #certificateArea {
             position: relative;
             background: white;
             padding: 5px;
-        }
-        .watermark {
-            position: absolute;
-            bottom: 5px;
-            width: 100%;
-            text-align: center;
-            opacity: 0.3;
-            font-size: 12px;
-            color: #000;
-            pointer-events: none;
-            font-weight: bold;
         }
 
         #tableWrapper {
@@ -479,8 +467,6 @@
                     <div style="margin-bottom:2px; text-decoration:underline;">المواد التي لم توفق فيها ولها دور ثانٍ:</div>
                     <div id="failListItems"></div>
                 </div>
-
-                <div class="watermark">تطوير :- عماد الدين نجم</div>
             </div>
 
             <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; margin-top:10px;">
@@ -489,7 +475,7 @@
                 <button class="btn" style="background:#e2e8f0; padding: 10px; font-size:14px;" onclick="location.reload()">بحث جديد</button>
             </div>
         </div>
-        <div class="dev-footer-simple">تم تطويره بواسطة: عماد الدين نجم<br>إدارة المدرسة: نادية بن صريتي</div>
+        <div class="dev-footer-simple">إدارة المدرسة: نادية بن صريتي</div>
     </div>
 </div>
 
@@ -650,7 +636,6 @@
         "الجغرافيا": { w: 16, e: 24 }
     };
 
-    // دالة مشاركة الشهادة
     async function shareCertificate() {
         const certElement = document.getElementById('certificateArea');
         document.getElementById('loadingOverlay').style.display = 'flex';
@@ -1274,7 +1259,6 @@
             document.getElementById('failMissions').style.display="none";
             document.getElementById('outTotalSum').innerText = data.totalGot + " من " + data.totalMax;
             
-            // الحسبة الفورية الذكية لإجبار الكسور الحقيقية على الظهور تلقائياً لكل الطالبات
             let realPercent = ((data.totalGot / data.totalMax) * 100).toFixed(2);
             document.getElementById('outPercent').innerText = realPercent + "%";
             
