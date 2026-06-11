@@ -1035,7 +1035,12 @@
                         const conf = officialWeights55[k] || { min: 48 };
                         if((s.subjects[k].sum || 0) < conf.min) { isFail = true; break; }
                     } else {
-                        if((s.subjects[k].sum || 0) < ((s.subjects[k].max || 50) / 2)) { isFail = true; break; }
+                        // تعديل الإحصائيات ليشمل شرط الامتحان 40% وشرط المجموع 50%
+                        const sub = s.subjects[k];
+                        const calculatedMin = (sub.max || 50) / 2;
+                        const examSum = (sub.eG1 || 0) + (sub.eG2 || 0);
+                        const examMax = (sub.eM1 || 0) * 2;
+                        if((sub.sum || 0) < calculatedMin || (examSum < (examMax * 0.4))) { isFail = true; break; }
                     }
                 }
                 if(isFail) failed++; else passed++;
@@ -1200,7 +1205,12 @@
                     
                     const calculatedMax = (currentWM1 + currentEM1) * 2;
                     const calculatedMin = calculatedMax / 2;
-                    const isFail = s.sum < calculatedMin;
+                    
+                    // التعديل: شرط الامتحان 40% وشرط المجموع 50%
+                    const examTotal = (s.eG1 || 0) + (s.eG2 || 0);
+                    const examMax = (currentEM1 * 2);
+                    const isFail = (s.sum < calculatedMin) || (examTotal < (examMax * 0.4));
+                    
                     if(isFail) { hasFail=true; failed.push(k); }
                     
                     h += `
@@ -1242,7 +1252,6 @@
             document.getElementById('failMissions').style.display="none";
             document.getElementById('outTotalSum').innerText = data.totalGot + " من " + data.totalMax;
             
-            // الحسبة الفورية الذكية لإجبار الكسور الحقيقية على الظهور تلقائياً لكل الطالبات
             let realPercent = ((data.totalGot / data.totalMax) * 100).toFixed(2);
             document.getElementById('outPercent').innerText = realPercent + "%";
             
