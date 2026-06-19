@@ -637,12 +637,20 @@
                 closeBtn.style.opacity = "0.4";
             }
         }
+    }, error => {
+        console.error("خطأ في قراءة حالة المنظومة التلقائية:", error);
     });
 
-    // دالة تغيير حالة المنظومة من لوحة التحكم
+    // دالة تغيير حالة المنظومة من لوحة التحكم (تمت إضافه صيد الأخطاء والتتبع لمنع التعليق الصامت)
     function setSystemStatus(isClosed) {
-        db.ref('systemSettings/isSystemClosed').set(isClosed).then(() => {
-            alert(isClosed ? "تم إغلاق المنظومة عن الزوار بنجاح" : "تم فتح المنظومة للزوار بنجاح");
+        console.log("محاولة إرسال تحديث للفايربيس بالقيمية:", isClosed);
+        db.ref('systemSettings/isSystemClosed').set(isClosed)
+        .then(() => {
+            alert(isClosed ? "تم إغلاق المنظومة عن الزوار بنجاح 🔒" : "تم فتح المنظومة للزوار بنجاح 🔓");
+        })
+        .catch(err => {
+            console.error("Firebase write failed:", err);
+            alert("⚠️ الفايربيس رفض التعديل!\nالسبب المحتمل: قواعد الحماية بقسم (Rules) تمنع التعديل أو جلستك انتهت.\n\nنص الخطأ: " + err.message);
         });
     }
 
@@ -726,7 +734,7 @@
     }
 
     function exitAdminPortal() {
-        document.getElementById('whatsappBtn').style.display = 'flex';
+        if(document.getElementById('whatsappBtn')) document.getElementById('whatsappBtn').style.display = 'flex';
         location.reload();
     }
 
@@ -770,6 +778,9 @@
                 document.getElementById('loadingOverlay').style.display='none';
                 alert(`تم تسجيل ${count} طالبة بنجاح وعمل تهيئة للفصلين.`);
                 document.getElementById('quickAddArea').value = "";
+            }).catch(err => {
+                document.getElementById('loadingOverlay').style.display='none';
+                alert("فشل الحفظ الجماعي: " + err.message);
             });
         }
     }
@@ -1001,7 +1012,7 @@
         .then(()=>{
             alert("تم رصد وحفظ بيانات الطالبة بنجاح");
             document.getElementById('inIsHidden').checked = false;
-        }).catch(err => alert("خطأ: " + err.message));
+        }).catch(err => alert("خطأ في الحفظ: " + err.message));
     }
 
     function saveAllBulkData() {
@@ -1047,7 +1058,7 @@
             const isHidden = row.querySelector('.bulk-hide-checkbox').checked;
             updates['students/'+id] = {name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(2), isResultHidden: isHidden};
         });
-        db.ref().update(updates).then(() => alert("تم الحفظ بنجاح لجميع الطالبات"));
+        db.ref().update(updates).then(() => alert("تم الحفظ بنجاح لجميع الطالبات")).catch(err => alert("خطأ في الحفظ الجماعي: " + err.message));
     }
 
     function deleteStudent(id) {
@@ -1341,7 +1352,7 @@
     @media print { .whatsapp-float { display: none !important; } }
 </style>
 
-<a href="https://wa.me/218920317335" class="whatsapp-float" id="whatsappBtn" target="_blank">
+<a href="https://wa.me/2" class="whatsapp-float" id="whatsappBtn" target="_blank">
     <i class="fab fa-whatsapp"></i>
     <span>للاستفسار والتواصل</span>
 </a>
