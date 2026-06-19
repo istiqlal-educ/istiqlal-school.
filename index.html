@@ -508,15 +508,6 @@
 <div class="container" id="adminPortal" style="display:none;">
     <div class="main-card">
         <h2 style="color: var(--primary); text-align: center;"><i class="fas fa-tools"></i> بوابة المطور</h2>
-        
-        <div style="background:#fff7ed; border:2px solid #ea580c; padding:15px; border-radius:12px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-            <span style="font-weight:900; color:#ea580c; font-size:14px;"><i class="fas fa-power-off"></i> حالة المنظومة للزوار (الطلاب):</span>
-            <div style="display:flex; gap:10px;">
-                <button id="systemOpenBtn" class="tab-btn" style="background:#059669; color:white; min-width:80px; margin:0; cursor:pointer;" onclick="setSystemStatus(false)">مفتوحة</button>
-                <button id="systemCloseBtn" class="tab-btn" style="background:#e11d48; color:white; min-width:80px; margin:0; cursor:pointer;" onclick="setSystemStatus(true)">مغلقة</button>
-            </div>
-        </div>
-
         <div class="admin-tabs">
             <button class="tab-btn active" onclick="showTab('individualTab', this)">الرصد الفردي</button>
             <button class="tab-btn" onclick="showTab('bulkTab', this)">الرصد الجماعي</button>
@@ -618,42 +609,6 @@
     const db = firebase.database();
     const auth = firebase.auth();
 
-    // الاستماع لحالة إغلاق المنظومة وتحديث أزرار لوحة التحكم برمجياً ومباشرةً
-    let globalSystemClosed = false;
-    db.ref('systemSettings/isSystemClosed').on('value', snap => {
-        globalSystemClosed = snap.val() || false;
-        const openBtn = document.getElementById('systemOpenBtn');
-        const closeBtn = document.getElementById('systemCloseBtn');
-        if(openBtn && closeBtn) {
-            if(globalSystemClosed) {
-                closeBtn.style.boxShadow = "0 0 0 3px #000";
-                closeBtn.style.opacity = "1";
-                openBtn.style.boxShadow = "none";
-                openBtn.style.opacity = "0.4";
-            } else {
-                openBtn.style.boxShadow = "0 0 0 3px #000";
-                openBtn.style.opacity = "1";
-                closeBtn.style.boxShadow = "none";
-                closeBtn.style.opacity = "0.4";
-            }
-        }
-    }, error => {
-        console.error("خطأ في قراءة حالة المنظومة التلقائية:", error);
-    });
-
-    // دالة تغيير حالة المنظومة من لوحة التحكم (تمت إضافه صيد الأخطاء والتتبع لمنع التعليق الصامت)
-    function setSystemStatus(isClosed) {
-        console.log("محاولة إرسال تحديث للفايربيس بالقيمية:", isClosed);
-        db.ref('systemSettings/isSystemClosed').set(isClosed)
-        .then(() => {
-            alert(isClosed ? "تم إغلاق المنظومة عن الزوار بنجاح 🔒" : "تم فتح المنظومة للزوار بنجاح 🔓");
-        })
-        .catch(err => {
-            console.error("Firebase write failed:", err);
-            alert("⚠️ الفايربيس رفض التعديل!\nالسبب المحتمل: قواعد الحماية بقسم (Rules) تمنع التعديل أو جلستك انتهت.\n\nنص الخطأ: " + err.message);
-        });
-    }
-
     const schoolSubjects = {
         "خامس": ["التربية الإسلامية", "اللغة العربية", "الكتابة", "اللغة الإنجليزية", "الحاسوب", "الرياضيات", "العلوم", "الاجتماعيات"],
         "سادس": ["التربية الإسلامية", "اللغة العربية", "الكتابة", "اللغة الإنجليزية", "الحاسوب", "الرياضيات", "العلوم", "الاجتماعيات"],
@@ -734,7 +689,7 @@
     }
 
     function exitAdminPortal() {
-        if(document.getElementById('whatsappBtn')) document.getElementById('whatsappBtn').style.display = 'flex';
+        document.getElementById('whatsappBtn').style.display = 'flex';
         location.reload();
     }
 
@@ -778,9 +733,6 @@
                 document.getElementById('loadingOverlay').style.display='none';
                 alert(`تم تسجيل ${count} طالبة بنجاح وعمل تهيئة للفصلين.`);
                 document.getElementById('quickAddArea').value = "";
-            }).catch(err => {
-                document.getElementById('loadingOverlay').style.display='none';
-                alert("فشل الحفظ الجماعي: " + err.message);
             });
         }
     }
@@ -1012,7 +964,7 @@
         .then(()=>{
             alert("تم رصد وحفظ بيانات الطالبة بنجاح");
             document.getElementById('inIsHidden').checked = false;
-        }).catch(err => alert("خطأ في الحفظ: " + err.message));
+        }).catch(err => alert("خطأ: " + err.message));
     }
 
     function saveAllBulkData() {
@@ -1058,7 +1010,7 @@
             const isHidden = row.querySelector('.bulk-hide-checkbox').checked;
             updates['students/'+id] = {name, year:yr, subjects:subs, totalGot:tG, totalMax:tM, percent:((tG/tM)*100).toFixed(2), isResultHidden: isHidden};
         });
-        db.ref().update(updates).then(() => alert("تم الحفظ بنجاح لجميع الطالبات")).catch(err => alert("خطأ في الحفظ الجماعي: " + err.message));
+        db.ref().update(updates).then(() => alert("تم الحفظ بنجاح لجميع الطالبات"));
     }
 
     function deleteStudent(id) {
@@ -1083,6 +1035,7 @@
                         const conf = officialWeights55[k] || { min: 48 };
                         if((s.subjects[k].sum || 0) < conf.min) { isFail = true; break; }
                     } else {
+                        // تعديل الإحصائيات ليشمل شرط الامتحان 40% وشرط المجموع 50%
                         const sub = s.subjects[k];
                         const calculatedMin = (sub.max || 50) / 2;
                         const examSum = (sub.eG1 || 0) + (sub.eG2 || 0);
@@ -1126,13 +1079,6 @@
     function loadResult() {
         const sid=document.getElementById('searchID').value;
         if(!sid) return;
-
-        // التحقق الذكي: لو المنظومة مغلقة والمستخدم ليس المطور (غير مسجل دخول)، يظهر التنبيه فوراً ويتوقف الكود
-        if(globalSystemClosed && !auth.currentUser) {
-            alert("نحن نقوم ببعض التعديلات وتحديث البيانات حالياً، يرجى المحاولة لاحقاً");
-            return;
-        }
-
         db.ref('students/'+sid).once('value', snap=>{ 
             if(snap.exists()) showData(snap.val()); 
             else { alert("عذراً، الرقم غير مسجل."); location.reload(); }
@@ -1260,6 +1206,7 @@
                     const calculatedMax = (currentWM1 + currentEM1) * 2;
                     const calculatedMin = calculatedMax / 2;
                     
+                    // التعديل: شرط الامتحان 40% وشرط المجموع 50%
                     const examTotal = (s.eG1 || 0) + (s.eG2 || 0);
                     const examMax = (currentEM1 * 2);
                     const isFail = (s.sum < calculatedMin) || (examTotal < (examMax * 0.4));
