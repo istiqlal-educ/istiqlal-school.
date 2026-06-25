@@ -376,10 +376,10 @@
         }
 
         .grid-style-normal {
-            grid-template-columns: 2fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 1.2fr;
+            grid-template-columns: 2.2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
         }
         .grid-style-period3 {
-            grid-template-columns: 2fr 1fr 0.8fr 1fr 0.8fr 1fr 0.8fr 1.2fr;
+            grid-template-columns: 2.2fr 1.2fr 0.8fr 1.2fr 0.8fr 1.2fr 0.8fr;
         }
 
         .bulk-grid input, .ind-grid input {
@@ -418,12 +418,6 @@
 
         .res-table-period3 .empty-row td {
             height: 32px;
-        }
-
-        .round2-input {
-            background: #fff7ed !important;
-            border: 1px solid #fed7aa !important;
-            color: #c2410c !important;
         }
 
         @media print {
@@ -517,6 +511,7 @@
         <div class="admin-tabs">
             <button class="tab-btn active" onclick="showTab('individualTab', this)">الرصد الفردي</button>
             <button class="tab-btn" onclick="showTab('bulkTab', this)">الرصد الجماعي</button>
+            <button class="tab-btn" onclick="showTab('secondRoundTab', this)">رصد الدور الثاني</button>
             <button class="tab-btn" onclick="showTab('quickAddTab', this)">إضافة جماعية</button>
             <button class="tab-btn" id="statsTabBtn" onclick="showTab('statsTab', this)">إحصائيات الصفوف</button>
         </div>
@@ -558,6 +553,17 @@
             </select>
             <div id="bulkStudentsContainer"></div>
             <button id="saveAllBulkBtn" class="btn" style="display:none; background:var(--success); color:white; margin-top:15px;" onclick="saveAllBulkData()">حفظ الكل</button>
+        </div>
+
+        <div id="secondRoundTab" class="admin-section">
+             <select id="secondRoundSelectYear" onchange="loadSecondRoundStudentsList()">
+                <option value="">-- اختر الصف لجلب طالبات الدور الثاني --</option>
+                <option value="خامس">خامس</option>
+                <option value="سادس">سادس</option>
+                <option value="سابع">سابع</option>
+                <option value="ثامن">ثامن</option>
+            </select>
+            <div id="secondRoundStudentsContainer"></div>
         </div>
 
         <div id="quickAddTab" class="admin-section">
@@ -715,7 +721,7 @@
                 schoolSubjects[yr].forEach(s => { 
                     if(yr === "خامس") {
                         const conf = officialWeights55[s] || { p1: 36, p2: 36, p3: 48, max: 120, min: 48 };
-                        subs[s] = { p1:0, p1M:conf.p1, p2:0, p2M:conf.p2, p3:0, p3M:conf.p3, firstRoundSum:0, sum:0, max:conf.max, min:conf.min, r2: "" };
+                        subs[s] = { p1:0, p1M:conf.p1, p2:0, p2M:conf.p2, p3:0, p3M:conf.p3, sum:0, max:conf.max, min:conf.min };
                         totalClassMax += conf.max;
                     } else {
                         let defW = 20; let defE = 30;
@@ -725,7 +731,7 @@
                             defW = officialWeights78[s].w; defE = officialWeights78[s].e;
                         }
                         const itemMax = (defW + defE) * 2;
-                        subs[s] = {wG1:0, wM1:defW, eG1:0, eM1:defE, wG2:0, wM2:defW, eG2:0, eM2:defE, firstRoundSum:0, sum:0, max:itemMax, r2: ""}; 
+                        subs[s] = {wG1:0, wM1:defW, eG1:0, eM1:defE, wG2:0, wM2:defW, eG2:0, eM2:defE, sum:0, max:itemMax}; 
                         totalClassMax += itemMax;
                     }
                 });
@@ -766,7 +772,7 @@
                 if(data.year === "خامس") {
                     div.className = "ind-grid grid-style-period3";
                     const conf = officialWeights55[s] || { p1: 36, p2: 36, p3: 48, max: 120 };
-                    const subData = (data.subjects && data.subjects[s]) ? data.subjects[s] : {p1:0, p2:0, p3:0, r2:""};
+                    const subData = (data.subjects && data.subjects[s]) ? data.subjects[s] : {p1:0, p2:0, p3:0};
                     div.innerHTML = `
                         <input type="text" value="${s}" readonly class="sub-name-input">
                         <input type="number" class="p1" value="${subData.p1 || 0}" onfocus="this.select()">
@@ -775,7 +781,6 @@
                         <input type="number" value="${conf.p2}" readonly>
                         <input type="number" class="p3" value="${subData.p3 || 0}" onfocus="this.select()">
                         <input type="number" value="${conf.p3}" readonly>
-                        <input type="number" class="r2 round2-input" value="${subData.r2 ?? ""}" placeholder="دور ثاني" onfocus="this.select()">
                     `;
                 } else {
                     div.className = "ind-grid grid-style-normal";
@@ -785,7 +790,7 @@
                     } else if((data.year === "سابع" || data.year === "ثامن") && officialWeights78[s]) {
                         defaultW = officialWeights78[s].w; defaultE = officialWeights78[s].e;
                     }
-                    const subData = (data.subjects && data.subjects[s]) ? data.subjects[s] : {wG1:0, wM1:defaultW, eG1:0, eM1:defaultE, wG2:0, wM2:defaultW, eG2:0, eM2:defaultE, r2:""};
+                    const subData = (data.subjects && data.subjects[s]) ? data.subjects[s] : {wG1:0, wM1:defaultW, eG1:0, eM1:defaultE, wG2:0, wM2:defaultW, eG2:0, eM2:defaultE};
                     div.innerHTML = `
                         <input type="text" value="${s}" readonly class="sub-name-input">
                         <input type="number" class="wG1" value="${subData.wG1 || 0}" onfocus="this.select()">
@@ -796,7 +801,6 @@
                         <input type="number" class="wM2" value="${defaultW}" readonly>
                         <input type="number" class="eG2" value="${subData.eG2 || 0}" onfocus="this.select()">
                         <input type="number" class="eM2" value="${defaultE}" readonly>
-                        <input type="number" class="r2 round2-input" value="${subData.r2 ?? ""}" placeholder="دور ثاني" onfocus="this.select()">
                     `; 
                 }
                 con.appendChild(div);
@@ -808,10 +812,10 @@
         const lbls = document.getElementById('individualHeaderLabels');
         if(year === "خامس") {
             lbls.className = "bulk-header-labels grid-style-period3";
-            lbls.innerHTML = `<span>المادة</span><span>الفترة 1</span><span>من</span><span>الفترة 2</span><span>من</span><span>الفترة 3</span><span>من</span><span style="color:var(--accent)">دور ثاني</span>`;
+            lbls.innerHTML = `<span>المادة</span><span>الفترة 1</span><span>من</span><span>الفترة 2</span><span>من</span><span>الفترة 3</span><span>من</span>`;
         } else {
             lbls.className = "bulk-header-labels grid-style-normal";
-            lbls.innerHTML = `<span>المادة</span><span>أعمال1</span><span>من</span><span>امتحان1</span><span>من</span><span>أعمال2</span><span>من</span><span>امتحان2</span><span>من</span><span style="color:var(--accent)">دور ثاني</span>`;
+            lbls.innerHTML = `<span>المادة</span><span>أعمال1</span><span>من</span><span>امتحان1</span><span>من</span><span>أعمال2</span><span>من</span><span>امتحان2</span><span>من</span>`;
         }
     }
 
@@ -832,7 +836,6 @@
                     <input type="number" value="${conf.p2}" readonly>
                     <input type="number" class="p3" onfocus="this.select()">
                     <input type="number" value="${conf.p3}" readonly>
-                    <input type="number" class="r2 round2-input" placeholder="دور ثاني" onfocus="this.select()">
                 `;
             } else {
                 div.className = "ind-grid grid-style-normal";
@@ -852,7 +855,6 @@
                     <input type="number" value="${wVal}" class="wM2" readonly>
                     <input type="number" class="eG2" onfocus="this.select()">
                     <input type="number" value="${eVal}" class="eM2" readonly>
-                    <input type="number" class="r2 round2-input" placeholder="دور ثاني" onfocus="this.select()">
                 `;
             }
             con.appendChild(div);
@@ -885,11 +887,11 @@
                 
                 if(yr === "خامس") {
                     html += `<div class="bulk-header-labels grid-style-period3" tabindex="-1">
-                        <span>المادة</span><span>الفترة 1</span><span>من</span><span>الفترة 2</span><span>من</span><span>الفترة 3</span><span>من</span><span style="color:var(--accent)">دور ثاني</span>
+                        <span>المادة</span><span>الفترة 1</span><span>من</span><span>الفترة 2</span><span>من</span><span>الفترة 3</span><span>من</span>
                     </div>`;
                     schoolSubjects[yr].forEach(subName => {
                         const conf = officialWeights55[subName] || { p1: 36, p2: 36, p3: 48 };
-                        const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {p1:"", p2:"", p3:"", r2:""};
+                        const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {p1:"", p2:"", p3:""};
                         html += `<div class="bulk-grid grid-style-period3" data-subject="${subName}">
                             <input type="text" value="${subName}" readonly tabindex="-1" class="sub-name-input">
                             <input type="number" class="p1" value="${subData.p1 ?? ""}" onfocus="this.select()"> 
@@ -898,12 +900,11 @@
                             <input type="number" value="${conf.p2}" readonly tabindex="-1">
                             <input type="number" class="p3" value="${subData.p3 ?? ""}" onfocus="this.select()"> 
                             <input type="number" value="${conf.p3}" readonly tabindex="-1">
-                            <input type="number" class="r2 round2-input" value="${subData.r2 ?? ""}" placeholder="دور 2" onfocus="this.select()">
                         </div>`;
                     });
                 } else {
                     html += `<div class="bulk-header-labels grid-style-normal" tabindex="-1">
-                        <span>المادة</span><span>أعمال1</span><span>من</span><span>امتحان1</span><span>من</span><span>أعمال2</span><span>من</span><span>امتحان2</span><span>من</span><span style="color:var(--accent)">دور ثاني</span>
+                        <span>المادة</span><span>أعمال1</span><span>من</span><span>امتحان1</span><span>من</span><span>أعمال2</span><span>من</span><span>امتحان2</span><span>من</span>
                     </div>`;
                     schoolSubjects[yr].forEach(subName => {
                         let dW = 20; let dE = 30;
@@ -912,7 +913,7 @@
                         } else if((yr === "سابع" || yr === "ثامن") && officialWeights78[subName]) {
                             dW = officialWeights78[subName].w; dE = officialWeights78[subName].e;
                         }
-                        const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG1:"", eG1:"", wG2:"", eG2:"", r2:""};
+                        const subData = (s.subjects && s.subjects[subName]) ? s.subjects[subName] : {wG1:"", eG1:"", wG2:"", eG2:""};
                         html += `<div class="bulk-grid grid-style-normal" data-subject="${subName}">
                             <input type="text" value="${subName}" readonly tabindex="-1" class="sub-name-input">
                             <input type="number" class="wG1" value="${subData.wG1 ?? ""}" onfocus="this.select()"> 
@@ -923,7 +924,6 @@
                             <input type="number" value="${dW}" readonly tabindex="-1">
                             <input type="number" class="eG2" value="${subData.eG2 ?? ""}" onfocus="this.select()"> 
                             <input type="number" value="${dE}" readonly tabindex="-1">
-                            <input type="number" class="r2 round2-input" value="${subData.r2 ?? ""}" placeholder="دور 2" onfocus="this.select()">
                         </div>`;
                     });
                 }
@@ -934,6 +934,94 @@
         });
     }
 
+    function loadSecondRoundStudentsList() {
+        const yr = document.getElementById('secondRoundSelectYear').value;
+        const con = document.getElementById('secondRoundStudentsContainer');
+        if(!yr) { con.innerHTML = ""; return; }
+        document.getElementById('loadingOverlay').style.display='flex';
+        
+        db.ref('students').orderByChild('year').equalTo(yr).once('value', snap => {
+            document.getElementById('loadingOverlay').style.display='none';
+            let studentsList = [];
+            
+            snap.forEach(c => {
+                const s = c.val();
+                let isFail = false;
+                let failedSubs = [];
+                
+                for(let k in s.subjects) {
+                    if(yr === "خامس") {
+                        const conf = officialWeights55[k] || { min: 48 };
+                        if((s.subjects[k].sum || 0) < conf.min) { isFail = true; failedSubs.push(k); }
+                    } else {
+                        const sub = s.subjects[k];
+                        const calculatedMin = (sub.max || 50) / 2;
+                        const examSum = (sub.eG1 || 0) + (sub.eG2 || 0);
+                        const examMax = (sub.eM1 || 0) * 2;
+                        if((sub.sum || 0) < calculatedMin || (examSum < (examMax * 0.4))) { isFail = true; failedSubs.push(k); }
+                    }
+                }
+                
+                if(isFail) {
+                    studentsList.push({ key: c.key, data: s, failedSubs: failedSubs });
+                }
+            });
+            
+            studentsList.sort((a, b) => a.data.name.localeCompare(b.data.name, 'ar'));
+            
+            let html = "";
+            studentsList.forEach(item => {
+                const s = item.data; const id = item.key;
+                const currentStatus = s.secondRoundStatus || "";
+                
+                html += `
+                <div class="bulk-row" style="border-right: 5px solid var(--danger); padding: 15px; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div style="text-align: right;">
+                            <span style="font-weight:900; color:var(--primary); font-size: 15px;">${s.name}</span> 
+                            <span style="color:#64748b; font-size:12px; margin-right:5px;">(${id})</span>
+                            <div style="font-size:11px; color:var(--danger); font-weight:700; margin-top:4px;">
+                                المواد المتعثرة: ${item.failedSubs.join(' - ')}
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <select id="status_sec_${id}" style="width: auto; margin-bottom: 0; padding: 6px; font-weight: bold; border-color: var(--primary);">
+                                <option value="" ${currentStatus === "" ? "selected" : ""}>-- حدد قرار الكنترول --</option>
+                                <option value="pass" ${currentStatus === "pass" ? "selected" : ""}>ناجحة من الدور الثاني وتنقل للصف التالي</option>
+                                <option value="fail" ${currentStatus === "fail" ? "selected" : ""}>راسبة وتُعيد السنة الدراسية</option>
+                            </select>
+                            <button class="btn btn-primary" style="width: auto; padding: 6px 15px; font-size: 13px;" onclick="saveSecondRoundStatus('${id}')">
+                                <i class="fas fa-save"></i> حفظ
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            
+            con.innerHTML = html || "<p style='text-align:center; font-weight:bold; padding:20px; color:#64748b;'>لا توجد طالبات ملحق (دور ثانٍ) في هذا الصف.</p>";
+        });
+    }
+
+    function saveSecondRoundStatus(id) {
+        const status = document.getElementById(`status_sec_${id}`).value;
+        if(!status) return alert("الرجاء اختيار قرار النتيجة (ناجحة أو راسبة) أولاً قبل الحفظ!");
+        
+        document.getElementById('loadingOverlay').style.display='flex';
+        db.ref('students/' + id).update({
+            hasSecondRound: true,
+            secondRoundStatus: status
+        })
+        .then(() => {
+            document.getElementById('loadingOverlay').style.display='none';
+            alert("تم حفظ قرار الدور الثاني للطالبة بنجاح! حيتغير شكل شهادتها تلقائياً عند الاستعلام بالرقم الوطني.");
+            loadSecondRoundStudentsList();
+        })
+        .catch(err => {
+            document.getElementById('loadingOverlay').style.display='none';
+            alert("حدث خطأ أثناء الحفظ: " + err.message);
+        });
+    }
+
     function saveToFirebase() {
         const id = document.getElementById('newStudentID').value; const name = document.getElementById('inName').value; const yr = document.getElementById('inYear').value;
         if(!id || !name || !yr) return alert("أكمل البيانات");
@@ -941,20 +1029,14 @@
         
         document.querySelectorAll('#subjectsContainer > div').forEach(div => {
             const n = div.querySelector('input[type="text"]').value;
-            const r2Input = div.querySelector('.r2');
-            const r2Val = r2Input ? r2Input.value.trim() : "";
-            const hasR2 = r2Val !== "";
-            const r2 = hasR2 ? parseFloat(r2Val) : "";
-
             if(yr === "خامس") {
                 const p1 = parseFloat(div.querySelector('.p1').value) || 0;
                 const p2 = parseFloat(div.querySelector('.p2').value) || 0;
                 const p3 = parseFloat(div.querySelector('.p3').value) || 0;
                 const conf = officialWeights55[n] || { p1: 36, p2: 36, p3: 48, max: 120, min: 48 };
                 
-                const firstRoundSum = p1 + p2 + p3;
-                let currentSum = hasR2 ? r2 : firstRoundSum;
-                subs[n] = { p1, p1M:conf.p1, p2, p2M:conf.p2, p3, p3M:conf.p3, firstRoundSum: firstRoundSum, sum:currentSum, max:conf.max, min:conf.min, r2: r2 };
+                const currentSum = (p1 + p2 + p3);
+                subs[n] = { p1, p1M:conf.p1, p2, p2M:conf.p2, p3, p3M:conf.p3, sum:currentSum, max:conf.max, min:conf.min };
                 tG += currentSum; tM += conf.max;
             } else {
                 const wg1 = parseFloat(div.querySelector('.wG1').value) || 0;
@@ -968,11 +1050,10 @@
                 const wg2 = parseFloat(div.querySelector('.wG2').value) || 0;
                 const eg2 = parseFloat(div.querySelector('.eG2').value) || 0;
 
-                const firstRoundSum = wg1 + eg1 + wg2 + eg2;
-                let currentSum = hasR2 ? (wg1 + wg2 + r2) : firstRoundSum;
+                const currentSum = (wg1 + eg1 + wg2 + eg2);
                 const currentMax = (wDef + eDef) * 2;
 
-                subs[n] = {wG1:wg1, wM1:wDef, eG1:eg1, eM1:eDef, wG2:wg2, wM2:wDef, eG2:eg2, eM2:eDef, firstRoundSum: firstRoundSum, sum:currentSum, max:currentMax, r2: r2}; 
+                subs[n] = {wG1:wg1, wM1:wDef, eG1:eg1, eM1:eDef, wG2:wg2, wM2:wDef, eG2:eg2, eM2:eDef, sum:currentSum, max:currentMax}; 
                 tG += currentSum; tM += currentMax;
             }
         });
@@ -997,20 +1078,14 @@
             
             row.querySelectorAll('.bulk-grid').forEach(grid => {
                 const subName = grid.getAttribute('data-subject');
-                const r2Input = grid.querySelector('.r2');
-                const r2Val = r2Input ? r2Input.value.trim() : "";
-                const hasR2 = r2Val !== "";
-                const r2 = hasR2 ? parseFloat(r2Val) : "";
-
                 if(yr === "خامس") {
                     const p1 = parseFloat(grid.querySelector('.p1').value) || 0;
                     const p2 = parseFloat(grid.querySelector('.p2').value) || 0;
                     const p3 = parseFloat(grid.querySelector('.p3').value) || 0;
                     const conf = officialWeights55[subName] || { p1: 36, p2: 36, p3: 48, max: 120, min: 48 };
                     
-                    const firstRoundSum = p1 + p2 + p3;
-                    let currentSum = hasR2 ? r2 : firstRoundSum;
-                    subs[subName] = { p1, p1M:conf.p1, p2, p2M:conf.p2, p3, p3M:conf.p3, firstRoundSum: firstRoundSum, sum:currentSum, max:conf.max, min:conf.min, r2: r2 };
+                    const currentSum = (p1 + p2 + p3);
+                    subs[subName] = { p1, p1M:conf.p1, p2, p2M:conf.p2, p3, p3M:conf.p3, sum:currentSum, max:conf.max, min:conf.min };
                     tG += currentSum; tM += conf.max;
                 } else {
                     const wg1 = parseFloat(grid.querySelector('.wG1').value) || 0;
@@ -1024,11 +1099,10 @@
                     const wg2 = parseFloat(grid.querySelector('.wG2').value) || 0;
                     const eg2 = parseFloat(grid.querySelector('.eG2').value) || 0;
 
-                    const firstRoundSum = wg1 + eg1 + wg2 + eg2;
-                    let currentSum = hasR2 ? (wg1 + wg2 + r2) : firstRoundSum;
+                    const currentSum = (wg1 + eg1 + wg2 + eg2);
                     const currentMax = (defaultW + defaultE) * 2;
 
-                    subs[subName] = {wG1:wg1, wM1:defaultW, eG1:eg1, eM1:defaultE, wG2:wg2, wM2:defaultW, eG2:eg2, eM2:defaultE, firstRoundSum: firstRoundSum, sum:currentSum, max:currentMax, r2: r2};
+                    subs[subName] = {wG1:wg1, wM1:defaultW, eG1:eg1, eM1:defaultE, wG2:wg2, wM2:defaultW, eG2:eg2, eM2:defaultE, sum:currentSum, max:currentMax};
                     tG += currentSum; tM += currentMax;
                 }
             });
@@ -1056,40 +1130,34 @@
             let rows = "";
             students.forEach(s => {
                 let isFail = false;
-                let isRound2Pass = false;
                 for(let k in s.subjects) {
-                    const sub = s.subjects[k];
-                    const hasR2 = (sub.r2 !== undefined && sub.r2 !== null && sub.r2 !== "");
-
                     if(yr === "خامس") {
                         const conf = officialWeights55[k] || { min: 48 };
-                        if((sub.sum || 0) < conf.min) { isFail = true; break; }
-                        if(hasR2) isRound2Pass = true;
+                        if((s.subjects[k].sum || 0) < conf.min) { isFail = true; break; }
                     } else {
+                        const sub = s.subjects[k];
                         const calculatedMin = (sub.max || 50) / 2;
-                        if(hasR2) {
-                            isRound2Pass = true;
-                            const examMax = (sub.eM1 || 30) * 2;
-                            if((sub.sum || 0) < calculatedMin || (parseFloat(sub.r2) < (examMax * 0.4))) { isFail = true; break; }
-                        } else {
-                            const examSum = (sub.eG1 || 0) + (sub.eG2 || 0);
-                            const examMax = (sub.eM1 || 30) * 2;
-                            if((sub.sum || 0) < calculatedMin || (examSum < (examMax * 0.4))) { isFail = true; break; }
-                        }
+                        const examSum = (sub.eG1 || 0) + (sub.eG2 || 0);
+                        const examMax = (sub.eM1 || 0) * 2;
+                        if((sub.sum || 0) < calculatedMin || (examSum < (examMax * 0.4))) { isFail = true; break; }
                     }
                 }
                 if(isFail) failed++; else passed++;
                 
-                let finalStatusText = "ناجحة";
-                if(isFail) {
-                    finalStatusText = "لها دور ثانٍ";
-                } else if(isRound2Pass) {
-                    finalStatusText = "ناجحة (دور ثاني)";
+                let statusTextOutput = "";
+                if (s.hasSecondRound === true) {
+                    statusTextOutput = s.secondRoundStatus === "pass" ? "ناجحة (دور ثانٍ) 🎓" : "راسبة (إعادة سنة) ⛔";
+                } else {
+                    statusTextOutput = isFail ? 'لها دور ثانٍ' : 'ناجحة';
                 }
 
                 rows += `<tr onclick="viewFromStats('${s.id}')" style="cursor:pointer; border-bottom:1px solid #eee;">
                     <td style="padding:10px; font-weight:700; color:var(--primary);">${s.name} ${s.isResultHidden ? '⛔ (محجوبة)' : ''}</td>
-                    <td style="padding:10px; text-align:center;"><span class="${isFail?'status-fail-text':'status-pass-text'}">${finalStatusText}</span></td>
+                    <td style="padding:10px; text-align:center;">
+                        <span class="${(isFail && (!s.hasSecondRound || s.secondRoundStatus==='fail'))?'status-fail-text':'status-pass-text'}">
+                            ${statusTextOutput}
+                        </span>
+                    </td>
                 </tr>`;
             });
             document.getElementById('countTotal').innerText = students.length;
@@ -1147,8 +1215,39 @@
             document.getElementById('adminMessageArea').innerText = "عذراً، تم حجب النتيجة. يرجى مراجعة إدارة مدرسة الاستقلال لتسوية الوضع الإداري.";
             return;
         }
+
+        if (data.hasSecondRound === true) {
+            wrapper.innerHTML = "";
+            document.getElementById('totalRow').style.display = "none";
+            document.getElementById('percentRow').style.display = "none";
+            document.getElementById('failMissions').style.display = "none";
+            
+            const isPass = data.secondRoundStatus === "pass";
+            const statusText = isPass ? "ناجحة من الدور الثاني وتنقل إلى الصف التالي" : "راسبة وتُعيد السنة الدراسية";
+            
+            document.getElementById('outGrade').innerText = isPass ? "ناجحة (دور ثانٍ)" : "راسبة";
+            document.getElementById('outGrade').className = isPass ? "status-pass-text" : "status-fail-text";
+            
+            wrapper.innerHTML = `
+                <div style="text-align: center; border: 3px double var(--primary); padding: 30px; margin: 15px 0; border-radius: 15px; background: #f8fafc;">
+                    <i class="fas ${isPass ? 'fa-graduation-cap' : 'fa-exclamation-triangle'}" style="font-size: 45px; color: ${isPass ? 'var(--success)' : 'var(--danger)'}; margin-bottom: 12px;"></i>
+                    <h3 style="margin: 5px 0; font-size: 18px; color: var(--text);">قرار لجنة الكنترول والمدرسة النهائي:</h3>
+                    <p style="font-size: 19px; font-weight: 900; color: ${isPass ? 'var(--success)' : 'var(--danger)'}; margin: 15px 0; line-height: 1.6;">
+                        [ ${statusText} ]
+                    </p>
+                </div>
+            `;
+            
+            if(isPass) {
+                document.getElementById('adminMessageArea').innerText = "ألف مبروك النجاح وتجاوز عقبة الدور الثاني! التميز بانتظاركِ العام القادم. 🎉";
+                triggerCelebration();
+            } else {
+                document.getElementById('adminMessageArea').innerText = "قدر الله وما شاء فعل، نثق في قدراتكِ وستعوضينها العام القادم بإصرار أكبر. ❤️";
+            }
+            return;
+        }
         
-        let h = ""; let failed = []; let hasFail = false; let isRound2Student = false;
+        let h = ""; let failed = []; let hasFail = false;
         const sortedKeys = schoolSubjects[data.year] || Object.keys(data.subjects);
 
         if(data.year === "خامس") {
@@ -1180,9 +1279,6 @@
                 if(data.subjects[k]) {
                     const s = data.subjects[k];
                     const conf = officialWeights55[k] || { p1:36, p2:36, p3:48, max:120, min:48 };
-                    const hasR2 = (s.r2 !== undefined && s.r2 !== null && s.r2 !== "");
-                    if(hasR2) isRound2Student = true;
-
                     const isFail = (s.sum || 0) < conf.min;
                     if(isFail) { hasFail = true; failed.push(k); }
 
@@ -1197,9 +1293,7 @@
                         <td>${s.p3 ?? '0'}</td>
                         <td>${conf.max}</td>
                         <td style="color:var(--accent);">${conf.min}</td>
-                        <td style="color:${isFail?'red':(hasR2?'var(--success)':'black')}; font-weight:bold; font-size:13px;">
-                            ${s.sum ?? '0'} ${hasR2 && !isFail ? '<small style="font-size:9px;color:var(--accent)">(دور2)</small>' : ''}
-                        </td>
+                        <td style="color:${isFail?'red':'black'}; font-weight:bold; font-size:13px;">${s.sum ?? '0'}</td>
                     </tr>`;
                 }
             });
@@ -1253,25 +1347,12 @@
                     
                     const calculatedMax = (currentWM1 + currentEM1) * 2;
                     const calculatedMin = calculatedMax / 2;
-                    const hasR2 = (s.r2 !== undefined && s.r2 !== null && s.r2 !== "");
-                    if(hasR2) isRound2Student = true;
-
-                    const displayFirstRoundSum = s.firstRoundSum ?? ((s.wG1 || 0) + (s.eG1 || 0) + (s.wG2 || 0) + (s.eG2 || 0));
-                    const firstRoundExamTotal = (s.eG1 || 0) + (s.eG2 || 0);
+                    
+                    const examTotal = (s.eG1 || 0) + (s.eG2 || 0);
                     const examMax = (currentEM1 * 2);
-                    const failedFirstRound = (displayFirstRoundSum < calculatedMin) || (firstRoundExamTotal < (examMax * 0.4));
-
-                    let isFail = false;
-                    if(hasR2) {
-                        isFail = (s.sum < calculatedMin) || (parseFloat(s.r2) < (examMax * 0.4));
-                    } else {
-                        isFail = failedFirstRound;
-                    }
+                    const isFail = (s.sum < calculatedMin) || (examTotal < (examMax * 0.4));
                     
                     if(isFail) { hasFail=true; failed.push(k); }
-                    
-                    const r2ExamDisplay = hasR2 ? s.r2 : "-";
-                    const r2FinalDisplay = hasR2 ? s.sum : "-";
                     
                     h += `
                     <tr>
@@ -1282,9 +1363,9 @@
                         <td style="border:1px solid #cbd5e1; padding:2px;">${s.wG2 ?? '0'}</td>
                         <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${calculatedMax}</td>
                         <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${calculatedMin}</td>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; color:${failedFirstRound ? 'red' : 'black'}">${displayFirstRoundSum}</td>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:1px; min-width:30px; color:${hasR2 ? 'var(--success)' : 'red'}; font-weight:bold;">${r2ExamDisplay}</td>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; min-width:30px; color:${isFail ? 'red' : 'var(--success)'}; font-weight:bold;">${r2FinalDisplay}</td>
+                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; color:${isFail?'red':'black'}">${s.sum ?? '0'}</td>
+                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:1px; min-width:30px; color:red;">-</td>
+                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; min-width:30px">-</td>
                     </tr>
                     <tr>
                         <td style="border:1px solid #cbd5e1; padding:2px;">امتحان نهاية الفصل</td>
@@ -1316,16 +1397,10 @@
             document.getElementById('outPercent').innerText = realPercent + "%";
             
             let p = parseFloat(realPercent); gradeEl.className = "grade-success-color";
-            
-            if (isRound2Student) {
-                gradeEl.innerText = "ناجحة في الدور الثاني";
-                msg = "ألف مبروك النجاح! النتيجة النهائية: ناجحة في الدور الثاني وتنتقل إلى الصف التالي. العزيمة والإصرار هما سر تفوقك المتجدد. 🌟";
-            } else {
-                if(p>=85) { gradeEl.innerText="ممتاز"; msg = "ما شاء الله! أنتِ فخر لمدرسة الاستقلال، واصلي تألقك يا مبدعة. 🌟"; }
-                else if(p>=75) { gradeEl.innerText="جيد جداً"; msg = "أداء رائع ومتميز، تفصلك خطوات بسيطة عن القمة، بالتوفيق. ✨"; }
-                else if(p>=65) { gradeEl.innerText="جيد"; msg = "نتيجة طيبة، ونحن نثق أن لديكِ قدرات أكبر.. بالتّوفيق! 💪"; }
-                else { gradeEl.innerText="مقبول"; msg = "مبروك النجاح، وبالإصرار ستحققين نتائج أفضل في المرة القادمة. 🌹"; }
-            }
+            if(p>=85) { gradeEl.innerText="ممتاز"; msg = "ما شاء الله! أنتِ فخر لمدرسة الاستقلال، واصلي تألقك يا مبدعة. 🌟"; }
+            else if(p>=75) { gradeEl.innerText="جيد جداً"; msg = "أداء رائع ومتميز، تفصلك خطوات بسيطة عن القمة، بالتوفيق. ✨"; }
+            else if(p>=65) { gradeEl.innerText="جيد"; msg = "نتيجة طيبة، ونحن نثق أن لديكِ قدرات أكبر.. بالتّوفيق! 💪"; }
+            else { gradeEl.innerText="مقبول"; msg = "مبروك النجاح، وبالإصرار ستحققين نتائج أفضل في المرة القادمة. 🌹"; }
             triggerCelebration();
         }
         msgArea.innerText = msg;
