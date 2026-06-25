@@ -266,30 +266,6 @@
             font-size: 9px !important;
         }
 
-        .period-header-wrapper {
-            display: grid;
-            grid-template-rows: 1fr auto;
-            border: none;
-            padding: 0;
-        }
-
-        .period-title {
-            padding: 2px;
-            border-bottom: 1px solid white;
-        }
-
-        .period-sub-headers {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            border: none;
-        }
-
-        .sub-header-item {
-            padding: 2px;
-            border-right: 1px solid white;
-            font-size: 8px;
-        }
-
         .summary-box {
             margin-top: 0;
             border: 2px solid var(--primary);
@@ -608,6 +584,25 @@
 </div>
 
 <script>
+    // --- دالة فحص الرسوب الموحدة (تم إضافتها لتطبيق شروطك) ---
+    function isSubjectFailed(year, sub) {
+        if (year === "خامس") {
+            // شرط الصف الخامس: المجموع الكلي للمادة < 40% من درجتها العظمى
+            return (sub.sum || 0) < (sub.max * 0.4);
+        } else {
+            // شرط الصفوف (6، 7، 8):
+            // 1. المجموع الكلي للمادة < 50% من الدرجة العظمى
+            const totalFailed = (sub.sum || 0) < (sub.max * 0.5);
+            // 2. مجموع درجات الامتحانات < 40% من مجموع درجات الامتحانات العظمى
+            const examGot = (sub.eG1 || 0) + (sub.eG2 || 0);
+            const examMax = (sub.eM1 || 0) + (sub.eM2 || 0);
+            const examFailed = examGot < (examMax * 0.4);
+            
+            return totalFailed || examFailed;
+        }
+    }
+    // --------------------------------------------------------
+
     const firebaseConfig = {
       apiKey: "AIzaSyDKEPjQMKD2lt74sdGM0k796icnyFTmmIQ",
       authDomain: "istiqlal-school-302c8.firebaseapp.com",
@@ -629,14 +624,14 @@
     };
 
     const officialWeights55 = {
-        "التربية الإسلامية": { p1: 36, p2: 36, p3: 48, max: 120, min: 48 },
-        "اللغة العربية": { p1: 48, p2: 48, p3: 64, max: 160, min: 64 },
-        "الكتابة": { p1: 24, p2: 24, p3: 32, max: 80, min: 32 },
-        "اللغة الإنجليزية": { p1: 36, p2: 36, p3: 48, max: 120, min: 48 },
-        "الحاسوب": { p1: 12, p2: 12, p3: 16, max: 40, min: 16 },
-        "الرياضيات": { p1: 60, p2: 60, p3: 80, max: 200, min: 80 },
-        "العلوم": { p1: 36, p2: 36, p3: 48, max: 120, min: 48 },
-        "الاجتماعيات": { p1: 24, p2: 24, p3: 32, max: 80, min: 32 }
+        "التربية الإسلامية": { p1: 36, p2: 36, p3: 48, max: 120 },
+        "اللغة العربية": { p1: 48, p2: 48, p3: 64, max: 160 },
+        "الكتابة": { p1: 24, p2: 24, p3: 32, max: 80 },
+        "اللغة الإنجليزية": { p1: 36, p2: 36, p3: 48, max: 120 },
+        "الحاسوب": { p1: 12, p2: 12, p3: 16, max: 40 },
+        "الرياضيات": { p1: 60, p2: 60, p3: 80, max: 200 },
+        "العلوم": { p1: 36, p2: 36, p3: 48, max: 120 },
+        "الاجتماعيات": { p1: 24, p2: 24, p3: 32, max: 80 }
     };
 
     const officialWeights60 = {
@@ -720,8 +715,8 @@
                 
                 schoolSubjects[yr].forEach(s => { 
                     if(yr === "خامس") {
-                        const conf = officialWeights55[s] || { p1: 36, p2: 36, p3: 48, max: 120, min: 48 };
-                        subs[s] = { p1:0, p1M:conf.p1, p2:0, p2M:conf.p2, p3:0, p3M:conf.p3, sum:0, max:conf.max, min:conf.min };
+                        const conf = officialWeights55[s] || { p1: 36, p2: 36, p3: 48, max: 120 };
+                        subs[s] = { p1:0, p1M:conf.p1, p2:0, p2M:conf.p2, p3:0, p3M:conf.p3, sum:0, max:conf.max };
                         totalClassMax += conf.max;
                     } else {
                         let defW = 20; let defE = 30;
@@ -794,13 +789,13 @@
                     div.innerHTML = `
                         <input type="text" value="${s}" readonly class="sub-name-input">
                         <input type="number" class="wG1" value="${subData.wG1 || 0}" onfocus="this.select()">
-                        <input type="number" class="wM1" value="${defaultW}" readonly>
+                        <input type="number" value="${defaultW}" readonly>
                         <input type="number" class="eG1" value="${subData.eG1 || 0}" onfocus="this.select()">
-                        <input type="number" class="eM1" value="${defaultE}" readonly>
+                        <input type="number" value="${defaultE}" readonly>
                         <input type="number" class="wG2" value="${subData.wG2 || 0}" onfocus="this.select()">
-                        <input type="number" class="wM2" value="${defaultW}" readonly>
+                        <input type="number" value="${defaultW}" readonly>
                         <input type="number" class="eG2" value="${subData.eG2 || 0}" onfocus="this.select()">
-                        <input type="number" class="eM2" value="${defaultE}" readonly>
+                        <input type="number" value="${defaultE}" readonly>
                     `; 
                 }
                 con.appendChild(div);
@@ -848,13 +843,13 @@
                 div.innerHTML = `
                     <input type="text" value="${s}" readonly class="sub-name-input"> 
                     <input type="number" class="wG1" onfocus="this.select()">
-                    <input type="number" value="${wVal}" class="wM1" readonly>
+                    <input type="number" value="${wVal}" readonly>
                     <input type="number" class="eG1" onfocus="this.select()">
-                    <input type="number" value="${eVal}" class="eM1" readonly>
+                    <input type="number" value="${eVal}" readonly>
                     <input type="number" class="wG2" onfocus="this.select()">
-                    <input type="number" value="${wVal}" class="wM2" readonly>
+                    <input type="number" value="${wVal}" readonly>
                     <input type="number" class="eG2" onfocus="this.select()">
-                    <input type="number" value="${eVal}" class="eM2" readonly>
+                    <input type="number" value="${eVal}" readonly>
                 `;
             }
             con.appendChild(div);
@@ -950,15 +945,10 @@
                 let failedSubs = [];
                 
                 for(let k in s.subjects) {
-                    if(yr === "خامس") {
-                        const conf = officialWeights55[k] || { min: 48 };
-                        if((s.subjects[k].sum || 0) < conf.min) { isFail = true; failedSubs.push(k); }
-                    } else {
-                        const sub = s.subjects[k];
-                        const calculatedMin = (sub.max || 50) / 2;
-                        const examSum = (sub.eG1 || 0) + (sub.eG2 || 0);
-                        const examMax = (sub.eM1 || 0) * 2;
-                        if((sub.sum || 0) < calculatedMin || (examSum < (examMax * 0.4))) { isFail = true; failedSubs.push(k); }
+                    // استخدام دالة الفحص الموحدة
+                    if(isSubjectFailed(yr, s.subjects[k])) {
+                        isFail = true; 
+                        failedSubs.push(k);
                     }
                 }
                 
@@ -1013,7 +1003,7 @@
         })
         .then(() => {
             document.getElementById('loadingOverlay').style.display='none';
-            alert("تم حفظ قرار الدور الثاني للطالبة بنجاح! حيتغير شكل شهادتها تلقائياً عند الاستعلام بالرقم الوطني.");
+            alert("تم حفظ قرار الدور الثاني للطالبة بنجاح!");
             loadSecondRoundStudentsList();
         })
         .catch(err => {
@@ -1033,10 +1023,10 @@
                 const p1 = parseFloat(div.querySelector('.p1').value) || 0;
                 const p2 = parseFloat(div.querySelector('.p2').value) || 0;
                 const p3 = parseFloat(div.querySelector('.p3').value) || 0;
-                const conf = officialWeights55[n] || { p1: 36, p2: 36, p3: 48, max: 120, min: 48 };
+                const conf = officialWeights55[n] || { p1: 36, p2: 36, p3: 48, max: 120 };
                 
                 const currentSum = (p1 + p2 + p3);
-                subs[n] = { p1, p1M:conf.p1, p2, p2M:conf.p2, p3, p3M:conf.p3, sum:currentSum, max:conf.max, min:conf.min };
+                subs[n] = { p1, p1M:conf.p1, p2, p2M:conf.p2, p3, p3M:conf.p3, sum:currentSum, max:conf.max };
                 tG += currentSum; tM += conf.max;
             } else {
                 const wg1 = parseFloat(div.querySelector('.wG1').value) || 0;
@@ -1082,10 +1072,10 @@
                     const p1 = parseFloat(grid.querySelector('.p1').value) || 0;
                     const p2 = parseFloat(grid.querySelector('.p2').value) || 0;
                     const p3 = parseFloat(grid.querySelector('.p3').value) || 0;
-                    const conf = officialWeights55[subName] || { p1: 36, p2: 36, p3: 48, max: 120, min: 48 };
+                    const conf = officialWeights55[subName] || { p1: 36, p2: 36, p3: 48, max: 120 };
                     
                     const currentSum = (p1 + p2 + p3);
-                    subs[subName] = { p1, p1M:conf.p1, p2, p2M:conf.p2, p3, p3M:conf.p3, sum:currentSum, max:conf.max, min:conf.min };
+                    subs[subName] = { p1, p1M:conf.p1, p2, p2M:conf.p2, p3, p3M:conf.p3, sum:currentSum, max:conf.max };
                     tG += currentSum; tM += conf.max;
                 } else {
                     const wg1 = parseFloat(grid.querySelector('.wG1').value) || 0;
@@ -1131,15 +1121,9 @@
             students.forEach(s => {
                 let isFail = false;
                 for(let k in s.subjects) {
-                    if(yr === "خامس") {
-                        const conf = officialWeights55[k] || { min: 48 };
-                        if((s.subjects[k].sum || 0) < conf.min) { isFail = true; break; }
-                    } else {
-                        const sub = s.subjects[k];
-                        const calculatedMin = (sub.max || 50) / 2;
-                        const examSum = (sub.eG1 || 0) + (sub.eG2 || 0);
-                        const examMax = (sub.eM1 || 0) * 2;
-                        if((sub.sum || 0) < calculatedMin || (examSum < (examMax * 0.4))) { isFail = true; break; }
+                    if(isSubjectFailed(yr, s.subjects[k])) {
+                        isFail = true;
+                        break;
                     }
                 }
                 if(isFail) failed++; else passed++;
@@ -1255,10 +1239,10 @@
                 <thead>
                     <tr>
                         <th style="width:20%; font-weight:bold;" rowspan="2">المواد الدراسية المقررة</th>
-                        <th colspan="2">الفترة الأولى <br> 30%</th>
-                        <th colspan="2">الفترة الثانية <br> 30%</th>
-                        <th colspan="2">الفترة الثالثة <br> 40%</th>
-                        <th colspan="3">النتيجة النهائية 100%</th>
+                        <th colspan="2">الفترة الأولى</th>
+                        <th colspan="2">الفترة الثانية</th>
+                        <th colspan="2">الفترة الثالثة</th>
+                        <th colspan="2">النتيجة النهائية</th>
                     </tr>
                     <tr>
                         <th>الدرجة الكبرى</th>
@@ -1268,8 +1252,7 @@
                         <th>الدرجة الكبرى</th>
                         <th>درجة التلميذ</th>
                         <th>الدرجة الكبرى</th>
-                        <th>الدرجة الصغرى</th>
-                        <th>درجة التلميذ</th>
+                        <th>الدرجة</th>
                     </tr>
                 </thead>
                 <tbody>`;
@@ -1277,8 +1260,10 @@
             sortedKeys.forEach(k => {
                 if(data.subjects[k]) {
                     const s = data.subjects[k];
-                    const conf = officialWeights55[k] || { p1:36, p2:36, p3:48, max:120, min:48 };
-                    const isFail = (s.sum || 0) < conf.min;
+                    const conf = officialWeights55[k] || { p1:36, p2:36, p3:48, max:120 };
+                    
+                    // استخدام دالة الفحص
+                    const isFail = isSubjectFailed(data.year, s);
                     if(isFail) { hasFail = true; failed.push(k); }
 
                     h += `
@@ -1290,20 +1275,13 @@
                         <td>${s.p2 ?? '0'}</td>
                         <td>${conf.p3}</td>
                         <td>${s.p3 ?? '0'}</td>
-                        <td>${conf.max}</td>
-                        <td style="color:var(--accent);">${conf.min}</td>
+                        <td>${s.max}</td>
                         <td style="color:${isFail?'red':'black'}; font-weight:bold; font-size:13px;">${s.sum ?? '0'}</td>
                     </tr>`;
                 }
             });
             
-            h += `
-                <tr class="empty-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr class="empty-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr class="empty-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr class="empty-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr class="empty-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            </tbody></table>`;
+            h += `</tbody></table>`;
             wrapper.innerHTML = h;
 
         } else {
@@ -1313,22 +1291,19 @@
                     <tr>
                         <th rowspan="3" style="width: 20%;">المادة</th>
                         <th colspan="4">درجة الفصلين</th>
-                        <th colspan="6">النتيجة النهائية للتلميذ</th>
+                        <th colspan="4">النتيجة النهائية للتلميذ</th>
                     </tr>
                     <tr>
                         <th rowspan="2">التفاصيل</th>
                         <th rowspan="2">الدرجة المقررة لكل فصل</th>
                         <th colspan="2">درجة التلميذ</th>
-                        <th colspan="2">النهايات</th>
+                        <th rowspan="2">النهاية الكبرى</th>
                         <th rowspan="2">مجموع الفصلين</th>
-                        <th rowspan="2" style="padding: 1px; font-size: 9px; min-width: 30px; line-height: 1.1;">امتحان<br>الدور<br>الثاني<br>40%</th>
-                        <th rowspan="2">نتيجة الدور الثاني</th>
+                        <th rowspan="2">حالة المادة</th>
                     </tr>
                     <tr>
                         <th>الفصل الأول</th>
                         <th>الفصل الثاني</th>
-                        <th>كُبرى</th>
-                        <th>صُغرى</th>
                     </tr>
                 </thead>
                 <tbody>`;
@@ -1336,21 +1311,11 @@
             sortedKeys.forEach(k => {
                 if(data.subjects[k]) {
                     const s = data.subjects[k]; 
+                    // حساب القيم بناءً على المعطيات الموجودة أو افتراضات
                     let currentWM1 = s.wM1 ?? 20; let currentEM1 = s.eM1 ?? 30;
                     
-                    if(data.year === "سادس" && officialWeights60[k]) {
-                        currentWM1 = officialWeights60[k].w; currentEM1 = officialWeights60[k].e;
-                    } else if((data.year === "سابع" || data.year === "ثامن") && officialWeights78[k]) {
-                        currentWM1 = officialWeights78[k].w; currentEM1 = officialWeights78[k].e;
-                    }
-                    
-                    const calculatedMax = (currentWM1 + currentEM1) * 2;
-                    const calculatedMin = calculatedMax / 2;
-                    
-                    const examTotal = (s.eG1 || 0) + (s.eG2 || 0);
-                    const examMax = (currentEM1 * 2);
-                    const isFail = (s.sum < calculatedMin) || (examTotal < (examMax * 0.4));
-                    
+                    // استخدام دالة الفحص
+                    const isFail = isSubjectFailed(data.year, s);
                     if(isFail) { hasFail=true; failed.push(k); }
                     
                     h += `
@@ -1360,11 +1325,9 @@
                         <td style="border:1px solid #cbd5e1; padding:2px;">${currentWM1}</td>
                         <td style="border:1px solid #cbd5e1; padding:2px;">${s.wG1 ?? '0'}</td>
                         <td style="border:1px solid #cbd5e1; padding:2px;">${s.wG2 ?? '0'}</td>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${calculatedMax}</td>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${calculatedMin}</td>
+                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px;">${s.max}</td>
                         <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; color:${isFail?'red':'black'}">${s.sum ?? '0'}</td>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:1px; min-width:30px; color:red;">-</td>
-                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; min-width:30px">-</td>
+                        <td rowspan="2" style="vertical-align:middle; border:1px solid #cbd5e1; padding:2px; color:${isFail?'red':'var(--success)'}">${isFail?'راسبة':'ناجحة'}</td>
                     </tr>
                     <tr>
                         <td style="border:1px solid #cbd5e1; padding:2px;">امتحان نهاية الفصل</td>
